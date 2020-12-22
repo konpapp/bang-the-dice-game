@@ -3,6 +3,7 @@
 ### References
 
 - [BANG! The Card Game](https://github.com/dagothig/node-bang)
+- [BANG! The Dice Game in Python](https://github.com/mrgriffin/genbang)
 - [Dice Game](https://github.com/sabival89/dice-game)
 
 ### Roles
