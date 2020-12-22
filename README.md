@@ -1,3 +1,5 @@
+# BANG! The Card Game
+
 ### References
 
 - [BANG! The Card Game](https://github.com/dagothig/node-bang)
