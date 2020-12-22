@@ -27,4 +27,4 @@ git push origin authenticate_user
 ```
 (to authenticate_user 8a antikatasta8ei me to onoma tou branch sas)
 
-afou kanete push sto branch pou ftia3ete, sto gitlab page anoigete merge request (an dn yparxei hdh), kanete assign to branch, kai bazete mprosta 'WIP' (work in progress) gia na mhn mporei na ginei merged mexri na einai etoimo. Sto merge request 8a kanoume thn kouventa kai ta comments panw ston kwdika, exei gamata utilities to gitlab g auto
+afou kanete push sto branch pou ftia3ete, sto gitlab page anoigete merge request (an dn yparxei hdh), kanete assign to source branch to branch pou anoi3ate molis kai target branch to master branch, kai bazete mprosta 'WIP' (work in progress) gia na mhn mporei na ginei merged mexri na einai etoimo. Sto merge request 8a kanoume thn kouventa kai ta comments panw ston kwdika, exei gamata utilities to gitlab g auto
