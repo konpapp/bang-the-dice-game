@@ -22,7 +22,7 @@ git checkout authenticate_user
 kanete tis montes pou 8elete ston kwdika kai otan 8elete na kanete upload: 
 
 ```
-git commit -m "commit message"
+git commit -am "commit message"
 git push origin authenticate_user
 ```
 (to authenticate_user 8a antikatasta8ei me to onoma tou branch sas)
