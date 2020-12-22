@@ -1,4 +1,4 @@
-# BANG! The Card Game
+# BANG! The Dice Game
 
 ### References
 
