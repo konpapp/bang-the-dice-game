@@ -1,4 +1,4 @@
-#Contribution Guideline:
+# Contribution Guideline:
 
 afou settarete git kai ssh keys (exei tutorial sto gitlab) anoigete powershell kai:
 
