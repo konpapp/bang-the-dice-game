@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 module.exports = function (app, myDataBase) {
   app.route('/').get((req, res) => {
     // Change the response to render the Pug template
-    res.render('pug', { title: '', message: 'Please login', showLogin: true, showRegistration: true, showSocialAuth: true });
+    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false });
   });
   app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
     res.redirect('/chat');

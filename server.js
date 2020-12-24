@@ -58,11 +58,14 @@ myDB(async (client) => {
 
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      io.emit('max users', { message: 'Player limit reached' });
+      io.emit('max users', {
+        message: 'Player limit reached', 
+        loggedUsers });
       --currentUsers;
       console.log('Player limit reached. User attempted to connect');
       return false;
     }
+
     loggedUsers.push(socket.request.user.name || socket.request.user.username);
     io.emit('user', {
       name: socket.request.user.name || socket.request.user.username,
