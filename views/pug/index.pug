@@ -1,0 +1,46 @@
+html
+  head
+    title BANG! The Dice Game
+    meta(name='description', content='Home page')
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', href='/public/style.css')
+  body
+    h1.border.center BANG! The Dice Game
+    h2.center#pug-success-message Play with your friends online #{title}
+    p.center#pug-variable=message
+    
+    
+    
+    if showLogin
+      hr
+      h2.center Login Form
+      form(action='/login', method='post').center
+        div
+          label Username:
+          input(type='text', name='username')
+        div
+          label Password:
+          input(type='password', name='password')
+        div
+          input(class='btn', type='submit', value='Log In')
+          
+    if showRegistration
+      hr
+      h2.center Registration Form
+      form(action='/register', method='post').center
+        div
+          label Username:
+          input(type='text', name='username')
+        div
+          label Password:
+          input(type='password', name='password')
+        div
+          input(class='btn', type='submit', value='Register')
+
+    if showSocialAuth
+      hr
+      h2.center Social Login
+      .login.center
+        a(href='/auth/github').text Login with Github!

@@ -1,0 +1,173 @@
+body {
+  background: rgb(139, 139, 139);
+}
+
+.border {
+  border-style: inset;
+  border-width: 1px;
+  margin: 10px;
+}
+
+.center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div > input {
+  margin: 0.5rem;
+}
+
+.login {
+  border: solid 2px #777;
+  width: 50%;
+  background-color: aliceblue;
+}
+
+a.text {
+  text-decoration: none;
+  font-weight: 700;
+}
+
+form {
+  padding: 3px;
+  width: 400px;
+}
+
+form input {
+  background-color: rgb(145, 143, 143);
+  border: silver solid 2px;
+  padding: 10px; 
+  width: 70%; 
+  margin-right: .5%;
+}
+
+form button { 
+  width: 15%;
+  background: rgb(130, 224, 255);
+  border: none; 
+  padding: 10px; 
+}
+
+.btn {
+  background: rgb(85, 85, 85);
+  color: white;
+}
+
+.btn:hover {
+  background: rgb(29, 29, 29);
+  color: white;
+  cursor: pointer;
+}
+
+#messages { 
+  width: 400px; 
+  list-style-type: none;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  height: 20em;
+  overflow: scroll;
+  overflow-x: hidden;
+  float: left;
+}
+
+#messages li { 
+  padding: 5px 10px;
+}
+
+#messages li:nth-child(odd) { 
+  background: #eee;
+}
+
+.board {
+  width: 900px;
+  height: 500px;
+  margin-right: 20px;
+  border: 3px solid rgb(128, 94, 0);
+  position: relative;
+  float: right;
+}
+
+#pos1 {
+  border: 2px solid black;
+  position: absolute;
+  bottom: 0px;
+  right: 375px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos2 {
+  border: 2px solid black;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos3 {
+  border: 2px solid black;
+  position: absolute;
+  bottom: 215px;
+  left: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos4 {
+  border: 2px solid black;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos5 {
+  border: 2px solid black;
+  position: absolute;
+  top: 0px;
+  right: 375px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos6 {
+  border: 2px solid black;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos7 {
+  border: 2px solid black;
+  position: absolute;
+  bottom: 215px;
+  right: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+#pos8 {
+  border: 2px solid black;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+
+
