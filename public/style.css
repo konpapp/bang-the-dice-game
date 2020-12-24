@@ -89,84 +89,53 @@ form button {
   float: right;
 }
 
-#pos1 {
+.board-border {
   border: 2px solid black;
   position: absolute;
-  bottom: 0px;
-  right: 375px;
   width: 150px;
   height: 70px;
   margin: 10px;
+  
+}
+
+#pos1 {
+  right: 375px;
+  bottom: 0px;
 }
 
 #pos2 {
-  border: 2px solid black;
-  position: absolute;
   bottom: 0px;
   left: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos3 {
-  border: 2px solid black;
-  position: absolute;
   bottom: 215px;
   left: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos4 {
-  border: 2px solid black;
-  position: absolute;
   top: 0px;
   left: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos5 {
-  border: 2px solid black;
-  position: absolute;
   top: 0px;
   right: 375px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos6 {
-  border: 2px solid black;
-  position: absolute;
   top: 0px;
   right: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos7 {
-  border: 2px solid black;
-  position: absolute;
   bottom: 215px;
   right: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 #pos8 {
-  border: 2px solid black;
-  position: absolute;
   bottom: 0px;
   right: 0px;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
 }
 
 
