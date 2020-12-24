@@ -8,7 +8,7 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
-    $('.board-border').text('');
+    $('.pos-border').text('');
     for (let i=0; i < data.loggedUsers.length; i++) {
       $(`#pos${i + 1}`).text(data.loggedUsers[i]);
     }

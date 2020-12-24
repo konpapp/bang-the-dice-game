@@ -89,13 +89,12 @@ form button {
   float: right;
 }
 
-.board-border {
+.pos-border {
   border: 2px solid black;
   position: absolute;
   width: 150px;
   height: 70px;
   margin: 10px;
-  
 }
 
 #pos1 {
@@ -137,6 +136,5 @@ form button {
   bottom: 0px;
   right: 0px;
 }
-
 
 
