@@ -165,3 +165,16 @@ form button {
 }
 
 
+.pos-border-canvas {
+  border: 2px solid black;
+  position: absolute;
+  width: 220px;
+  height: 105px;
+  margin: 10px;
+}
+
+#application {
+  right: 375px;
+  bottom: 215px;
+}
+
