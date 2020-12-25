@@ -8,9 +8,16 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
-    $('.pos-border').text('');
-    for (let i=0; i < data.loggedUsers.length; i++) {
-      $(`#pos${i + 1}`).text(data.loggedUsers[i]);
+    $('.pos-border, .pos-border-rdy').text('');
+    let counter = 0;
+    for (let user in data.loggedUsers) {
+      counter++;
+      $(`#pos${counter}`).removeClass('pos-border-rdy').addClass('pos-border');
+      $(`#pos${counter}`).text(user);
+      // Ready check
+      if (data.loggedUsers[user]) {
+        $(`#pos${counter}`).removeClass('pos-border').addClass('pos-border-rdy');
+      }
     }
     if (data.currentUsers === 1) {
       $('#num-users').text(data.currentUsers + ' user online');
@@ -20,16 +27,29 @@ $(document).ready(function () {
   });
 
   socket.on('chat message', (data) => {
-    console.log('socket.on 1');
     $('#messages').append($('<li>').text(`${data.name}: ${data.message}`));
   });
 
+  socket.on('ready button', (data) => {
+    if ($(`#pos${data.posNum}`).hasClass("pos-border")) {
+      $(`#pos${data.posNum}`).removeClass('pos-border').addClass('pos-border-rdy');
+    } else {
+      $(`#pos${data.posNum}`).removeClass('pos-border-rdy').addClass('pos-border');
+    }
+  })
+
   // Form submittion with new message in field with id 'm'
-  $('form').submit(function () {
+  $('#msg-form').submit(function () {
     let messageToSend = $('#m').val();
     // Send message to server here?
     socket.emit('chat message', messageToSend);
     $('#m').val('');
     return false; // Prevent form submit from refreshing page
   });
+
+  $('#rdy-form').submit(function () {
+    socket.emit('ready button');
+    return false;
+  })
+
 });
