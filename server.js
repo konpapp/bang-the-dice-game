@@ -6,6 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes');
 const auth = require('./auth.js');
+const game = require('./game.js');
 
 const app = express();
 const http = require('http').createServer(app);
@@ -47,17 +48,18 @@ io.use(
 
 myDB(async (client) => {
   const myDataBase = await client.db('database').collection('users');
-
+  
   routes(app, myDataBase);
   auth(app, myDataBase);
 
   let currentUsers = 0;
+  let finalUsers = [];
   // loggedUsers -> Object with users as keys and ready status as values
   // example: { alice: true }
   let loggedUsers = {};
   io.on('connection', (socket) => {
     ++currentUsers;
-
+    
     // Game is played with max 8 players
     if (currentUsers > 8) {
       if (Object.keys(loggedUsers).length > 8) {
@@ -75,7 +77,7 @@ myDB(async (client) => {
       currentUsers,
       connected: true
     });
-
+    console.log('A user has connected');
     socket.on('chat message', (message) => {
       io.emit('chat message', { 
         name: socket.request.user.username, message });
@@ -95,14 +97,19 @@ myDB(async (client) => {
       io.emit('ready button', { 
         name: socket.request.user.username, posNum, loggedUsers });
     });
+
     socket.on('start game', (loggedUsers) => {
-      let players = [];
+      let finalUsers = [];
+      let creatorId;
       for (let user in loggedUsers) {
-        players.push(user);
+        finalUsers.push(user)
       }
-      io.emit('start game', players);
+      if (socket.request.user.username == finalUsers[0]) {
+        let players = game.getRoles(finalUsers);
+        io.emit('start game', { players });
+      }   
     })
-    console.log('A user has connected');
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected');
       --currentUsers;
