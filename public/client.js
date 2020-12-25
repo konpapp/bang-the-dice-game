@@ -3,7 +3,8 @@
 $(document).ready(function () {
   /* Global io */
   let socket = io();
-
+  
+  
   socket.on('max users', (data) => {
     $('#num-users').text(data.message)
     data.connected = false;
@@ -68,8 +69,12 @@ $(document).ready(function () {
   })
 
   // Start the game
-  socket.on('start game', (users) => {
-    getRoles(users);
+  socket.on('start game', (data) => {
+    for (let i=0; i < data.players.length; i++) {
+      if (data.players[i].role == 'sheriff') {
+        $('#num-users').text(data.players[i].name + ' is the Sheriff.');
+      }
+    }
   })
 
 });
