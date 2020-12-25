@@ -60,6 +60,11 @@ form button {
   cursor: pointer;
 }
 
+#rdy-btn {
+  width: 100%;
+  font-size: large;
+}
+
 #messages { 
   width: 400px; 
   list-style-type: none;
@@ -84,13 +89,35 @@ form button {
   width: 900px;
   height: 500px;
   margin-right: 20px;
+  border-radius: 15px;
   border: 3px solid rgb(128, 94, 0);
+  background: rgb(128, 94, 0);
   position: relative;
   float: right;
 }
 
 .pos-border {
-  border: 2px solid black;
+  border: 5px solid black;
+  border-radius: 25px;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  position: absolute;
+  width: 150px;
+  height: 70px;
+  margin: 10px;
+}
+
+.pos-border-rdy {
+  border: 5px solid lightgreen;
+  border-radius: 25px;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
   position: absolute;
   width: 150px;
   height: 70px;

@@ -52,23 +52,23 @@ myDB(async (client) => {
   auth(app, myDataBase);
 
   let currentUsers = 0;
-  let loggedUsers = [];
+  // loggedUsers -> Object with users as keys and ready status as values
+  // example: { alice: true }
+  let loggedUsers = {};
   io.on('connection', (socket) => {
     ++currentUsers;
 
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      io.emit('max users', {
-        message: 'Player limit reached', 
-        loggedUsers });
+      io.emit('max users', { message: 'Player limit reached' });
       --currentUsers;
       console.log('Player limit reached. User attempted to connect');
       return false;
     }
 
-    loggedUsers.push(socket.request.user.name || socket.request.user.username);
+    loggedUsers[socket.request.user.username] = false;
     io.emit('user', {
-      name: socket.request.user.name || socket.request.user.username,
+      name: socket.request.user.username,
       loggedUsers,
       currentUsers,
       connected: true
@@ -76,15 +76,29 @@ myDB(async (client) => {
 
     socket.on('chat message', (message) => {
       io.emit('chat message', { 
-        name: socket.request.user.name || socket.request.user.username, message });
+        name: socket.request.user.username, message });
+    });
+    socket.on('ready button', () => {
+      let posNum = 0;
+      for (let user in loggedUsers) {
+        posNum++;
+        if (user == socket.request.user.username) {
+          if (loggedUsers[user]) {
+            loggedUsers[user] = false 
+          } else { loggedUsers[user] = true }
+          break;
+        }
+      }
+      io.emit('ready button', { 
+        name: socket.request.user.username, posNum });
     });
     console.log('A user has connected');
     socket.on('disconnect', () => {
       console.log('A user has disconnected');
       --currentUsers;
-      loggedUsers = loggedUsers.filter((user) => user !== socket.request.user.username)
+      delete loggedUsers[socket.request.user.username];
       io.emit('user', {
-        name: socket.request.user.name || socket.request.user.username,
+        name: socket.request.user.username,
         loggedUsers,
         currentUsers,
         connected: false
