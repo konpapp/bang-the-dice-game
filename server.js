@@ -60,10 +60,12 @@ myDB(async (client) => {
 
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      io.emit('max users', { message: 'Player limit reached' });
-      --currentUsers;
-      console.log('Player limit reached. User attempted to connect');
-      return false;
+      if (Object.keys(loggedUsers).length > 8) {
+        io.emit('max users', { message: 'Player limit reached' });
+        --currentUsers;
+        console.log('Player limit reached. User attempted to connect');
+        return false;
+      }
     }
 
     loggedUsers[socket.request.user.username] = false;
@@ -78,20 +80,28 @@ myDB(async (client) => {
       io.emit('chat message', { 
         name: socket.request.user.username, message });
     });
+    
     socket.on('ready button', () => {
       let posNum = 0;
       for (let user in loggedUsers) {
         posNum++;
         if (user == socket.request.user.username) {
           if (loggedUsers[user]) {
-            loggedUsers[user] = false 
-          } else { loggedUsers[user] = true }
+            loggedUsers[user] = false; 
+          } else { loggedUsers[user] = true; }
           break;
         }
       }
       io.emit('ready button', { 
-        name: socket.request.user.username, posNum });
+        name: socket.request.user.username, posNum, loggedUsers });
     });
+    socket.on('start game', (loggedUsers) => {
+      let players = [];
+      for (let user in loggedUsers) {
+        players.push(user);
+      }
+      io.emit('start game', players);
+    })
     console.log('A user has connected');
     socket.on('disconnect', () => {
       console.log('A user has disconnected');
