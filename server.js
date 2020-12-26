@@ -58,6 +58,14 @@ myDB(async (client) => {
   // example: { alice: true }
   let loggedUsers = {};
   io.on('connection', (socket) => {
+    // Not allow double sessions or page refresh
+    for (let user in loggedUsers) {
+      if (socket.request.user.username == user) {
+        socket.disconnect();
+        return false;
+      }
+    }
+
     ++currentUsers;
     
     // Game is played with max 8 players
