@@ -4,6 +4,10 @@ $(document).ready(function () {
   /* Global io */
   let socket = io();
   
+  socket.on('disconnect', function () {
+    alert('Existing user. Disconnected from server.');
+    window.location = "/"; 
+  });
   
   socket.on('max users', (data) => {
     $('#num-users').text(data.message)
