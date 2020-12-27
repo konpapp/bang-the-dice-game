@@ -60,7 +60,7 @@ myDB(async (client) => {
   // example: { alice: true }
   let loggedUsers = {};
   io.on('connection', (socket) => {
-    ++currentUsers;
+    
     // Do not allow double sessions
     for (let user in loggedUsers) {
       if (socket.request.user.username == user) {
@@ -68,15 +68,15 @@ myDB(async (client) => {
         return false;
       }
     }
+
+    ++currentUsers;
     
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      if (Object.keys(loggedUsers).length > 8) {
-        io.emit('max users', { message: 'Player limit reached' });
-        --currentUsers;
-        console.log('Player limit reached. User attempted to connect');
-        return false;
-      }
+      io.emit('max users', { message: 'Player limit reached' });
+      --currentUsers;
+      console.log('Player limit reached. User attempted to connect');
+      return false;
     }
 
     loggedUsers[socket.request.user.username] = false;
