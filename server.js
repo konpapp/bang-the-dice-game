@@ -5,6 +5,7 @@ const myDB = require('./connection');
 const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes');
+
 const auth = require('./auth.js');
 const game = require('./game.js');
 
@@ -47,26 +48,26 @@ io.use(
 );
 
 myDB(async (client) => {
-  const myDataBase = await client.db('database').collection('users');
+  const myDataBase = await client.db('database').collection('users')
   
   routes(app, myDataBase);
   auth(app, myDataBase);
 
   let currentUsers = 0;
   let finalUsers = [];
+  
   // loggedUsers -> Object with users as keys and ready status as values
   // example: { alice: true }
   let loggedUsers = {};
   io.on('connection', (socket) => {
-    // Not allow double sessions or page refresh
+    ++currentUsers;
+    // Do not allow double sessions
     for (let user in loggedUsers) {
       if (socket.request.user.username == user) {
         socket.disconnect();
         return false;
       }
     }
-
-    ++currentUsers;
     
     // Game is played with max 8 players
     if (currentUsers > 8) {
