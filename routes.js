@@ -1,5 +1,7 @@
 const passport = require('passport');
 const bcrypt = require('bcrypt');
+const shortid = require('shortid');
+
 
 module.exports = function (app, myDataBase) {
   app.route('/').get((req, res) => {
@@ -8,7 +10,7 @@ module.exports = function (app, myDataBase) {
       res.render('pug', { title: '', message: '', showLogin: false, showRegistration: false, showSocialAuth: false, showCreateGame: true });
     } else {
     // Change the response to render the Pug template
-    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false, });
+    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: true, });
     }
   });
   app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
