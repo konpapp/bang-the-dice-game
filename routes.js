@@ -3,10 +3,18 @@ const bcrypt = require('bcrypt');
 
 module.exports = function (app, myDataBase) {
   app.route('/').get((req, res) => {
+
+    if(req.isAuthenticated()) {
+      res.render('pug', { title: '', message: '', showLogin: false, showRegistration: false, showSocialAuth: false, showCreateGame: true });
+    } else {
     // Change the response to render the Pug template
-    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false });
+    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false, });
+    }
   });
   app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
+    res.redirect('/');
+  });
+  app.route('/create').post(ensureAuthenticated, (req, res) => {
     res.redirect('/chat');
   });
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
