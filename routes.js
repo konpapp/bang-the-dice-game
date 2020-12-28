@@ -17,7 +17,8 @@ module.exports = function (app, myDataBase) {
     res.redirect('/');
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
-    res.redirect('/chat');
+    let shid = shortid.generate()
+    res.redirect(`/chat?${shid}`);
   });
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render('pug/profile', { username: req.user.username });
