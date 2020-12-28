@@ -5,7 +5,9 @@ const myDB = require('./connection');
 const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes');
+
 const auth = require('./auth.js');
+const game = require('./game.js');
 
 const app = express();
 const http = require('http').createServer(app);
@@ -46,45 +48,83 @@ io.use(
 );
 
 myDB(async (client) => {
-  const myDataBase = await client.db('database').collection('users');
-
+  const myDataBase = await client.db('database').collection('users')
+  
   routes(app, myDataBase);
   auth(app, myDataBase);
 
   let currentUsers = 0;
-  let loggedUsers = [];
+  let finalUsers = [];
+  
+  // loggedUsers -> Object with users as keys and ready status as values
+  // example: { alice: true }
+  let loggedUsers = {};
   io.on('connection', (socket) => {
-    ++currentUsers;
+    
+    // Do not allow double sessions
+    for (let user in loggedUsers) {
+      if (socket.request.user.username == user) {
+        socket.disconnect();
+        return false;
+      }
+    }
 
+    ++currentUsers;
+    
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      io.emit('max users', {
-        message: 'Player limit reached', 
-        loggedUsers });
+      io.emit('max users', { message: 'Player limit reached' });
       --currentUsers;
       console.log('Player limit reached. User attempted to connect');
       return false;
     }
 
-    loggedUsers.push(socket.request.user.name || socket.request.user.username);
+    loggedUsers[socket.request.user.username] = false;
     io.emit('user', {
-      name: socket.request.user.name || socket.request.user.username,
+      name: socket.request.user.username,
       loggedUsers,
       currentUsers,
       connected: true
     });
-
+    console.log('A user has connected');
     socket.on('chat message', (message) => {
       io.emit('chat message', { 
-        name: socket.request.user.name || socket.request.user.username, message });
+        name: socket.request.user.username, message });
     });
-    console.log('A user has connected');
+    
+    socket.on('ready button', () => {
+      let posNum = 0;
+      for (let user in loggedUsers) {
+        posNum++;
+        if (user == socket.request.user.username) {
+          if (loggedUsers[user]) {
+            loggedUsers[user] = false; 
+          } else { loggedUsers[user] = true; }
+          break;
+        }
+      }
+      io.emit('ready button', { 
+        name: socket.request.user.username, posNum, loggedUsers });
+    });
+
+    socket.on('start game', (loggedUsers) => {
+      let finalUsers = [];
+      let creatorId;
+      for (let user in loggedUsers) {
+        finalUsers.push(user)
+      }
+      if (socket.request.user.username == finalUsers[0]) {
+        let players = game.getRoles(finalUsers);
+        io.emit('start game', { players });
+      }   
+    })
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected');
       --currentUsers;
-      loggedUsers = loggedUsers.filter((user) => user !== socket.request.user.username)
+      delete loggedUsers[socket.request.user.username];
       io.emit('user', {
-        name: socket.request.user.name || socket.request.user.username,
+        name: socket.request.user.username,
         loggedUsers,
         currentUsers,
         connected: false
