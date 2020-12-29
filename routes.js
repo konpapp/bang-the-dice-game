@@ -2,15 +2,16 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const shortid = require('shortid');
 
+var roomId;
 
-module.exports = function (app, myDataBase) {
+function main(app, myDataBase) {
   app.route('/').get((req, res) => {
-
+    
     if(req.isAuthenticated()) {
       res.render('pug', { title: '', message: '', showLogin: false, showRegistration: false, showSocialAuth: false, showCreateGame: true });
     } else {
     // Change the response to render the Pug template
-    res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: true, });
+      res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false });
     }
   });
   app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
@@ -18,7 +19,12 @@ module.exports = function (app, myDataBase) {
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
     let shid = shortid.generate()
-    res.redirect(`/chat?${shid}`);
+    roomId = shid;
+    res.redirect(`/chat?roomid=${shid}`);
+  });
+  app.route('/join').post(ensureAuthenticated, (req, res) => {
+    let roomId = res.body;
+    res.redirect(`/chat?roomid=${shid}`);
   });
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render('pug/profile', { username: req.user.username });
@@ -72,3 +78,10 @@ function ensureAuthenticated(req, res, next) {
   }
   res.redirect('/');
 }
+
+function getRoomId () {
+  return roomId;
+}
+
+exports.main = main;
+exports.getRoomId = getRoomId;
