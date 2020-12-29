@@ -62,7 +62,10 @@ myDB(async (client) => {
   io.on('connection', (socket) => {
 
     let roomId = routes.getRoomId();
-    console.log('Room ID: ' + roomId);
+    console.log('Room ID: ', roomId);
+    socket.join(roomId);
+    console.log('socket rooms:',  socket.rooms);
+    //.to(roomId)???
     
     // Do not allow double sessions
     for (let user in loggedUsers) {
