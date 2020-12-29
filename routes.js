@@ -23,8 +23,8 @@ function main(app, myDataBase) {
     res.redirect(`/chat?roomid=${shid}`);
   });
   app.route('/join').post(ensureAuthenticated, (req, res) => {
-    let roomId = res.body;
-    res.redirect(`/chat?roomid=${shid}`);
+    roomId = req.body.gameId;
+    res.redirect(`/chat?roomid=${roomId}`);
   });
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render('pug/profile', { username: req.user.username });
