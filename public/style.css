@@ -1,5 +1,5 @@
 body {
-  background: rgb(139, 139, 139);
+  background: rgb(40, 98, 121);
 }
 
 .border {
@@ -24,6 +24,12 @@ div > input {
   background-color: aliceblue;
 }
 
+.logout {
+  border: solid 2px #777;
+  width: 10%;
+  background-color: rgb(137, 176, 211);
+}
+
 a.text {
   text-decoration: none;
   font-weight: 700;
@@ -39,7 +45,7 @@ form input {
   border: silver solid 2px;
   padding: 10px; 
   width: 70%; 
-  margin-right: .5%;
+  margin-right: 0.5%;
 }
 
 form button { 
