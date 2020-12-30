@@ -1,4 +1,3 @@
-
 let roles = ['sheriff', 'renegade', 'outlaw', 'outlaw'];
 
 function shuffle(array) {
