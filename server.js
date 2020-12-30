@@ -95,7 +95,7 @@ myDB(async (client) => {
     });
     console.log('A user has connected.');
     socket.on('chat message', (message) => {
-      io.emit('chat message', { 
+      io.to(roomId).emit('chat message', { 
         name: socket.request.user.username, message });
     });
     
