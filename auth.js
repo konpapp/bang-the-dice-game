@@ -5,6 +5,7 @@ const ObjectID = require('mongodb').ObjectID;
 const GitHubStrategy = require('passport-github').Strategy;
 
 module.exports = function (app, myDataBase) {
+
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });

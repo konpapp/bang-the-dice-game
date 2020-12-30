@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7e1aca2a563598a8479829df3ed5420fbb9a25fa
 let roles = ['sheriff', 'renegade', 'outlaw', 'outlaw'];
 
 function shuffle(array) {
