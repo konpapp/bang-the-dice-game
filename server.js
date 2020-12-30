@@ -4,7 +4,7 @@ const express = require('express');
 const myDB = require('./connection');
 const session = require('express-session');
 const passport = require('passport');
-const routes = require('./routes.js');
+const routes = require('./routes');
 
 const auth = require('./auth.js');
 const game = require('./game.js');
@@ -50,7 +50,7 @@ io.use(
 myDB(async (client) => {
   const myDataBase = await client.db('database').collection('users')
   
-  routes.main(app, myDataBase);
+  routes(app, myDataBase);
   auth(app, myDataBase);
 
   let currentUsers = 0;
@@ -60,17 +60,11 @@ myDB(async (client) => {
   // example: { alice: true }
   let loggedUsers = {};
   io.on('connection', (socket) => {
-
-    let roomId = routes.getRoomId();
-    console.log('Room ID: ', roomId);
-    socket.join(roomId);
-    console.log('socket rooms:',  socket.rooms);
-   
+    
     // Do not allow double sessions
     for (let user in loggedUsers) {
       if (socket.request.user.username == user) {
         socket.disconnect();
-        console.log('Disconnecting existing user.');
         return false;
       }
     }
@@ -79,22 +73,22 @@ myDB(async (client) => {
     
     // Game is played with max 8 players
     if (currentUsers > 8) {
-      io.to(roomId).emit('max users', { message: 'Player limit reached' });
+      io.emit('max users', { message: 'Player limit reached' });
       --currentUsers;
-      console.log('Player limit reached. User attempted to connect.');
+      console.log('Player limit reached. User attempted to connect');
       return false;
     }
 
     loggedUsers[socket.request.user.username] = false;
-    io.to(roomId).emit('user', {
+    io.emit('user', {
       name: socket.request.user.username,
       loggedUsers,
       currentUsers,
       connected: true
     });
-    console.log('A user has connected.');
+    console.log('A user has connected');
     socket.on('chat message', (message) => {
-      io.to(roomId).emit('chat message', { 
+      io.emit('chat message', { 
         name: socket.request.user.username, message });
     });
     
@@ -109,26 +103,27 @@ myDB(async (client) => {
           break;
         }
       }
-      io.to(roomId).emit('ready button', { 
+      io.emit('ready button', { 
         name: socket.request.user.username, posNum, loggedUsers });
     });
 
     socket.on('start game', (loggedUsers) => {
       let finalUsers = [];
+      let creatorId;
       for (let user in loggedUsers) {
         finalUsers.push(user)
       }
       if (socket.request.user.username == finalUsers[0]) {
         let players = game.getRoles(finalUsers);
-        io.to(roomId).emit('start game', { players });
+        io.emit('start game', { players });
       }   
     })
 
     socket.on('disconnect', () => {
-      console.log('A user has disconnected.');
+      console.log('A user has disconnected');
       --currentUsers;
       delete loggedUsers[socket.request.user.username];
-      io.to(roomId).emit('user', {
+      io.emit('user', {
         name: socket.request.user.username,
         loggedUsers,
         currentUsers,
@@ -144,7 +139,7 @@ myDB(async (client) => {
 });
 
 function onAuthorizeSuccess(data, accept) {
-  console.log('Successful connection to socket.io.');
+  console.log('Successful connection to socket.io');
   accept(null, true);
 }
 
