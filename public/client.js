@@ -17,7 +17,8 @@ $(document).ready(function () {
 
       // Ready check
       if (data.readyUsers) {
-        for (let i=0; i < data.readyUsers.length; i++) {
+        let usernames = data.readyUsers.map(elem => elem[1]);
+        if (usernames.indexOf(data.users[i]) != -1) {
           $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
         }
       }
@@ -59,7 +60,6 @@ $(document).ready(function () {
     socket.emit('ready button', id);
     return false;
   })
-
 
   // Start the game
   socket.on('start game', (data) => {
