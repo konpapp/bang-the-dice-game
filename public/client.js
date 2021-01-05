@@ -3,30 +3,31 @@ $(document).ready(function () {
   let socket = io();
   
   socket.on('disconnect', () => {
-    alert('User already exists. Disconnected from server.');
+    alert('User already exists or room is full. Disconnected from server.');
     window.location = "/"; 
-  });
-  
-  socket.on('max users', (data) => {
-    $('#num-users').text(data.message)
-    data.connected = false;
   });
 
   socket.on('user', (data) => {
+    $('#room-id').text(data.roomId);
     $('.pos-border, .pos-border-rdy').text('');
-    let counter = 0;
-    for (let user in data.loggedUsers) {
-      counter++;
-      $(`#pos${counter}`).removeClass('pos-border-rdy').addClass('pos-border');
-      $(`#pos${counter}`).text(user);
+    $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
+    for (let i = 0; i < data.users.length; i++) {
+      $(`#pos${i}`).text(data.users[i]);
+
       // Ready check
-      if (data.loggedUsers[user]) {
-        $(`#pos${counter}`).removeClass('pos-border').addClass('pos-border-rdy');
+      if (data.readyUsers) {
+        if (data.readyUsers.indexOf(data.users[i]) != -1) {
+          $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
+        }
       }
     }
-    if (Object.keys(data.loggedUsers).length === 1) {
+
+    // Toggle text for users online
+    if (data.users.length === 1) {
       $('#num-users').text('1 user online');
-    } else { $('#num-users').text(Object.keys(data.loggedUsers).length + ' users online'); }
+    } else { $('#num-users').text(data.users.length + ' users online'); }
+
+    // Announce new user on chat
     let message = data.name + (data.connected ? ' has joined the chat.' : ' has left the chat.');
     $('#messages').append($('<li>').html('<b>' + message + '</b>'));
   });
@@ -41,19 +42,6 @@ $(document).ready(function () {
     } else {
       $(`#pos${data.posNum}`).removeClass('pos-border-rdy').addClass('pos-border');
     }
-    let counter = 0;
-    let allReady = true;
-    for (let user in data.loggedUsers) {
-      counter++;
-      if (!data.loggedUsers[user]) {
-        allReady = false;
-        break;
-      }
-    }
-    if (allReady && counter >= 4) {
-      $('#num-users').text('Game is starting!');
-      socket.emit('start game', data.loggedUsers);
-    }
   })
 
   // Form submittion with new message in field with id 'm'
@@ -66,7 +54,8 @@ $(document).ready(function () {
   });
 
   $('#rdy-form').submit(function () {
-    socket.emit('ready button');
+    let id = $('#room-id').text();
+    socket.emit('ready button', id);
     return false;
   })
 

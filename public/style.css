@@ -130,42 +130,42 @@ form button {
   margin: 10px;
 }
 
-#pos1 {
+#pos0 {
   right: 375px;
   bottom: 0px;
 }
 
-#pos2 {
+#pos1 {
   bottom: 0px;
   left: 0px;
 }
 
-#pos3 {
+#pos2 {
   bottom: 215px;
+  left: 0px;
+}
+
+#pos3 {
+  top: 0px;
   left: 0px;
 }
 
 #pos4 {
   top: 0px;
-  left: 0px;
+  right: 375px;
 }
 
 #pos5 {
   top: 0px;
-  right: 375px;
-}
-
-#pos6 {
-  top: 0px;
   right: 0px;
 }
 
-#pos7 {
+#pos6 {
   bottom: 215px;
   right: 0px;
 }
 
-#pos8 {
+#pos7 {
   bottom: 0px;
   right: 0px;
 }

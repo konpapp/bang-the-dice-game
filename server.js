@@ -53,42 +53,48 @@ myDB(async (client) => {
   routes.main(app, myDataBase);
   auth(app, myDataBase);
 
-  let currentUsers = 0;
-  let finalUsers = [];
-  
-  // loggedUsers -> Object with users as keys and ready status as values
-  // example: { alice: true }
-  let loggedUsers = {};
+  // Rooms object: roomId as key, users array as value
+  let rooms = {};
+
+  // roomId as key, ready users array
+  let readyUsers = {};
+
   io.on('connection', (socket) => {
 
     let roomId = routes.getRoomId();
-    console.log('Room ID: ', roomId);
     socket.join(roomId);
     
-    // Do not allow double sessions
-    for (let user in loggedUsers) {
-      if (socket.request.user.username == user) {
+    if (rooms[roomId]) {
+      // Do not allow double sessions
+      for (let i=0; i < rooms[roomId].length; i++) {
+        if (socket.request.user.username == rooms[roomId][i]) {
+          socket.disconnect();
+          console.log('Disconnecting existing user.');
+          return false;
+        }
+      }
+
+      // Game is played with max 8 players
+      if (rooms[roomId].length === 8) {
         socket.disconnect();
-        console.log('Disconnecting existing user.');
+        console.log('Player limit reached. Unable to connect.');
         return false;
       }
     }
 
-    ++currentUsers;
-    
-    // Game is played with max 8 players
-    if (currentUsers > 8) {
-      io.to(roomId).emit('max users', { message: 'Player limit reached' });
-      --currentUsers;
-      console.log('Player limit reached. User attempted to connect.');
-      return false;
+    // Assign user to room
+    if (rooms[roomId]) {
+      rooms[roomId].push(socket.request.user.username);
+    } else {
+      rooms[roomId] = [socket.request.user.username];
     }
 
-    loggedUsers[socket.request.user.username] = false;
+    console.log(`User list in room ${roomId}: ${rooms[roomId]}`);
     io.to(roomId).emit('user', {
       name: socket.request.user.username,
-      loggedUsers,
-      currentUsers,
+      users: rooms[roomId],
+      readyUsers: readyUsers[roomId],
+      roomId,
       connected: true
     });
     console.log('A user has connected.');
@@ -97,40 +103,50 @@ myDB(async (client) => {
         name: socket.request.user.username, message });
     });
     
-    socket.on('ready button', () => {
-      let posNum = 0;
-      for (let user in loggedUsers) {
-        posNum++;
-        if (user == socket.request.user.username) {
-          if (loggedUsers[user]) {
-            loggedUsers[user] = false; 
-          } else { loggedUsers[user] = true; }
-          break;
+    socket.on('ready button', (id) => {
+      if (readyUsers[id]) {
+        if (readyUsers[id].indexOf(socket.request.user.username) == -1) {
+          readyUsers[id].push(socket.request.user.username);
+        } else {
+          readyUsers[id] = readyUsers[id].filter(user => user != socket.request.user.username);
+        }
+      } else {
+        readyUsers[id] = [socket.request.user.username];
+      }
+
+      let posNum = rooms[id].indexOf(socket.request.user.username);
+
+      // If all users ready and more than 3 users connected, start the game
+      if (readyUsers[id].length > 3) {
+        let arr1 = readyUsers[id].sort();
+        let arr2 = rooms[id].sort();
+        if (JSON.stringify(arr1) == JSON.stringify(arr2)) {
+          let players = game.getRoles(rooms[id]);
+          io.to(id).emit('start game', { players });
         }
       }
-      io.to(roomId).emit('ready button', {  
-        name: socket.request.user.username, posNum, loggedUsers });
-    });
 
-    socket.on('start game', (loggedUsers) => {
-      let finalUsers = [];
-      for (let user in loggedUsers) {
-        finalUsers.push(user)
-      }
-      if (socket.request.user.username == finalUsers[0]) {
-        let players = game.getRoles(finalUsers);
-        io.to(roomId).emit('start game', { players });
-      }   
-    })
+      io.to(id).emit('ready button', {  
+        name: socket.request.user.username, 
+        readyUsers: readyUsers[id], posNum });
+    });
 
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
-      --currentUsers;
-      delete loggedUsers[socket.request.user.username];
+      rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
+      if (readyUsers[roomId]) {
+        readyUsers[roomId] = readyUsers[roomId].filter(user => user !== socket.request.user.username);
+      }
+      // If last user is disconnected, delete the room ID
+      if (rooms[roomId].length == 0) {
+        delete rooms[roomId];
+        delete readyUsers[roomId];
+      }
       io.to(roomId).emit('user', {
         name: socket.request.user.username,
-        loggedUsers,
-        currentUsers,
+        users: rooms[roomId],
+        readyUsers: readyUsers[roomId],
+        roomId,
         connected: false
       });
     });
