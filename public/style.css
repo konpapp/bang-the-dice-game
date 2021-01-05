@@ -56,17 +56,22 @@ form button {
 }
 
 .btn {
-  background: rgb(85, 85, 85);
+  background-color: rgb(85, 85, 85);
   color: white;
 }
 
 .btn:hover {
-  background: rgb(29, 29, 29);
-  color: white;
+  background-color: rgb(29, 29, 29);
   cursor: pointer;
 }
 
 #rdy-btn {
+  width: 100%;
+  font-size: large;
+}
+
+#start-btn {
+  background-color: rgb(102, 77, 14);
   width: 100%;
   font-size: large;
 }
@@ -92,14 +97,17 @@ form button {
 }
 
 .board {
-  width: 900px;
-  height: 500px;
-  margin-right: 20px;
+  float: right;
+  width: 75%;
+  min-height: 500px;
   border-radius: 15px;
   border: 3px solid rgb(128, 94, 0);
   background: rgb(128, 94, 0);
-  position: relative;
-  float: right;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-gap: 10px;
+  align-items: center;
 }
 
 .pos-border {
@@ -109,11 +117,11 @@ form button {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: larger;
   color: white;
-  position: absolute;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
+  width:30%;
+  height:30%;
+  margin-left: 160px;
 }
 
 .pos-border-rdy {
@@ -123,51 +131,36 @@ form button {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: larger;
   color: white;
-  position: absolute;
-  width: 150px;
-  height: 70px;
-  margin: 10px;
+  width:30%;
+  height:30%;
+  margin-left: 160px;
 }
 
 #pos0 {
-  right: 375px;
-  bottom: 0px;
+
 }
 
 #pos1 {
-  bottom: 0px;
-  left: 0px;
 }
 
 #pos2 {
-  bottom: 215px;
-  left: 0px;
 }
 
 #pos3 {
-  top: 0px;
-  left: 0px;
 }
 
 #pos4 {
-  top: 0px;
-  right: 375px;
 }
 
 #pos5 {
-  top: 0px;
-  right: 0px;
 }
 
 #pos6 {
-  bottom: 215px;
-  right: 0px;
 }
 
 #pos7 {
-  bottom: 0px;
-  right: 0px;
 }
 
 
@@ -184,3 +177,18 @@ form button {
   bottom: 215px;
 }
 
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.inline {
+  display: inline;
+}
+
+#left-side {
+  width: 25%;
+}

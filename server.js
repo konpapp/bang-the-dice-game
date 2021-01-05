@@ -56,7 +56,7 @@ myDB(async (client) => {
   // Rooms object: roomId as key, users array as value
   let rooms = {};
 
-  // roomId as key, ready users array
+  // roomId as key, ready user IDs array
   let readyUsers = {};
 
   io.on('connection', (socket) => {
@@ -104,26 +104,34 @@ myDB(async (client) => {
     });
     
     socket.on('ready button', (id) => {
+
       if (readyUsers[id]) {
-        if (readyUsers[id].indexOf(socket.request.user.username) == -1) {
-          readyUsers[id].push(socket.request.user.username);
+        if (readyUsers[id].indexOf(socket.id) == -1) {
+
+          // If the user is the creator, insert his ID in front of the ready user IDs array
+          if (socket.request.user.username == rooms[id][0]) {
+            readyUsers[id].unshift(socket.id);
+
+          // otherwise, push it in the back
+          } else {
+            readyUsers[id].push(socket.id);
+          }
+        
+        // If it already exists, remove it
         } else {
-          readyUsers[id] = readyUsers[id].filter(user => user != socket.request.user.username);
+          readyUsers[id] = readyUsers[id].filter(id => id != socket.id);
         }
+      
+      // If it is the first ID, store it and create an array
       } else {
-        readyUsers[id] = [socket.request.user.username];
+        readyUsers[id] = [socket.id];
       }
 
       let posNum = rooms[id].indexOf(socket.request.user.username);
 
-      // If all users ready and more than 3 users connected, start the game
-      if (readyUsers[id].length > 3) {
-        let arr1 = readyUsers[id].sort();
-        let arr2 = rooms[id].sort();
-        if (JSON.stringify(arr1) == JSON.stringify(arr2)) {
-          let players = game.getRoles(rooms[id]);
-          io.to(id).emit('start game', { players });
-        }
+      // If all users ready and more than 3 users connected, the creator can start the game
+      if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
+        io.to(id).emit('start game', { creatorId: readyUsers[id][0] });
       }
 
       io.to(id).emit('ready button', {  
@@ -131,11 +139,16 @@ myDB(async (client) => {
         readyUsers: readyUsers[id], posNum });
     });
 
+    socket.on('assign roles', (id) => {
+      let players = game.getRoles(rooms[id]);
+      io.to(id).emit('assign roles', { players });
+    })
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
       if (readyUsers[roomId]) {
-        readyUsers[roomId] = readyUsers[roomId].filter(user => user !== socket.request.user.username);
+        readyUsers[roomId] = readyUsers[roomId].filter(id => id !== socket.id);
       }
       // If last user is disconnected, delete the room ID
       if (rooms[roomId].length == 0) {
