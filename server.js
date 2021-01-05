@@ -137,6 +137,11 @@ myDB(async (client) => {
       if (readyUsers[roomId]) {
         readyUsers[roomId] = readyUsers[roomId].filter(user => user !== socket.request.user.username);
       }
+      // If last user is disconnected, delete the room ID
+      if (rooms[roomId].length == 0) {
+        delete rooms[roomId];
+        delete readyUsers[roomId];
+      }
       io.to(roomId).emit('user', {
         name: socket.request.user.username,
         users: rooms[roomId],
