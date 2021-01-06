@@ -17,18 +17,21 @@ html
         div.pos-border#pos0
         div.pos-border#pos1
         div.pos-border#pos2
-        div.pos-border#pos3
-        div.pos-border#pos4
-        div.pos-border#pos5
-        div.pos-border#pos6
         div.pos-border#pos7
-      .chat-box
+        div
+        div.pos-border#pos3
+        div.pos-border#pos6
+        div.pos-border#pos5
+        div.pos-border#pos4
+      div.chat-box#left-side
         ul#messages
         form#msg-form(action='')
           input#m(autocomplete='off')
           button.btn Send
-      form#rdy-form(action='')
-        button.btn#rdy-btn Ready to start
+        form#rdy-form(action='')
+          button.btn#rdy-btn Ready
+        form.hide#start-form(action='')
+          button.btn#start-btn Start Game
       hr
       h2.center 
       .logout.left
@@ -36,4 +39,3 @@ html
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js', integrity='sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=', crossorigin='anonymous')
     <script src='/socket.io/socket.io.js'></script>
     script(async, defer, src='/public/client.js')
-    script(async, defer, src='/public/game.js')

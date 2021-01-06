@@ -9,6 +9,7 @@ $(document).ready(function () {
 
   socket.on('user', (data) => {
     $('#room-id').text(data.roomId);
+    $('#rdy-form').removeClass('hide').addClass('show');
     $('.pos-border, .pos-border-rdy').text('');
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
     for (let i = 0; i < data.users.length; i++) {
@@ -16,7 +17,8 @@ $(document).ready(function () {
 
       // Ready check
       if (data.readyUsers) {
-        if (data.readyUsers.indexOf(data.users[i]) != -1) {
+        let usernames = data.readyUsers.map(elem => elem[1]);
+        if (usernames.indexOf(data.users[i]) != -1) {
           $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
         }
       }
@@ -61,7 +63,20 @@ $(document).ready(function () {
 
   // Start the game
   socket.on('start game', (data) => {
-    for (let i=0; i < data.players.length; i++) {
+    if (socket.id == data.creatorId) {
+      $('#start-form').removeClass('hide').addClass('show');
+    }
+    $('#rdy-form').removeClass('show').addClass('hide')
+    $('#start-form').submit(function () {
+      $('#start-form').removeClass('show').addClass('hide');
+      let id = $('#room-id').text();
+      socket.emit('assign roles', id);
+      return false;
+    })
+  })
+
+  socket.on('assign roles', (data) => {
+    for (let i = 0; i < data.players.length; i++) {
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
       }
