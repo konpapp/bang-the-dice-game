@@ -106,7 +106,7 @@ $(document).ready(function () {
               let id = $('#room-id').text();
               let diceNum = 5;
               let roller = data.players[i].socketId;
-              socket.emit('turn', { id, diceNum, roller });
+              socket.emit('start turn', { id, diceNum, roller });
               return false;
             })
             break;
@@ -124,9 +124,54 @@ $(document).ready(function () {
     }
   })
 
-  socket.on('turn', (data) => {
+  socket.on('start turn', (data) => {
     for(let i=0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img src="/public/images/${data.dice[i]}.png" />`)
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+    }
+    if (socket.id == data.roller) {
+      let reRolls = 2;
+      let toReroll = 0;
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      for (let i=0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).click(() => {
+          if ($(`#die-${i}`).hasClass('select')) {
+            $(`#die-${i}`).removeClass('select');
+            toReroll--;
+          } else {
+            $(`#die-${i}`).addClass('select');
+            toReroll++;
+          }
+        })
+      }
+
+      // No rerolls left if dynamite is triggered
+      if (countDynamites > 2) {
+        reRolls = 0;
+      }
+
+      // Trigger gatling gun and lose arrows
+      if (countGatling > 2) {
+        data.players = data.players.map(player => {
+          if (socket.id != player.socketId) {
+            player.health--;
+          }
+          return player;
+        })
+        countArrows = 0;
+      }
+      
     }
   })
 

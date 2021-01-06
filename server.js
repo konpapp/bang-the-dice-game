@@ -153,9 +153,9 @@ myDB(async (client) => {
       io.to(id).emit('assign roles', { players: players[id] });
     })
 
-    socket.on('turn', (data) => {
+    socket.on('start turn', (data) => {
       let dice = game.rollDice(data.diceNum);
-      io.to(data.id).emit('turn', { players: players[data.id], dice, roller: data.roller })
+      io.to(data.id).emit('start turn', { players: players[data.id], dice, roller: data.roller })
     })
 
     socket.on('disconnect', () => {
