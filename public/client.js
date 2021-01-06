@@ -8,6 +8,7 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
+    $('#announce').text('');
     $('#room-id').text(data.roomId);
     $('#rdy-form').removeClass('hide').addClass('show');
     $('.pos-border, .pos-border-rdy').text('');
@@ -76,10 +77,56 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
+    $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
+
+    // Clear up open positions on board
+    for (let i=0; i < 8; i++) {
+      if ($(`#pos${i}`).text() == '') {
+        $(`#pos${i}`).css({ 'background': 'rgb(128, 94, 0)' });
+        $(`#pos${i}`).css({ 'border': 'rgb(128, 94, 0)' });
+      }
+    }
     for (let i = 0; i < data.players.length; i++) {
+
+      // Announce and mark the sheriff
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
+        $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
+        $('#announce-turn').text(data.players[i].name + "'s turn.")
       }
+
+      // Assign each role privately
+      if (data.players[i].socketId == socket.id) {
+        switch (data.players[i].role) {
+          case 'sheriff':
+            $('#announce').text('You are the sheriff. Survive by eliminating outlaws and renegades!');
+            $('#roll-form').removeClass('hide').addClass('show');
+            $('#roll-form').submit(function () {
+              $('#roll-form').removeClass('show').addClass('hide');
+              let id = $('#room-id').text();
+              let diceNum = 5;
+              let roller = data.players[i].socketId;
+              socket.emit('turn', { id, diceNum, roller });
+              return false;
+            })
+            break;
+          case 'deputy':
+            $('#announce').text('You are a deputy. Keep your sheriff alive by eliminating outlaws and renegades!');
+            break;
+          case 'outlaw':
+            $('#announce').text('You are an outlaw. Kill the sheriff!');
+            break;
+          case 'renegade':
+            $('#announce').text('You are a renegade. Survive to the end alone with the sheriff, and eliminate him!');
+            break;
+        }
+      }
+    }
+  })
+
+  socket.on('turn', (data) => {
+    for(let i=0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img src="/public/images/${data.dice[i]}.png" />`)
     }
   })
 

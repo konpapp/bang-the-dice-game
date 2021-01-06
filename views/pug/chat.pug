@@ -13,17 +13,19 @@ html
       h2.center Room ID: 
         span#room-id  
       h3.center#num-users
+      span#announce-turn
+      h3.center#announce
       div.board
         div.pos-border#pos0
         div.pos-border#pos1
         div.pos-border#pos2
         div.pos-border#pos7
-        div
+        div#dice-area
         div.pos-border#pos3
         div.pos-border#pos6
         div.pos-border#pos5
         div.pos-border#pos4
-      div.chat-box#left-side
+      div.chat-box
         ul#messages
         form#msg-form(action='')
           input#m(autocomplete='off')
@@ -32,6 +34,8 @@ html
           button.btn#rdy-btn Ready
         form.hide#start-form(action='')
           button.btn#start-btn Start Game
+        form.hide#roll-form(action='')
+          button.btn#roll-btn Roll Dice
       hr
       h2.center 
       .logout.left
