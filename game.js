@@ -1,4 +1,5 @@
 let roles = ['sheriff', 'renegade', 'outlaw', 'outlaw'];
+let die = ['arrow', 'bang1', 'bang2', 'beer', 'dynamite', 'gatling'];
 
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -48,4 +49,15 @@ function getRoles(users) {
   return players;
 }
 
+function rollDice(num) {
+  let dice = [];
+  let roll;
+  for (let i=0; i < num; i++) {
+    roll = shuffle(die);
+    dice.push(roll[0]);
+  }
+  return dice;
+}
+
 exports.getRoles = getRoles;
+exports.rollDice = rollDice;

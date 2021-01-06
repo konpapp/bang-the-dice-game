@@ -76,6 +76,11 @@ form button {
   font-size: large;
 }
 
+#roll-btn {
+  width: 100%;
+  font-size: large;
+}
+
 #messages { 
   width: 400px; 
   list-style-type: none;
@@ -138,6 +143,20 @@ form button {
   margin-left: 160px;
 }
 
+.pos-border-sheriff {
+  border: 5px solid rgb(158, 160, 42);
+  border-radius: 25px;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  color: white;
+  width:30%;
+  height:30%;
+  margin-left: 160px;
+}
+
 .pos-border-canvas {
   border: 2px solid black;
   position: absolute;
@@ -157,12 +176,4 @@ form button {
 
 .show {
   display: block;
-}
-
-.inline {
-  display: inline;
-}
-
-#left-side {
-  width: 25%;
 }
