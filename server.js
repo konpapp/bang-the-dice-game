@@ -60,6 +60,7 @@ myDB(async (client) => {
   // roomId as key, ready user IDs array
   let readyUsers = {};
 
+  // roomId as key, player attributes object as value
   let players = {};
 
   io.on('connection', (socket) => {
@@ -150,6 +151,21 @@ myDB(async (client) => {
         players[id][i].socketId = ids[usernames.indexOf(players[id][i].name)];
       }
       io.to(id).emit('assign roles', { players: players[id] });
+    })
+
+    socket.on('start turn', (data) => {
+      let dice = game.rollDice(data.diceNum);
+      io.to(data.id).emit('start turn', { players: players[data.id], dice, roller: data.roller });
+    })
+
+    socket.on('1st reroll', (data) => {
+      let dice = game.rollDice(data.diceNum);
+      io.to(data.id).emit('1st reroll', { players: players[data.id], dice, roller: data.roller, dicePos: data.dicePositions });
+    })
+
+    socket.on('2nd reroll', (data) => {
+      let dice = game.rollDice(data.diceNum);
+      io.to(data.id).emit('2nd reroll', { players: players[data.id], dice, roller: data.roller, dicePos: data.dicePositions });
     })
 
     socket.on('disconnect', () => {
