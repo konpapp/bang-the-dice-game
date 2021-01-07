@@ -125,6 +125,8 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
+    $('#dice-area').html('');
+    $('#reroll-form').addClass('hide');
     for(let i=0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
@@ -134,6 +136,7 @@ $(document).ready(function () {
       let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
+      let selectedPos = new Set();
       for (let i=0; i < 5; i++) {
         if ($(`#die-${i}`).hasClass('arrow')) {
           countArrows++;
@@ -148,10 +151,29 @@ $(document).ready(function () {
         $(`#die-${i}`).click(() => {
           if ($(`#die-${i}`).hasClass('select')) {
             $(`#die-${i}`).removeClass('select');
+            selectedPos.delete(i);
             toReroll--;
+            if (reRolls == 0 || toReroll == 0) {
+              $('#reroll-form').addClass('hide');
+            }
           } else {
             $(`#die-${i}`).addClass('select');
+            selectedPos.add(i);
             toReroll++;
+            if (reRolls > 0 && toReroll > 0) {
+              $('#reroll-form').removeClass('hide');
+              $('#dice-num').text(toReroll);
+              $('#reroll-form').submit(() => {
+                $('#dice-num').text('');
+                $('#reroll-form').addClass('hide');
+                $('.select').remove();
+                let id = $('#room-id').text();
+                let diceNum = toReroll;
+                toReroll = 0;
+                socket.emit('1st reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller });
+                return false;
+              })
+            }
           }
         })
       }
@@ -171,8 +193,98 @@ $(document).ready(function () {
         })
         countArrows = 0;
       }
-      
+
     }
+  })
+
+  socket.once('1st reroll', (data) => {
+    for (let i = 0; i < 5; i++) {
+      if (data.dicePos.indexOf(i) != -1) {
+        $(`#die-${i}`).remove();
+      }
+    }
+    for (let i = 0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+    }
+    if (socket.id == data.roller) {
+      let reRolls = 1;
+      let toReroll = 0;
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      let selectedPos = new Set();
+      for (let i = 0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).off('click');
+        $(`#die-${i}`).click(() => {
+          if ($(`#die-${i}`).hasClass('select')) {
+            $(`#die-${i}`).removeClass('select');
+            selectedPos.delete(i);
+            toReroll--;
+            if (reRolls == 0 || toReroll == 0) {
+              $('#reroll-form').addClass('hide');
+            }
+          } else {
+            $(`#die-${i}`).addClass('select');
+            selectedPos.add(i);
+            toReroll++;
+            if (reRolls > 0 && toReroll > 0) {
+              $('#reroll-form').removeClass('hide');
+              $('#dice-num').text(toReroll);
+              $('#reroll-form').submit(() => {
+                $('#dice-num').text('');
+                $('#reroll-form').addClass('hide');
+                $('.select').remove();
+                let id = $('#room-id').text();
+                let diceNum = toReroll;
+                toReroll = 0;
+                socket.emit('2nd reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller })
+                return false;
+              })
+            }
+          }
+        })
+      }
+    }
+  })
+
+  socket.once('2nd reroll', (data) => {
+    for (let i = 0; i < 5; i++) {
+      if (data.dicePos.indexOf(i) != -1) {
+        $(`#die-${i}`).remove();
+      }
+    }
+    for (let i = 0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`);
+    }
+    if (socket.id == data.roller) {
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      for (let i = 0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).off('click');
+      }
+    }
+    
   })
 
 });
