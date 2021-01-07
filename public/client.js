@@ -8,6 +8,7 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
+    $('#announce').text('');
     $('#room-id').text(data.roomId);
     $('#rdy-form').removeClass('hide').addClass('show');
     $('.pos-border, .pos-border-rdy').text('');
@@ -76,11 +77,214 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
-    for (let i = 0; i < data.players.length; i++) {
-      if (data.players[i].role == 'sheriff') {
-        $('#num-users').text(data.players[i].name + ' is the Sheriff.');
+    $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
+
+    // Clear up open positions on board
+    for (let i=0; i < 8; i++) {
+      if ($(`#pos${i}`).text() == '') {
+        $(`#pos${i}`).css({ 'background': 'rgb(128, 94, 0)' });
+        $(`#pos${i}`).css({ 'border': 'rgb(128, 94, 0)' });
       }
     }
+    for (let i = 0; i < data.players.length; i++) {
+
+      // Announce and mark the sheriff
+      if (data.players[i].role == 'sheriff') {
+        $('#num-users').text(data.players[i].name + ' is the Sheriff.');
+        $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
+        $('#announce-turn').text(data.players[i].name + "'s turn.")
+      }
+
+      // Assign each role privately
+      if (data.players[i].socketId == socket.id) {
+        switch (data.players[i].role) {
+          case 'sheriff':
+            $('#announce').text('You are the sheriff. Survive by eliminating outlaws and renegades!');
+            $('#roll-form').removeClass('hide').addClass('show');
+            $('#roll-form').submit(function () {
+              $('#roll-form').removeClass('show').addClass('hide');
+              let id = $('#room-id').text();
+              let diceNum = 5;
+              let roller = data.players[i].socketId;
+              socket.emit('start turn', { id, diceNum, roller });
+              return false;
+            })
+            break;
+          case 'deputy':
+            $('#announce').text('You are a deputy. Keep your sheriff alive by eliminating outlaws and renegades!');
+            break;
+          case 'outlaw':
+            $('#announce').text('You are an outlaw. Kill the sheriff!');
+            break;
+          case 'renegade':
+            $('#announce').text('You are a renegade. Survive to the end alone with the sheriff, and eliminate him!');
+            break;
+        }
+      }
+    }
+  })
+
+  socket.on('start turn', (data) => {
+    $('#dice-area').html('');
+    $('#reroll-form').addClass('hide');
+    for(let i=0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+    }
+    if (socket.id == data.roller) {
+      let reRolls = 2;
+      let toReroll = 0;
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      let selectedPos = new Set();
+      for (let i=0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).click(() => {
+          if ($(`#die-${i}`).hasClass('select')) {
+            $(`#die-${i}`).removeClass('select');
+            selectedPos.delete(i);
+            toReroll--;
+            if (reRolls == 0 || toReroll == 0) {
+              $('#reroll-form').addClass('hide');
+            }
+          } else {
+            $(`#die-${i}`).addClass('select');
+            selectedPos.add(i);
+            toReroll++;
+            if (reRolls > 0 && toReroll > 0) {
+              $('#reroll-form').removeClass('hide');
+              $('#dice-num').text(toReroll);
+              $('#reroll-form').submit(() => {
+                $('#dice-num').text('');
+                $('#reroll-form').addClass('hide');
+                $('.select').remove();
+                let id = $('#room-id').text();
+                let diceNum = toReroll;
+                toReroll = 0;
+                socket.emit('1st reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller });
+                return false;
+              })
+            }
+          }
+        })
+      }
+
+      // No rerolls left if dynamite is triggered
+      if (countDynamites > 2) {
+        reRolls = 0;
+      }
+
+      // Trigger gatling gun and lose arrows
+      if (countGatling > 2) {
+        data.players = data.players.map(player => {
+          if (socket.id != player.socketId) {
+            player.health--;
+          }
+          return player;
+        })
+        countArrows = 0;
+      }
+
+    }
+  })
+
+  socket.once('1st reroll', (data) => {
+    for (let i = 0; i < 5; i++) {
+      if (data.dicePos.indexOf(i) != -1) {
+        $(`#die-${i}`).remove();
+      }
+    }
+    for (let i = 0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+    }
+    if (socket.id == data.roller) {
+      let reRolls = 1;
+      let toReroll = 0;
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      let selectedPos = new Set();
+      for (let i = 0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).off('click');
+        $(`#die-${i}`).click(() => {
+          if ($(`#die-${i}`).hasClass('select')) {
+            $(`#die-${i}`).removeClass('select');
+            selectedPos.delete(i);
+            toReroll--;
+            if (reRolls == 0 || toReroll == 0) {
+              $('#reroll-form').addClass('hide');
+            }
+          } else {
+            $(`#die-${i}`).addClass('select');
+            selectedPos.add(i);
+            toReroll++;
+            if (reRolls > 0 && toReroll > 0) {
+              $('#reroll-form').removeClass('hide');
+              $('#dice-num').text(toReroll);
+              $('#reroll-form').submit(() => {
+                $('#dice-num').text('');
+                $('#reroll-form').addClass('hide');
+                $('.select').remove();
+                let id = $('#room-id').text();
+                let diceNum = toReroll;
+                toReroll = 0;
+                socket.emit('2nd reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller })
+                return false;
+              })
+            }
+          }
+        })
+      }
+    }
+  })
+
+  socket.once('2nd reroll', (data) => {
+    for (let i = 0; i < 5; i++) {
+      if (data.dicePos.indexOf(i) != -1) {
+        $(`#die-${i}`).remove();
+      }
+    }
+    for (let i = 0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`);
+    }
+    if (socket.id == data.roller) {
+      let countDynamites = 0;
+      let countArrows = 0;
+      let countGatling = 0;
+      for (let i = 0; i < 5; i++) {
+        if ($(`#die-${i}`).hasClass('arrow')) {
+          countArrows++;
+        }
+        if ($(`#die-${i}`).hasClass('gatling')) {
+          countGatling++;
+        }
+        if ($(`#die-${i}`).hasClass('dynamite')) {
+          countDynamites++;
+          continue;
+        }
+        $(`#die-${i}`).off('click');
+      }
+    }
+    
   })
 
 });

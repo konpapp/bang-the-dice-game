@@ -76,6 +76,21 @@ form button {
   font-size: large;
 }
 
+#roll-btn {
+  width: 100%;
+  font-size: large;
+}
+
+#reroll-btn {
+  width: 80%;
+  font-size: large;
+}
+
+#end-turn-form {
+  width: 100%;
+  font-size: large;
+}
+
 #messages { 
   width: 400px; 
   list-style-type: none;
@@ -138,6 +153,20 @@ form button {
   margin-left: 160px;
 }
 
+.pos-border-sheriff {
+  border: 5px solid rgb(158, 160, 42);
+  border-radius: 25px;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  color: white;
+  width:30%;
+  height:30%;
+  margin-left: 160px;
+}
+
 .pos-border-canvas {
   border: 2px solid black;
   position: absolute;
@@ -159,10 +188,11 @@ form button {
   display: block;
 }
 
-.inline {
-  display: inline;
+.dice:hover {
+  border: 1px solid black;
+  cursor: pointer;
 }
 
-#left-side {
-  width: 25%;
+.select {
+  border: 3px solid rgb(64, 212, 121);
 }
