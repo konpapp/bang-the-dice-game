@@ -163,6 +163,7 @@ $(document).ready(function () {
             if (reRolls > 0 && toReroll > 0) {
               $('#reroll-form').removeClass('hide');
               $('#dice-num').text(toReroll);
+              $('#reroll-form').off();
               $('#reroll-form').submit(() => {
                 $('#dice-num').text('');
                 $('#reroll-form').addClass('hide');
@@ -197,7 +198,8 @@ $(document).ready(function () {
     }
   })
 
-  socket.once('1st reroll', (data) => {
+  socket.on('1st reroll', (data) => {
+    console.log(data)
     for (let i = 0; i < 5; i++) {
       if (data.dicePos.indexOf(i) != -1) {
         $(`#die-${i}`).remove();
@@ -206,6 +208,7 @@ $(document).ready(function () {
     for (let i = 0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
+    $(`.dice`).off();
     if (socket.id == data.roller) {
       let reRolls = 1;
       let toReroll = 0;
@@ -224,7 +227,6 @@ $(document).ready(function () {
           countDynamites++;
           continue;
         }
-        $(`#die-${i}`).off('click');
         $(`#die-${i}`).click(() => {
           if ($(`#die-${i}`).hasClass('select')) {
             $(`#die-${i}`).removeClass('select');
@@ -240,6 +242,7 @@ $(document).ready(function () {
             if (reRolls > 0 && toReroll > 0) {
               $('#reroll-form').removeClass('hide');
               $('#dice-num').text(toReroll);
+              $('#reroll-form').off();
               $('#reroll-form').submit(() => {
                 $('#dice-num').text('');
                 $('#reroll-form').addClass('hide');
@@ -257,7 +260,7 @@ $(document).ready(function () {
     }
   })
 
-  socket.once('2nd reroll', (data) => {
+  socket.on('2nd reroll', (data) => {
     for (let i = 0; i < 5; i++) {
       if (data.dicePos.indexOf(i) != -1) {
         $(`#die-${i}`).remove();
@@ -266,6 +269,7 @@ $(document).ready(function () {
     for (let i = 0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`);
     }
+    $(`.dice`).off();
     if (socket.id == data.roller) {
       let countDynamites = 0;
       let countArrows = 0;
@@ -281,7 +285,7 @@ $(document).ready(function () {
           countDynamites++;
           continue;
         }
-        $(`#die-${i}`).off('click');
+        
       }
     }
     
