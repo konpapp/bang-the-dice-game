@@ -144,6 +144,10 @@ $(document).ready(function () {
         if ($(`#die-${i}`).hasClass('gatling')) {
           countGatling++;
         }
+        if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
+          $(`#die-${i}`).draggable();
+          $(`#die-${i}`).draggable('enable');
+        }
         if ($(`#die-${i}`).hasClass('dynamite')) {
           countDynamites++;
           continue;
@@ -153,11 +157,18 @@ $(document).ready(function () {
             $(`#die-${i}`).removeClass('select');
             selectedPos.delete(i);
             toReroll--;
+            if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
+              $(`#die-${i}`).draggable('enable');
+            }
             $('#dice-num').text(toReroll);
             if (reRolls == 0 || toReroll == 0) {
               $('#reroll-form').addClass('hide');
             }
           } else {
+            if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
+              $(`#die-${i}`).draggable();
+              $(`#die-${i}`).draggable('disable');
+            }
             $(`#die-${i}`).addClass('select');
             selectedPos.add(i);
             toReroll++;
@@ -209,7 +220,7 @@ $(document).ready(function () {
     for (let i = 0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
-    $(`.dice`).off();
+    $('.dice').off();
     if (socket.id == data.roller) {
       let reRolls = 1;
       let toReroll = 0;
@@ -271,7 +282,7 @@ $(document).ready(function () {
     for (let i = 0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`);
     }
-    $(`.dice`).off();
+    $('.dice').off();
     if (socket.id == data.roller) {
       let countDynamites = 0;
       let countArrows = 0;
