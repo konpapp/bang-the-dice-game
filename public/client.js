@@ -153,6 +153,7 @@ $(document).ready(function () {
             $(`#die-${i}`).removeClass('select');
             selectedPos.delete(i);
             toReroll--;
+            $('#dice-num').text(toReroll);
             if (reRolls == 0 || toReroll == 0) {
               $('#reroll-form').addClass('hide');
             }
@@ -232,6 +233,7 @@ $(document).ready(function () {
             $(`#die-${i}`).removeClass('select');
             selectedPos.delete(i);
             toReroll--;
+            $('#dice-num').text(toReroll);
             if (reRolls == 0 || toReroll == 0) {
               $('#reroll-form').addClass('hide');
             }
