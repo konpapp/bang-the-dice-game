@@ -159,6 +159,33 @@ $(document).ready(function () {
             toReroll--;
             if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
               $(`#die-${i}`).draggable('enable');
+
+              // TEST BELOW
+              if ($(`#die-${i}`).hasClass('bang1')) {
+                if (i == 0) {
+                  $(`#pos-${data.players.length - 1},#pos-${i + 1}`).droppable({
+                    drop: function( event, ui ) {
+                      $( this ).addClass( "drop-dice" );
+                    }
+                  })
+                } else if (i == data.players.length - 1) {
+                  $(`#pos-${0},#pos-${i - 1}`).droppable({
+                    drop: function (event, ui) {
+                      $(this).addClass("drop-dice");
+                    }
+                  })
+                } else {
+                  $(`#pos-${i + 1},#pos-${i - 1}`).droppable({
+                    drop: function (event, ui) {
+                      $(this).addClass("drop-dice");
+                    }
+                  })
+                }
+              } else if ($(`#die-${i}`).hasClass('bang2')) {
+                
+              } else {
+
+              }
             }
             $('#dice-num').text(toReroll);
             if (reRolls == 0 || toReroll == 0) {
