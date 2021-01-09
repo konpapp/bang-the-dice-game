@@ -154,7 +154,7 @@ myDB(async (client) => {
     })
 
     socket.on('start turn', (data) => {
-      io.to(data.id).emit('start turn', { players: players[data.id], dice: game.rollDice(data.diceNum), roller: data.roller });
+      io.to(data.id).emit('start turn', { players: players[data.id], dice: game.rollDice(data.diceNum), roller: data.roller, playerPos: data.playerPos });
     })
 
     socket.on('1st reroll', (data) => {

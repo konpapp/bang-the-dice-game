@@ -197,20 +197,10 @@ form button {
   border: 3px solid rgb(64, 212, 121);
 }
 
-.drop-dice {
-  background: rgb(243, 185, 26);
+.drop-beer {
+  border: 5px solid rgb(224, 226, 76);
 }
 
-.pos-border:hover {
-  border: 5px solid rgb(43, 41, 41);
-  border-radius: 25px;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: larger;
-  color: white;
-  width:30%;
-  height:30%;
-  margin-left: 160px;
+.drop-bang {
+  border: 5px solid rgb(233, 86, 50);
 }
