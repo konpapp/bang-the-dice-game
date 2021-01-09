@@ -106,7 +106,7 @@ $(document).ready(function () {
               let id = $('#room-id').text();
               let diceNum = 5;
               let roller = data.players[i].socketId;
-              socket.emit('start turn', { id, diceNum, roller });
+              socket.emit('start turn', { id, diceNum, roller, playerPos: i });
               return false;
             })
             break;
@@ -144,9 +144,62 @@ $(document).ready(function () {
         if ($(`#die-${i}`).hasClass('gatling')) {
           countGatling++;
         }
-        if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
-          $(`#die-${i}`).draggable();
+        if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
+          $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
           $(`#die-${i}`).draggable('enable');
+
+          // Set droppables for beer
+          if ($(`#die-${i}`).hasClass('beer')) {
+            for (let i=0; i < data.players.length; i++) {
+              $(`#pos${i}`).droppable({
+                accept: '.beer',
+                drop: function (event, ui) {
+                  if (!$(this).hasClass('drop-beer')) {
+                    $(this).addClass('drop-beer');
+                  }
+                },
+                over: function (event, ui) {
+                  $(this).css('background-color', 'rgb(68, 65, 65)');
+                }
+              })
+            }
+          
+          // Set droppables for bang1
+          } else if ($(`#die-${i}`).hasClass('bang1')) {
+            let bang1Arr = data.players.filter(player => data.players[data.playerPos - 1] == player || data.players[data.playerPos + 1] == player );
+            let names = data.players.map(player => player.name);
+            for (let i=0; i < bang1Arr.length; i++) {
+              $(`#pos${names.indexOf(bang1Arr[i].name)}`).droppable({
+                accept: '.bang1',
+                drop: function (event, ui) {
+                  if (!$(this).hasClass('drop-bang')) {
+                    $(this).addClass('drop-bang');
+                  }
+                },
+                over: function (event, ui) {
+                  $(this).css('background-color', 'rgb(68, 65, 65)');
+                }
+              })
+            }
+
+          // Set droppables for bang2
+          } else {
+            let bang2Arr = data.players.filter(player => data.players[data.playerPos - 2] == player || data.players[data.playerPos + 2] == player);
+            let names = data.players.map(player => player.name);
+            for (let i = 0; i < bang2Arr.length; i++) {
+              $(`#pos${names.indexOf(bang2Arr[i].name)}`).droppable({
+                accept: '.bang2',
+                drop: function (event, ui) {
+                  if (!$(this).hasClass('drop-bang')) {
+                    $(this).addClass('drop-bang');
+                  }
+                },
+                over: function (event, ui) {
+                  $(this).css('background-color', 'rgb(68, 65, 65)');
+                }
+              })
+            }
+          }
         }
         if ($(`#die-${i}`).hasClass('dynamite')) {
           countDynamites++;
@@ -159,33 +212,6 @@ $(document).ready(function () {
             toReroll--;
             if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
               $(`#die-${i}`).draggable('enable');
-
-              // TEST BELOW
-              if ($(`#die-${i}`).hasClass('bang1')) {
-                if (i == 0) {
-                  $(`#pos-${data.players.length - 1},#pos-${i + 1}`).droppable({
-                    drop: function( event, ui ) {
-                      $( this ).addClass( "drop-dice" );
-                    }
-                  })
-                } else if (i == data.players.length - 1) {
-                  $(`#pos-${0},#pos-${i - 1}`).droppable({
-                    drop: function (event, ui) {
-                      $(this).addClass("drop-dice");
-                    }
-                  })
-                } else {
-                  $(`#pos-${i + 1},#pos-${i - 1}`).droppable({
-                    drop: function (event, ui) {
-                      $(this).addClass("drop-dice");
-                    }
-                  })
-                }
-              } else if ($(`#die-${i}`).hasClass('bang2')) {
-                
-              } else {
-
-              }
             }
             $('#dice-num').text(toReroll);
             if (reRolls == 0 || toReroll == 0) {
