@@ -166,7 +166,20 @@ $(document).ready(function () {
           
           // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
-            let bang1Arr = data.players.filter(player => data.players[data.playerPos - 1] == player || data.players[data.playerPos + 1] == player );
+            let bang1Arr = data.players.filter(player =>  {
+
+              // Expanding the array to cover edge cases. (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5)
+              let expandedArr = data.players.concat(data.players);
+              if (data.playerPos <= data.players.length / 2) {
+                if (expandedArr[data.players.length + data.playerPos - 1] == player || expandedArr[data.players.length + data.playerPos + 1] == player) {
+                  return player;
+                }
+              } else {
+                if (expandedArr[data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) {
+                  return player;
+                }
+              }
+            });
             let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
               $(`#pos${names.indexOf(bang1Arr[i].name)}`).droppable({
@@ -184,7 +197,20 @@ $(document).ready(function () {
 
           // Set droppables for bang2
           } else {
-            let bang2Arr = data.players.filter(player => data.players[data.playerPos - 2] == player || data.players[data.playerPos + 2] == player);
+            let bang2Arr = data.players.filter(player => {
+
+              // Expanding the array to cover edge cases. (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5)
+              let expandedArr = data.players.concat(data.players);
+              if (data.playerPos <= data.players.length / 2) {
+                if (expandedArr[data.players.length + data.playerPos - 2] == player || expandedArr[data.players.length + data.playerPos + 2] == player) {
+                  return player;
+                }
+              } else {
+                if (expandedArr[data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) {
+                  return player;
+                }
+              }
+            });
             let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
               $(`#pos${names.indexOf(bang2Arr[i].name)}`).droppable({
@@ -210,7 +236,7 @@ $(document).ready(function () {
             $(`#die-${i}`).removeClass('select');
             selectedPos.delete(i);
             toReroll--;
-            if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
+            if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
               $(`#die-${i}`).draggable('enable');
             }
             $('#dice-num').text(toReroll);
@@ -218,7 +244,7 @@ $(document).ready(function () {
               $('#reroll-form').addClass('hide');
             }
           } else {
-            if ($(`#die-${i}`).hasClass('bang1') || $(`#die-${i}`).hasClass('bang2') || $(`#die-${i}`).hasClass('beer')) {
+            if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
               $(`#die-${i}`).draggable();
               $(`#die-${i}`).draggable('disable');
             }
