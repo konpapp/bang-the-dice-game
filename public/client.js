@@ -252,9 +252,8 @@ $(document).ready(function () {
 
       // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
-        if ([...beerPositions].indexOf(i) != -1 && [...bang1Positions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
+        if ([...beerPositions].indexOf(i) != -1 || [...bang1Positions].indexOf(i) != -1 || [...bang2Positions].indexOf(i) != -1) {
           $(`#pos${i}`).droppable({
-            accept: '.beer, .bang1, .bang2',
             drop: function (event, ui) {
               if ($(ui.draggable).hasClass('beer')) {
                 $(this).addClass('drop-beer');
@@ -272,106 +271,17 @@ $(document).ready(function () {
               $(this).css('background-color', '');
             }
           })
-        } else if ([...beerPositions].indexOf(i) != -1 && [...bang1Positions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.beer, .bang1',
-            drop: function (event, ui) {
-              if ($(ui.draggable).hasClass('beer')) {
-                $(this).addClass('drop-beer');
-                console.log('beer');
-              } else {
-                $(this).addClass('drop-bang');
-                console.log('bang');
-              }
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-bang drop-beer');
-              $(this).css('background-color', '');
-            }
-          })
-        } else if ([...beerPositions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.beer, .bang2',
-            drop: function (event, ui) {
-              if ($(ui.draggable).hasClass('beer')) {
-                $(this).addClass('drop-beer');
-                console.log('beer');
-              } else {
-                $(this).addClass('drop-bang');
-                console.log('bang');
-              }
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-bang drop-beer');
-              $(this).css('background-color', '');
-            }
-          })
-        } else if ([...bang1Positions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.bang1, .bang2',
-            drop: function (event, ui) {
-              $(this).addClass('drop-bang');
-              console.log('bang');
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-bang');
-              $(this).css('background-color', '');
-            }
-          })
-        } else if ([...beerPositions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.beer',
-            drop: function (event, ui) {
-              $(this).addClass('drop-beer');
-              console.log('beer');
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-beer');
-              $(this).css('background-color', '');
-            }
-          })
-        } else if ([...bang1Positions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.bang1',
-            drop: function (event, ui) {
-              $(this).addClass('drop-bang');
-              console.log('bang');
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-bang');
-              $(this).css('background-color', '');
-            }
-          })
-        } else if ([...bang2Positions].indexOf(i) != -1) {
-          $(`#pos${i}`).droppable({
-            accept: '.bang2',
-            drop: function (event, ui) {
-              $(this).addClass('drop-bang');
-              console.log('bang');
-            },
-            over: function (event, ui) {
-              $(this).css('background-color', 'rgb(68, 65, 65)');
-            },
-            out: function (event, ui) {
-              $(this).removeClass('drop-bang');
-              $(this).css('background-color', '');
-            }
-          })
+          let acceptArr = [];
+          if ([...beerPositions].indexOf(i) != -1) {
+            acceptArr.push('.beer');
+          }
+          if ([...bang1Positions].indexOf(i) != -1) {
+            acceptArr.push('.bang1');
+          }
+          if ([...bang2Positions].indexOf(i) != -1) {
+            acceptArr.push('.bang2');
+          }
+          $(`#pos${i}`).droppable({ accept: acceptArr.join(',') });
         }
       }
 
