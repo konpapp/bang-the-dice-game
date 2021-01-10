@@ -136,6 +136,12 @@ $(document).ready(function () {
       let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
+
+      // Helper sets for droppable positions
+      beerPositions = new Set();
+      bang1Positions = new Set();
+      bang2Positions = new Set();
+
       let selectedPos = new Set();
       for (let i=0; i < 5; i++) {
         if ($(`#die-${i}`).hasClass('arrow')) {
@@ -145,30 +151,22 @@ $(document).ready(function () {
           countGatling++;
         }
         if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
+
+          // Set draggable dice
           $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
           $(`#die-${i}`).draggable('enable');
 
           // Set droppables for beer
           if ($(`#die-${i}`).hasClass('beer')) {
             for (let i=0; i < data.players.length; i++) {
-              $(`#pos${i}`).droppable({
-                accept: '.beer',
-                drop: function (event, ui) {
-                  if (!$(this).hasClass('drop-beer')) {
-                    $(this).addClass('drop-beer');
-                  }
-                },
-                over: function (event, ui) {
-                  $(this).css('background-color', 'rgb(68, 65, 65)');
-                }
-              })
+              beerPositions.add(i);
             }
           
           // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
             let bang1Arr = data.players.filter(player =>  {
 
-              // Expanding the array to cover edge cases. (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5)
+              // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
               let expandedArr = data.players.concat(data.players);
               if (data.playerPos <= data.players.length / 2) {
                 if (expandedArr[data.players.length + data.playerPos - 1] == player || expandedArr[data.players.length + data.playerPos + 1] == player) {
@@ -182,24 +180,14 @@ $(document).ready(function () {
             });
             let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
-              $(`#pos${names.indexOf(bang1Arr[i].name)}`).droppable({
-                accept: '.bang1',
-                drop: function (event, ui) {
-                  if (!$(this).hasClass('drop-bang')) {
-                    $(this).addClass('drop-bang');
-                  }
-                },
-                over: function (event, ui) {
-                  $(this).css('background-color', 'rgb(68, 65, 65)');
-                }
-              })
+              bang1Positions.add(names.indexOf(bang1Arr[i].name));
             }
 
           // Set droppables for bang2
           } else {
             let bang2Arr = data.players.filter(player => {
 
-              // Expanding the array to cover edge cases. (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5)
+              // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5).
               let expandedArr = data.players.concat(data.players);
               if (data.playerPos <= data.players.length / 2) {
                 if (expandedArr[data.players.length + data.playerPos - 2] == player || expandedArr[data.players.length + data.playerPos + 2] == player) {
@@ -213,17 +201,7 @@ $(document).ready(function () {
             });
             let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
-              $(`#pos${names.indexOf(bang2Arr[i].name)}`).droppable({
-                accept: '.bang2',
-                drop: function (event, ui) {
-                  if (!$(this).hasClass('drop-bang')) {
-                    $(this).addClass('drop-bang');
-                  }
-                },
-                over: function (event, ui) {
-                  $(this).css('background-color', 'rgb(68, 65, 65)');
-                }
-              })
+              bang2Positions.add(names.indexOf(bang2Arr[i].name));
             }
           }
         }
@@ -231,6 +209,8 @@ $(document).ready(function () {
           countDynamites++;
           continue;
         }
+
+        // Click on dice to reroll
         $(`#die-${i}`).click(() => {
           if ($(`#die-${i}`).hasClass('select')) {
             $(`#die-${i}`).removeClass('select');
@@ -268,6 +248,134 @@ $(document).ready(function () {
             }
           }
         })
+      }
+
+      // Assign droppable positions
+      console.log([...beerPositions])
+      console.log([...bang1Positions])
+      console.log([...bang2Positions])
+      for (let i=0; i < data.players.length; i++) {
+        if ([...beerPositions].indexOf(i) != -1 && [...bang1Positions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.beer, .bang1, .bang2',
+            drop: function (event, ui) {
+              if ($(ui.draggable).hasClass('beer')) {
+                $(this).addClass('drop-beer');
+                console.log('beer');
+              } else {
+                $(this).addClass('drop-bang');
+                console.log('bang');
+              }
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang drop-beer');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...beerPositions].indexOf(i) != -1 && [...bang1Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.beer, .bang1',
+            drop: function (event, ui) {
+              if ($(ui.draggable).hasClass('beer')) {
+                $(this).addClass('drop-beer');
+                console.log('beer');
+              } else {
+                $(this).addClass('drop-bang');
+                console.log('bang');
+              }
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang drop-beer');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...beerPositions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.beer, .bang2',
+            drop: function (event, ui) {
+              if ($(ui.draggable).hasClass('beer')) {
+                $(this).addClass('drop-beer');
+                console.log('beer');
+              } else {
+                $(this).addClass('drop-bang');
+                console.log('bang');
+              }
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang drop-beer');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...bang1Positions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.bang1, .bang2',
+            drop: function (event, ui) {
+              $(this).addClass('drop-bang');
+              console.log('bang');
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...beerPositions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.beer',
+            drop: function (event, ui) {
+              $(this).addClass('drop-beer');
+              console.log('beer');
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-beer');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...bang1Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.bang1',
+            drop: function (event, ui) {
+              $(this).addClass('drop-bang');
+              console.log('bang');
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang');
+              $(this).css('background-color', '');
+            }
+          })
+        } else if ([...bang2Positions].indexOf(i) != -1) {
+          $(`#pos${i}`).droppable({
+            accept: '.bang2',
+            drop: function (event, ui) {
+              $(this).addClass('drop-bang');
+              console.log('bang');
+            },
+            over: function (event, ui) {
+              $(this).css('background-color', 'rgb(68, 65, 65)');
+            },
+            out: function (event, ui) {
+              $(this).removeClass('drop-bang');
+              $(this).css('background-color', '');
+            }
+          })
+        }
       }
 
       // No rerolls left if dynamite is triggered
