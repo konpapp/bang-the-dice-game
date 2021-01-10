@@ -137,7 +137,7 @@ $(document).ready(function () {
       let countArrows = 0;
       let countGatling = 0;
 
-      // Helper sets for droppable positions
+      // Helper sets to store droppable positions
       beerPositions = new Set();
       bang1Positions = new Set();
       bang2Positions = new Set();
