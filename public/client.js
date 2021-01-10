@@ -251,9 +251,6 @@ $(document).ready(function () {
       }
 
       // Assign droppable positions
-      console.log([...beerPositions])
-      console.log([...bang1Positions])
-      console.log([...bang2Positions])
       for (let i=0; i < data.players.length; i++) {
         if ([...beerPositions].indexOf(i) != -1 && [...bang1Positions].indexOf(i) != -1 && [...bang2Positions].indexOf(i) != -1) {
           $(`#pos${i}`).droppable({
