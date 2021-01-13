@@ -177,7 +177,6 @@ $(document).ready(function () {
                 }
               }
             });
-            console.log('bang1Arr', bang1Arr)
             let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
               bang1Positions.add(names.indexOf(bang1Arr[i].name));
@@ -199,7 +198,6 @@ $(document).ready(function () {
                 }
               }
             });
-            console.log('bang2Arr', bang2Arr)
             let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
               bang2Positions.add(names.indexOf(bang2Arr[i].name));
