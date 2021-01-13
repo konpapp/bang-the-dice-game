@@ -138,10 +138,9 @@ $(document).ready(function () {
       let countGatling = 0;
 
       // Helper sets to store droppable positions
-      beerPositions = new Set();
-      bang1Positions = new Set();
-      bang2Positions = new Set();
-
+      let beerPositions = new Set();
+      let bang1Positions = new Set();
+      let bang2Positions = new Set();
       let selectedPos = new Set();
       for (let i=0; i < 5; i++) {
         if ($(`#die-${i}`).hasClass('arrow')) {
@@ -178,6 +177,7 @@ $(document).ready(function () {
                 }
               }
             });
+            console.log('bang1Arr', bang1Arr)
             let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
               bang1Positions.add(names.indexOf(bang1Arr[i].name));
@@ -199,6 +199,7 @@ $(document).ready(function () {
                 }
               }
             });
+            console.log('bang2Arr', bang2Arr)
             let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
               bang2Positions.add(names.indexOf(bang2Arr[i].name));
@@ -211,43 +212,52 @@ $(document).ready(function () {
         }
 
         // Click on dice to reroll
-        $(`#die-${i}`).click(() => {
-          if ($(`#die-${i}`).hasClass('select')) {
-            $(`#die-${i}`).removeClass('select');
-            selectedPos.delete(i);
-            toReroll--;
-            if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
-              $(`#die-${i}`).draggable('enable');
-            }
-            $('#dice-num').text(toReroll);
-            if (reRolls == 0 || toReroll == 0) {
-              $('#reroll-form').addClass('hide');
-            }
-          } else {
-            if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
-              $(`#die-${i}`).draggable();
-              $(`#die-${i}`).draggable('disable');
-            }
-            $(`#die-${i}`).addClass('select');
-            selectedPos.add(i);
-            toReroll++;
-            if (reRolls > 0 && toReroll > 0) {
-              $('#reroll-form').removeClass('hide');
+        if ((!data.reRolls && data.reRolls != 0) || data.reRolls > 0) {
+          $(`#die-${i}`).click(() => {
+            if ($(`#die-${i}`).hasClass('select')) {
+              $(`#die-${i}`).removeClass('select');
+              selectedPos.delete(i);
+              toReroll--;
+              if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
+                $(`#die-${i}`).draggable('enable');
+              }
               $('#dice-num').text(toReroll);
-              $('#reroll-form').off();
-              $('#reroll-form').submit(() => {
-                $('#dice-num').text('');
+              if (reRolls == 0 || toReroll == 0) {
                 $('#reroll-form').addClass('hide');
-                $('.select').remove();
-                let id = $('#room-id').text();
-                let diceNum = toReroll;
-                toReroll = 0;
-                socket.emit('1st reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller });
-                return false;
-              })
+              }
+            } else {
+              if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
+                $(`#die-${i}`).draggable();
+                $(`#die-${i}`).draggable('disable');
+              }
+              $(`#die-${i}`).addClass('select');
+              selectedPos.add(i);
+              toReroll++;
+              if (toReroll > 0) {
+                $('#reroll-form').removeClass('hide');
+                $('#dice-num').text(toReroll);
+                $('#reroll-form').off();
+                $('#reroll-form').submit(() => {
+                  $('#dice-num').text('');
+                  $('#reroll-form').addClass('hide');
+                  $('.select').remove();
+                  let id = $('#room-id').text();
+                  toReroll = 0;
+                  socket.emit('start turn', { 
+                    id,
+                    playerPos: data.playerPos,
+                    reRolls: data.reRolls,
+                    dicePositions: [...selectedPos],
+                    roller: data.roller,
+                    currentDice: data.dice
+                  });
+                  return false;
+                })
+              }
             }
-          }
-        })
+          })
+        }
+
       }
 
       // Assign droppable positions
@@ -300,102 +310,6 @@ $(document).ready(function () {
         })
         countArrows = 0;
       }
-
     }
   })
-
-  socket.on('1st reroll', (data) => {
-    console.log(data)
-    for (let i = 0; i < 5; i++) {
-      if (data.dicePos.indexOf(i) != -1) {
-        $(`#die-${i}`).remove();
-      }
-    }
-    for (let i = 0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
-    }
-    $('.dice').off();
-    if (socket.id == data.roller) {
-      let reRolls = 1;
-      let toReroll = 0;
-      let countDynamites = 0;
-      let countArrows = 0;
-      let countGatling = 0;
-      let selectedPos = new Set();
-      for (let i = 0; i < 5; i++) {
-        if ($(`#die-${i}`).hasClass('arrow')) {
-          countArrows++;
-        }
-        if ($(`#die-${i}`).hasClass('gatling')) {
-          countGatling++;
-        }
-        if ($(`#die-${i}`).hasClass('dynamite')) {
-          countDynamites++;
-          continue;
-        }
-        $(`#die-${i}`).click(() => {
-          if ($(`#die-${i}`).hasClass('select')) {
-            $(`#die-${i}`).removeClass('select');
-            selectedPos.delete(i);
-            toReroll--;
-            $('#dice-num').text(toReroll);
-            if (reRolls == 0 || toReroll == 0) {
-              $('#reroll-form').addClass('hide');
-            }
-          } else {
-            $(`#die-${i}`).addClass('select');
-            selectedPos.add(i);
-            toReroll++;
-            if (reRolls > 0 && toReroll > 0) {
-              $('#reroll-form').removeClass('hide');
-              $('#dice-num').text(toReroll);
-              $('#reroll-form').off();
-              $('#reroll-form').submit(() => {
-                $('#dice-num').text('');
-                $('#reroll-form').addClass('hide');
-                $('.select').remove();
-                let id = $('#room-id').text();
-                let diceNum = toReroll;
-                toReroll = 0;
-                socket.emit('2nd reroll', { id, diceNum, dicePositions: [...selectedPos], roller: data.roller })
-                return false;
-              })
-            }
-          }
-        })
-      }
-    }
-  })
-
-  socket.on('2nd reroll', (data) => {
-    for (let i = 0; i < 5; i++) {
-      if (data.dicePos.indexOf(i) != -1) {
-        $(`#die-${i}`).remove();
-      }
-    }
-    for (let i = 0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${data.dicePos[i]}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`);
-    }
-    $('.dice').off();
-    if (socket.id == data.roller) {
-      let countDynamites = 0;
-      let countArrows = 0;
-      let countGatling = 0;
-      for (let i = 0; i < 5; i++) {
-        if ($(`#die-${i}`).hasClass('arrow')) {
-          countArrows++;
-        }
-        if ($(`#die-${i}`).hasClass('gatling')) {
-          countGatling++;
-        }
-        if ($(`#die-${i}`).hasClass('dynamite')) {
-          countDynamites++;
-          continue;
-        }
-        
-      }
-    }
-    
-  })
-
 });
