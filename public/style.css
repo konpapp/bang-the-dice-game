@@ -81,13 +81,8 @@ form button {
   font-size: large;
 }
 
-#reroll-btn {
+#reroll-btn, #end-turn-btn {
   width: 80%;
-  font-size: large;
-}
-
-#end-turn-form {
-  width: 100%;
   font-size: large;
 }
 

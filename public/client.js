@@ -126,13 +126,14 @@ $(document).ready(function () {
 
   socket.on('start turn', (data) => {
     $('#dice-area').html('');
-    $('#reroll-form').addClass('hide');
+    $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
     for(let i=0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
     if (socket.id == data.roller) {
       let reRolls = 2;
       let toReroll = 0;
+      let usableDice = 0;
       let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
@@ -142,7 +143,7 @@ $(document).ready(function () {
       let bang1Positions = new Set();
       let bang2Positions = new Set();
       let selectedPos = new Set();
-      for (let i=0; i < 5; i++) {
+      for (let i=0; i < data.dice.length; i++) {
         if ($(`#die-${i}`).hasClass('arrow')) {
           countArrows++;
         }
@@ -150,6 +151,7 @@ $(document).ready(function () {
           countGatling++;
         }
         if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
+          usableDice++;
 
           // Set draggable dice
           $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
@@ -255,7 +257,6 @@ $(document).ready(function () {
             }
           })
         }
-
       }
 
       // Assign droppable positions
@@ -263,12 +264,20 @@ $(document).ready(function () {
         if ([...beerPositions].indexOf(i) != -1 || [...bang1Positions].indexOf(i) != -1 || [...bang2Positions].indexOf(i) != -1) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
+              usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
                 $(this).addClass('drop-beer');
+                $(ui.draggable).remove();
                 console.log('beer');
+                data.players[i].health++;
               } else {
                 $(this).addClass('drop-bang');
+                $(ui.draggable).remove();
                 console.log('bang');
+                data.players[i].health--;
+              }
+              if (usableDice == 0) {
+                $('#end-turn-form').addClass('show');
               }
             },
             over: function (event, ui) {
@@ -307,6 +316,10 @@ $(document).ready(function () {
           return player;
         })
         countArrows = 0;
+
+        if (reRolls == 0 || usableDice == 0) {
+          $('#end-turn-form').removeClass('hide').addClass('show');
+        }
       }
     }
   })
