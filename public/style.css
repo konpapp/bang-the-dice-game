@@ -18,6 +18,11 @@ div > input {
   margin: 0.5rem;
 }
 
+#announce-turn {
+  font-size: larger;
+  color:rgb(110, 37, 9);
+}
+
 .login {
   border: solid 2px #777;
   width: 50%;
@@ -65,7 +70,7 @@ form button {
   cursor: pointer;
 }
 
-#rdy-btn {
+#rdy-btn, #roll-btn {
   width: 100%;
   font-size: large;
 }
@@ -76,18 +81,8 @@ form button {
   font-size: large;
 }
 
-#roll-btn {
-  width: 100%;
-  font-size: large;
-}
-
-#reroll-btn {
+#reroll-btn, #end-turn-btn {
   width: 80%;
-  font-size: large;
-}
-
-#end-turn-form {
-  width: 100%;
   font-size: large;
 }
 
@@ -195,4 +190,12 @@ form button {
 
 .select {
   border: 3px solid rgb(64, 212, 121);
+}
+
+.drop-beer {
+  border: 5px solid rgb(224, 226, 76);
+}
+
+.drop-bang {
+  border: 5px solid rgb(233, 86, 50);
 }

@@ -154,15 +154,24 @@ myDB(async (client) => {
     })
 
     socket.on('start turn', (data) => {
-      io.to(data.id).emit('start turn', { players: players[data.id], dice: game.rollDice(data.diceNum), roller: data.roller });
-    })
-
-    socket.on('1st reroll', (data) => {
-      io.to(data.id).emit('1st reroll', { players: players[data.id], dice: game.rollDice(data.diceNum), roller: data.roller, dicePos: data.dicePositions });
-    })
-
-    socket.on('2nd reroll', (data) => {
-      io.to(data.id).emit('2nd reroll', { players: players[data.id], dice: game.rollDice(data.diceNum), roller: data.roller, dicePos: data.dicePositions });
+      let dice;
+      if (data.currentDice) {
+        for (let i=0; i < data.dicePositions.length; i++) {
+          data.currentDice[data.dicePositions[i]] = game.rollDice(1);
+          data.reRolls--;
+        }
+        dice = data.currentDice;
+      } else {
+        dice = game.rollDice(5);
+      }
+      io.to(data.id).emit('start turn', { 
+        players: players[data.id],
+        dice,
+        reRolls: data.reRolls,
+        roller: data.roller,
+        dicePos: data.dicePositions,
+        playerPos: data.playerPos
+      });
     })
 
     socket.on('disconnect', () => {
