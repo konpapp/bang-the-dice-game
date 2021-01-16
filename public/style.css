@@ -184,6 +184,7 @@ form button {
 }
 
 .dice:hover {
+  filter: brightness(50%);
   cursor: pointer;
 }
 
