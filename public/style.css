@@ -18,6 +18,11 @@ div > input {
   margin: 0.5rem;
 }
 
+#announce-turn {
+  font-size: larger;
+  color:rgb(110, 37, 9);
+}
+
 .login {
   border: solid 2px #777;
   width: 50%;
@@ -65,18 +70,13 @@ form button {
   cursor: pointer;
 }
 
-#rdy-btn {
+#rdy-btn, #roll-btn {
   width: 100%;
   font-size: large;
 }
 
 #start-btn {
   background-color: rgb(102, 77, 14);
-  width: 100%;
-  font-size: large;
-}
-
-#roll-btn {
   width: 100%;
   font-size: large;
 }
