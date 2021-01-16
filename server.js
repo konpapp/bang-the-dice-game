@@ -157,7 +157,7 @@ myDB(async (client) => {
       let dice;
       if (data.currentDice) {
         for (let i=0; i < data.dicePositions.length; i++) {
-          data.currentDice[data.dicePositions[i]] = game.rollDice(1);
+          data.currentDice[data.dicePositions[i]] = game.rollDice(1)[0];
           data.reRolls--;
         }
         dice = data.currentDice;
