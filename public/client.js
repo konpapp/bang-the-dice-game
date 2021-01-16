@@ -92,7 +92,6 @@ $(document).ready(function () {
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
         $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
-        $('#announce-turn').text(data.players[i].name + "'s turn.")
       }
 
       // Assign each role privately
@@ -130,6 +129,8 @@ $(document).ready(function () {
     for(let i=0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
+    let playerTurn = data.players.filter(player => player.socketId == data.roller);
+    $('#announce-turn').text(playerTurn[0].name + "'s turn.");
     if (socket.id == data.roller) {
       let reRolls = 2;
       let toReroll = 0;
@@ -264,6 +265,7 @@ $(document).ready(function () {
         if ([...beerPositions].indexOf(i) != -1 || [...bang1Positions].indexOf(i) != -1 || [...bang2Positions].indexOf(i) != -1) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
+              $(this).css('background-color', '');
               usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
                 $(this).addClass('drop-beer');
@@ -321,6 +323,25 @@ $(document).ready(function () {
           $('#end-turn-form').removeClass('hide').addClass('show');
         }
       }
+
+      $('#end-turn-form').submit(function () {
+        $('.pos-border').removeClass('drop-beer drop-bang')
+        let id = $('#room-id').text();
+        let diceNum = 5;
+        let roller, playerPos;
+        for (let i=0; i < data.players.length; i++) {
+          if (data.players[i].socketId == socket.id) {
+            roller = data.players.concat(data.players)[i + 1].socketId;
+            if (i + 1 >= data.players.length) {
+              playerPos = 0;
+            } else {
+              playerPos = i + 1;
+            }
+            socket.emit('start turn', { id, diceNum, roller, playerPos });
+          }
+        }
+        return false;
+      })
     }
   })
 });
