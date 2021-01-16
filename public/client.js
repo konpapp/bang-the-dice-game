@@ -241,14 +241,27 @@ $(document).ready(function () {
                 $('#reroll-form').submit(() => {
                   $('#dice-num').text('');
                   $('#reroll-form').addClass('hide');
-                  $('.select').remove();
                   let id = $('#room-id').text();
                   toReroll = 0;
+
+                  // Adjust selected positions
+                  let dicePositions = [...selectedPos];
+                  let corr;
+                  for (let i = 0; i < dicePositions.length; i++) {
+                    corr = 0;
+                    for (let j = 0; j < dicePositions[i]; j++) {
+                      if (!$(`#die-${j}`).length) {
+                        corr++;
+                      }
+                    }
+                    dicePositions[i] -= corr;
+                  }
+                  $('.select').remove();
                   socket.emit('start turn', { 
                     id,
                     playerPos: data.playerPos,
                     reRolls: data.reRolls,
-                    dicePositions: [...selectedPos],
+                    dicePositions,
                     roller: data.roller,
                     currentDice: data.dice
                   });
@@ -268,11 +281,29 @@ $(document).ready(function () {
               $(this).css('background-color', '');
               usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
+                for (let i=0; i < data.dice.length; i++) {
+                  if (data.dice[i] == 'beer') {
+                    data.dice.splice(i, 1);
+                  }
+                }
                 $(this).addClass('drop-beer');
                 $(ui.draggable).remove();
                 console.log('beer');
                 data.players[i].health++;
               } else {
+                if ($(ui.draggable).hasClass('bang1')) {
+                  for (let i = 0; i < data.dice.length; i++) {
+                    if (data.dice[i] == 'bang1') {
+                      data.dice.splice(i, 1);
+                    }
+                  }
+                } else {
+                  for (let i = 0; i < data.dice.length; i++) {
+                    if (data.dice[i] == 'bang2') {
+                      data.dice.splice(i, 1);
+                    }
+                  }
+                }
                 $(this).addClass('drop-bang');
                 $(ui.draggable).remove();
                 console.log('bang');
@@ -318,30 +349,35 @@ $(document).ready(function () {
           return player;
         })
         countArrows = 0;
-
-        if (reRolls == 0 || usableDice == 0) {
-          $('#end-turn-form').removeClass('hide').addClass('show');
-        }
       }
 
-      $('#end-turn-form').submit(function () {
-        $('.pos-border').removeClass('drop-beer drop-bang')
-        let id = $('#room-id').text();
-        let diceNum = 5;
-        let roller, playerPos;
-        for (let i=0; i < data.players.length; i++) {
-          if (data.players[i].socketId == socket.id) {
-            roller = data.players.concat(data.players)[i + 1].socketId;
-            if (i + 1 >= data.players.length) {
-              playerPos = 0;
-            } else {
-              playerPos = i + 1;
-            }
-            socket.emit('start turn', { id, diceNum, roller, playerPos });
-          }
-        }
-        return false;
-      })
+      if (reRolls == 0 || usableDice <= 0) {
+        $('#end-turn-form').removeClass('hide').addClass('show');
+      }
+
+      $('#end-turn-form').off();
+      $('#end-turn-form').click(endTurn(data.players));
     }
   })
+
+  function endTurn(players) {
+    $('#end-turn-form').submit(function () {
+      $('.pos-border, .pos-border-sheriff').removeClass('drop-beer drop-bang');
+      let id = $('#room-id').text();
+      let diceNum = 5;
+      let roller, playerPos;
+      for (let i = 0; i < players.length; i++) {
+        if (players[i].socketId == socket.id) {
+          roller = players.concat(players)[i + 1].socketId;
+          if (i + 1 >= players.length) {
+            playerPos = 0;
+          } else {
+            playerPos = i + 1;
+          }
+          socket.emit('start turn', { id, diceNum, roller, playerPos });
+        }
+      }
+      return false;
+    })
+  }
 });
