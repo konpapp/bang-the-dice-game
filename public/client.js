@@ -83,7 +83,7 @@ $(document).ready(function () {
     for (let i=0; i < 8; i++) {
       if ($(`#pos${i}`).text() == '') {
         $(`#pos${i}`).css({ 'background': '' });
-        $(`#pos${i}`).css({ 'border': '' });
+        $(`#pos${i}`).css({ 'border': 'none' });
       }
     }
     for (let i = 0; i < data.players.length; i++) {
