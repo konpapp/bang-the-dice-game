@@ -1,5 +1,34 @@
-body {
-  background: rgb(40, 98, 121);
+#cont, html {
+  background-color: rgb(112, 104, 68);
+}
+
+#img-logo {
+  width: 15em;
+  margin: auto;
+  display: block;
+}
+
+@font-face {
+  font-family: 'Carnivalee Freakshow';
+  src: url('/public/fonts/CarnivaleeFreakshow.woff2') format('woff2'),
+      url('/public/fonts/CarnivaleeFreakshow.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#room-id-text, #num-users {
+  font-family: 'Carnivalee Freakshow';
+}
+
+#room-id {
+  font-family: sans;
+}
+
+#announce-turn {
+  font-family: 'Carnivalee Freakshow';
+  font-size: x-large;
+  color:rgb(70, 23, 5);
 }
 
 .border {
@@ -18,11 +47,6 @@ div > input {
   margin: 0.5rem;
 }
 
-#announce-turn {
-  font-size: larger;
-  color:rgb(110, 37, 9);
-}
-
 .login {
   border: solid 2px #777;
   width: 50%;
@@ -38,6 +62,10 @@ div > input {
 a.text {
   text-decoration: none;
   font-weight: 700;
+}
+
+.game-form {
+  width: 24%;
 }
 
 form {
@@ -61,6 +89,7 @@ form button {
 }
 
 .btn {
+  font-family: sans;
   background-color: rgb(85, 85, 85);
   color: white;
 }
@@ -72,27 +101,31 @@ form button {
 
 #rdy-btn, #roll-btn {
   width: 100%;
-  font-size: large;
+  font-size: xx-large;
+  font-family: 'Carnivalee Freakshow';
 }
 
 #start-btn {
   background-color: rgb(102, 77, 14);
   width: 100%;
-  font-size: large;
+  font-size: xx-large;
+  font-family: 'Carnivalee Freakshow';
 }
 
 #reroll-btn, #end-turn-btn {
   width: 80%;
-  font-size: large;
+  font-size: xx-large;
+  font-family: 'Carnivalee Freakshow';
 }
 
-#messages { 
-  width: 400px; 
+#messages {
+  width: 24%;
+  font-family: sans-serif;
   list-style-type: none;
   text-align: left;
   margin: 0;
   padding: 0;
-  height: 20em;
+  height: 25em;
   overflow: scroll;
   overflow-x: hidden;
   float: left;
@@ -103,63 +136,81 @@ form button {
 }
 
 #messages li:nth-child(odd) { 
-  background: #eee;
+  background: rgb(155, 130, 83);
+}
+
+#messages li:nth-child(even) { 
+  background: rgb(211, 170, 93);
+}
+
+#m {
+  font-family: sans;
+  background-color: rgb(250, 232, 198);;
+  width: 80%;
 }
 
 .board {
+  background-image: url('/public/images/far_west_bg.png');
+  background-size: 100% 100%;
+  padding: 1em;
   float: right;
   width: 75%;
-  min-height: 500px;
+  max-height: 100%;
+  height: 35em;
   border-radius: 15px;
-  border: 3px solid rgb(128, 94, 0);
-  background: rgb(128, 94, 0);
-  display: inline-grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-gap: 10px;
+}
+
+#dice-area {
+  margin-bottom: 1em;
+  margin-right: 1em;
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .pos-border {
-  border: 5px solid black;
-  border-radius: 25px;
-  background: black;
+  border: 2px solid rgb(0, 0, 0);
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: larger;
-  color: white;
-  width:30%;
-  height:30%;
-  margin-left: 160px;
+  justify-content: center;
+  margin-bottom: 1em;
+  margin-right: 1em;
+  height: 6.5em;
+  max-height: 100%;
+  border-radius: 25px;
+  font-size: x-large;
+  font-weight: bolder;
+  color: black;
 }
 
 .pos-border-rdy {
-  border: 5px solid lightgreen;
-  border-radius: 25px;
-  background: black;
+  border: 2px solid lightgreen;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: larger;
-  color: white;
-  width:30%;
-  height:30%;
-  margin-left: 160px;
+  justify-content: center;
+  margin-bottom: 1em;
+  margin-right: 1em;
+  height: 6.5em;
+  max-height: 100%;
+  border-radius: 25px;
+  font-size: x-large;
+  font-weight: bolder;
+  color: black;
 }
 
 .pos-border-sheriff {
-  border: 5px solid rgb(158, 160, 42);
-  border-radius: 25px;
-  background: black;
+  border: 3px solid rgb(158, 160, 42);
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: larger;
-  color: white;
-  width:30%;
-  height:30%;
-  margin-left: 160px;
+  justify-content: center;
+  margin-bottom: 1em;
+  margin-right: 1em;
+  height: 6.5em;
+  max-height: 100%;
+  border-radius: 25px;
+  font-size: x-large;
+  font-weight: bolder;
+  color: black;
 }
 
 .pos-border-canvas {

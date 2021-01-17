@@ -6,41 +6,46 @@ html
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/public/style.css')
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
     script(src='https://code.playcanvas.com/playcanvas-stable.min.js')
   body
-    h1.border.center BANG! The Dice Game
+  div#cont.container-fluid
+    img#img-logo.img-fluid(src='/public/images/bang_logo.png')
     .chat.center
-      h2.center Room ID: 
+      h3#room-id-text.center Room ID: 
         span#room-id  
-      h3.center#num-users
+      h5.center#num-users
       span#announce-turn
-      h5.center#announce
+      p.center#announce
       div.board
-        div.pos-border#pos0
-        div.pos-border#pos1
-        div.pos-border#pos2
-        div.pos-border#pos7
-        div#dice-area
-        div.pos-border#pos3
-        div.pos-border#pos6
-        div.pos-border#pos5
-        div.pos-border#pos4
+        div.row
+          div.col.pos-border#pos0
+          div.col.pos-border#pos1
+          div.col.pos-border#pos2
+        div.row
+          div.col.pos-border#pos7
+          div.col#dice-area
+          div.col.pos-border#pos3
+        div.row 
+          div.col.pos-border#pos6
+          div.col.pos-border#pos5
+          div.col.pos-border#pos4
       div.chat-box
         ul#messages
-        form#msg-form(action='')
-          input#m(autocomplete='off')
-          button.btn Send
-        form#rdy-form(action='')
-          button.btn#rdy-btn Ready
-        form.hide#start-form(action='')
-          button.btn#start-btn Start Game
-        form.hide#roll-form(action='')
-          button.btn#roll-btn Roll Dice
-        form.hide#reroll-form(action='')
-          button.btn#reroll-btn Re-Roll 
+        form.game-form#msg-form(action='')
+          input.rounded#m(autocomplete='off', placeholder='Type a chat message')
+          button.btn.btn-secondary.btn-sm Send
+        form.game-form#rdy-form(action='')
+          button.btn.btn-dark#rdy-btn READY
+        form.game-form.hide#start-form(action='')
+          button.btn.btn-dark#start-btn Start Game
+        form.game-form.hide#roll-form(action='')
+          button.btn.btn-dark#roll-btn Roll Dice
+        form.game-form.hide#reroll-form(action='')
+          button.btn.btn-dark#reroll-btn Re-Roll 
             span#dice-num
-        form.hide#end-turn-form(action='')
-          button.btn#end-turn-btn End Turn
+        form.game-form.hide#end-turn-form(action='')
+          button.btn.btn-dark#end-turn-btn End Turn
       hr
       h2.center 
       .logout.left
