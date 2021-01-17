@@ -32,11 +32,11 @@ $(document).ready(function () {
 
     // Announce new user on chat
     let message = data.name + (data.connected ? ' has joined the chat.' : ' has left the chat.');
-    $('#messages').append($('<li>').html('<b>' + message + '</b>'));
+    $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
   });
 
   socket.on('chat message', (data) => {
-    $('#messages').append($('<li>').text(`${data.name}: ${data.message}`));
+    $('#messages').append($('<li>').html(`<b>${data.name}</b>: ${data.message}`).addClass('rounded'));
   });
 
   socket.on('ready button', (data) => {
@@ -82,8 +82,8 @@ $(document).ready(function () {
     // Clear up open positions on board
     for (let i=0; i < 8; i++) {
       if ($(`#pos${i}`).text() == '') {
-        $(`#pos${i}`).css({ 'background': 'rgb(128, 94, 0)' });
-        $(`#pos${i}`).css({ 'border': 'rgb(128, 94, 0)' });
+        $(`#pos${i}`).css({ 'background': '' });
+        $(`#pos${i}`).css({ 'border': '' });
       }
     }
     for (let i = 0; i < data.players.length; i++) {
