@@ -1,5 +1,7 @@
 #cont, html {
-  background-color: rgb(112, 104, 68);
+  min-height: 100vh;
+  background-color: #a44200;
+  background-image: linear-gradient(315deg, #a44200 0%, #f2c17d 74%);
 }
 
 #img-logo {
