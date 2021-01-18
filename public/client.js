@@ -124,9 +124,14 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
-    $('#dice-area').html('');
+    $('#dice-area, .pos-health').html('');
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
-    for(let i=0; i < data.dice.length; i++) {
+    for (let i=0; i < data.players.length; i++) {
+      for (let j=0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img class="img-bullet" src="/public/images/bullet.png" />`)
+      }
+    }
+    for (let i=0; i < data.dice.length; i++) {
       $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
     }
     let playerTurn = data.players.filter(player => player.socketId == data.roller);
@@ -279,6 +284,7 @@ $(document).ready(function () {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
               $(this).css('background-color', '');
+              $(this).css('opacity', '');
               usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
                 for (let i=0; i < data.dice.length; i++) {
@@ -315,10 +321,12 @@ $(document).ready(function () {
             },
             over: function (event, ui) {
               $(this).css('background-color', 'rgb(68, 65, 65)');
+              $(this).css('opacity', '0.4');
             },
             out: function (event, ui) {
               $(this).removeClass('drop-bang drop-beer');
               $(this).css('background-color', '');
+              $(this).css('opacity', '');
             }
           })
           let acceptArr = [];

@@ -170,13 +170,16 @@ form button {
   justify-content: center;
 }
 
+.pos-whole {
+  margin-bottom: 1em;
+  margin-right: 1em;
+}
+
 .pos-border {
   border: 2px solid rgb(0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
   height: 6.5em;
   max-height: 100%;
   border-radius: 25px;
@@ -185,13 +188,25 @@ form button {
   color: black;
 }
 
+.pos-health {
+  display: flex;
+  align-items: flex-start;
+  height: 6.5em;
+  max-height: 100%;
+  font-size: x-large;
+  font-weight: bolder;
+  color: black;
+}
+
+.img-bullet {
+  width: 20px;
+}
+
 .pos-border-rdy {
   border: 2px solid lightgreen;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
   height: 6.5em;
   max-height: 100%;
   border-radius: 25px;
@@ -205,8 +220,6 @@ form button {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
   height: 6.5em;
   max-height: 100%;
   border-radius: 25px;
