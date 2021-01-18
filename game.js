@@ -40,10 +40,10 @@ function getRoles(users) {
   for (let i=0; i < users.length; i++) {
     playerObj.name = users[i];
     playerObj.role = roles[i];
-    playerObj.health = 5;
+    playerObj.health = 8;
     players.push(Object.assign({}, playerObj));
     if (players[i].role == 'sheriff') {
-      ++players[i].health;
+      players[i].health += 2;
     }
   }
   return players;

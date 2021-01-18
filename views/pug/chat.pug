@@ -19,17 +19,33 @@ html
       p.center#announce
       div.board
         div.row
-          div.col.pos-border#pos0
-          div.col.pos-border#pos1
-          div.col.pos-border#pos2
+          .col.pos-whole.row
+            .col.pos-border#pos0
+            .col.pos-health#health0
+          .col.pos-whole.row
+            .col.pos-border#pos1
+            .col.pos-health#health1
+          .col.pos-whole.row
+            .col.pos-border#pos2
+            .col.pos-health#health2
         div.row
-          div.col.pos-border#pos7
-          div.col#dice-area
-          div.col.pos-border#pos3
+          .col.pos-whole.row
+            .col.pos-border#pos7
+            .col.pos-health#health7
+          .col#dice-area
+          .col.pos-whole.row
+            .col.pos-border#pos3
+            .col.pos-health#health3
         div.row 
-          div.col.pos-border#pos6
-          div.col.pos-border#pos5
-          div.col.pos-border#pos4
+          .col.pos-whole.row
+            .col.pos-border#pos6
+            .col.pos-health#health6
+          .col.pos-whole.row
+            .col.pos-border#pos5
+            .col.pos-health#health5
+          .col.pos-whole.row
+            .col.pos-border#pos4
+            .col.pos-health#health4
       div.chat-box
         ul#messages
         form.game-form#msg-form(action='')
