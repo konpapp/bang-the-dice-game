@@ -94,7 +94,7 @@ $(document).ready(function () {
 
       // Assign health points
       for (let j = 0; j < data.players[i].health; j++) {
-        $(`#health${i}`).prepend(`<img class="img-bullet" src="/public/images/bullet.png" />`)
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
       }
 
       // Announce and mark the sheriff
@@ -137,7 +137,7 @@ $(document).ready(function () {
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
     for (let i=0; i < data.players.length; i++) {
       for (let j=0; j < data.players[i].health; j++) {
-        $(`#health${i}`).prepend(`<img class="img-bullet" src="/public/images/bullet.png" />`)
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
       }
     }
     for (let i=0; i < data.dice.length; i++) {
@@ -321,8 +321,8 @@ $(document).ready(function () {
                 }
                 $(this).addClass('drop-bang');
                 $(ui.draggable).remove();
-                console.log('bang');
-                data.players[i].health--;
+                let id = $('#room-id').text();
+                socket.emit('lose health', { id, playerPos: i });
               }
               if (usableDice == 0) {
                 $('#end-turn-form').addClass('show');
@@ -396,5 +396,24 @@ $(document).ready(function () {
       }
       return false;
     })
+  }
+
+  socket.on('lose health', (data) => {
+    bangSound();
+    $(`#health${data.playerPos}-${data.players[data.playerPos].health}`).remove();
+  })
+
+  function bangSound() {
+    const audio = document.getElementById('bang-sound');
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play();
+  }
+
+  function beerSound() {
+    const audio = document.getElementById('beer-sound');
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play();
   }
 });
