@@ -19,6 +19,16 @@
   font-display: swap;
 }
 
+@font-face {
+    font-family: 'Cowboy Junior';
+    src: url('/public/fonts/CowboyJunior.woff2') format('woff2'),
+        url('/public/fonts/CowboyJunior.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
 #room-id-text, #num-users {
   font-family: 'Carnivalee Freakshow';
 }
@@ -34,7 +44,7 @@
 }
 
 #announce {
-  font-size: small;
+  font-family: 'Cowboy Junior';
 }
 
 .border {
@@ -171,30 +181,25 @@ form button {
   justify-content: center;
 }
 
-.pos-whole {
-
-}
-
 .pos-border {
   border: 2px solid rgb(0, 0, 0);
   background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: start;
   height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
   font-size: x-large;
   font-weight: bolder;
-  color: white;
+  color:white;
 }
 
 .pos-health {
   display: flex;
   align-items: baseline;
   justify-content: left;
-  height: 6em;
-  max-height: 100%;
   font-size: x-large;
   font-weight: bolder;
   color: black;
@@ -206,29 +211,32 @@ form button {
 
 .pos-border-rdy {
   border: 2px solid lightgreen;
+  background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: start;
   height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
   font-size: x-large;
   font-weight: bolder;
-  color: white;
+  color:white;
 }
 
 .pos-border-sheriff {
   border: 2px solid rgb(158, 160, 42);
   background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: start;
   height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
   font-size: x-large;
   font-weight: bolder;
-  color: white;
+  color:white;
 }
 
 .pos-border-canvas {
