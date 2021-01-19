@@ -145,10 +145,12 @@ myDB(async (client) => {
 
     socket.on('assign roles', (id) => {
       players[id] = game.getRoles(rooms[id]);
+      let chars = game.getChars(rooms[id]);
       let ids = readyUsers[id].map(elem => elem[0]);
       let usernames = readyUsers[id].map(elem => elem[1]);
       for (let i=0; i < usernames.length; i++) {
         players[id][i].socketId = ids[usernames.indexOf(players[id][i].name)];
+        players[id][i].char = chars[i];
       }
       io.to(id).emit('assign roles', { players: players[id] });
     })
