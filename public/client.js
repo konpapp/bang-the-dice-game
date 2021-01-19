@@ -77,6 +77,7 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
+    $('#announce-turn').text('GAME IS STARTING');
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -87,6 +88,14 @@ $(document).ready(function () {
       }
     }
     for (let i = 0; i < data.players.length; i++) {
+
+      // Assign portraits
+      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`)
+
+      // Assign health points
+      for (let j = 0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img class="img-bullet" src="/public/images/bullet.png" />`)
+      }
 
       // Announce and mark the sheriff
       if (data.players[i].role == 'sheriff') {
@@ -132,7 +141,7 @@ $(document).ready(function () {
       }
     }
     for (let i=0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`)
     }
     let playerTurn = data.players.filter(player => player.socketId == data.roller);
     $('#announce-turn').text(playerTurn[0].name + "'s turn.");

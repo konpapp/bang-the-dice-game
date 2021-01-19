@@ -33,6 +33,10 @@
   color:rgb(70, 23, 5);
 }
 
+#announce {
+  font-size: small;
+}
+
 .border {
   border-style: inset;
   border-width: 1px;
@@ -154,7 +158,6 @@ form button {
 .board {
   background-image: url('/public/images/far_west_bg.png');
   background-size: 100% 100%;
-  padding: 1em;
   float: right;
   width: 75%;
   max-height: 100%;
@@ -163,35 +166,34 @@ form button {
 }
 
 #dice-area {
-  margin-bottom: 1em;
-  margin-right: 1em;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .pos-whole {
-  margin-bottom: 1em;
-  margin-right: 1em;
+
 }
 
 .pos-border {
   border: 2px solid rgb(0, 0, 0);
+  background-size: 100% 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 6.5em;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
   font-size: x-large;
   font-weight: bolder;
-  color: black;
+  color: white;
 }
 
 .pos-health {
   display: flex;
-  align-items: flex-start;
-  height: 6.5em;
+  align-items: baseline;
+  justify-content: left;
+  height: 6em;
   max-height: 100%;
   font-size: x-large;
   font-weight: bolder;
@@ -207,25 +209,26 @@ form button {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 6.5em;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
   font-size: x-large;
   font-weight: bolder;
-  color: black;
+  color: white;
 }
 
 .pos-border-sheriff {
-  border: 3px solid rgb(158, 160, 42);
+  border: 2px solid rgb(158, 160, 42);
+  background-size: 100% 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 6.5em;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
   font-size: x-large;
   font-weight: bolder;
-  color: black;
+  color: white;
 }
 
 .pos-border-canvas {
