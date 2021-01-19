@@ -184,8 +184,19 @@ myDB(async (client) => {
       }
       io.to(data.id).emit('lose health', {
         players: players[data.id],
-        playerPos: data.playerPos
+        playerPos: data.playerPos,
+        dmgType: data.dmgType
       })
+    })
+
+    socket.on('gain health', (data) => {
+      if (players[data.id][data.playerPos].health < players[data.id][data.playerPos].maxHealth) {
+        players[data.id][data.playerPos].health++;
+        io.to(data.id).emit('gain health', {
+          players: players[data.id],
+          playerPos: data.playerPos
+        })
+      }
     })
 
     socket.on('disconnect', () => {

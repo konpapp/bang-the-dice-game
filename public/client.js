@@ -294,6 +294,7 @@ $(document).ready(function () {
             drop: function (event, ui) {
               $(this).css('background-color', '');
               $(this).css('opacity', '');
+              let id = $('#room-id').text();
               usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
                 for (let i=0; i < data.dice.length; i++) {
@@ -303,8 +304,7 @@ $(document).ready(function () {
                 }
                 $(this).addClass('drop-beer');
                 $(ui.draggable).remove();
-                console.log('beer');
-                data.players[i].health++;
+                socket.emit('gain health', { id, playerPos: i });
               } else {
                 if ($(ui.draggable).hasClass('bang1')) {
                   for (let i = 0; i < data.dice.length; i++) {
@@ -321,8 +321,7 @@ $(document).ready(function () {
                 }
                 $(this).addClass('drop-bang');
                 $(ui.draggable).remove();
-                let id = $('#room-id').text();
-                socket.emit('lose health', { id, playerPos: i });
+                socket.emit('lose health', { id, playerPos: i, dmgType: 'bang' });
               }
               if (usableDice == 0) {
                 $('#end-turn-form').addClass('show');
@@ -399,21 +398,20 @@ $(document).ready(function () {
   }
 
   socket.on('lose health', (data) => {
-    bangSound();
+    playSound(data.dmgType);
     $(`#health${data.playerPos}-${data.players[data.playerPos].health}`).remove();
   })
 
-  function bangSound() {
-    const audio = document.getElementById('bang-sound');
+  socket.on('gain health', (data) => {
+    playSound('beer');
+    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${data.players[data.playerPos].health + 1}" class="img-bullet" src="/public/images/bullet.png" />`)
+  })
+
+  function playSound(audioId) {
+    const audio = document.getElementById(`${audioId}-sound`);
     audio.pause();
     audio.currentTime = 0;
     audio.play();
   }
 
-  function beerSound() {
-    const audio = document.getElementById('beer-sound');
-    audio.pause();
-    audio.currentTime = 0;
-    audio.play();
-  }
 });
