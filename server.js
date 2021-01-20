@@ -177,16 +177,21 @@ myDB(async (client) => {
     })
 
     socket.on('lose health', (data) => {
-      if (players[data.id][data.playerPos].health > 0) {
-        players[data.id][data.playerPos].health--;
-      } else if (players[data.id].length > 1) {
-        players[data.id].splice(data.playerPos, 1);
-      }
+      let name = players[data.id][data.playerPos].name;
+      players[data.id][data.playerPos].health--;
+      if (players[data.id][data.playerPos].health == 0) {
+        players[data.id][data.playerPos].alive = false;
+        io.to(data.id).emit('player eliminated', {
+          players: players[data.id],
+          playerPos: data.playerPos,
+          name
+        });
+      } 
       io.to(data.id).emit('lose health', {
         players: players[data.id],
         playerPos: data.playerPos,
         dmgType: data.dmgType
-      })
+      });
     })
 
     socket.on('gain health', (data) => {

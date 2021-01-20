@@ -239,6 +239,21 @@ form button {
   color:white;
 }
 
+.pos-border-dead {
+  border: 2px solid rgb(0, 0, 0);
+  background-size: 100% 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: start;
+  height: 6em;
+  max-height: 100%;
+  border-radius: 25px;
+  font-family: 'Cowboy Junior';
+  font-size: x-large;
+  font-weight: bolder;
+  color:white;
+}
+
 .pos-border-canvas {
   border: 2px solid black;
   position: absolute;
@@ -267,12 +282,4 @@ form button {
 
 .select {
   border: 3px solid rgb(64, 212, 121);
-}
-
-.drop-beer {
-  border: 5px solid rgb(224, 226, 76);
-}
-
-.drop-bang {
-  border: 5px solid rgb(233, 86, 50);
 }

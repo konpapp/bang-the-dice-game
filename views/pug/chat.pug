@@ -16,7 +16,7 @@ html
       h3#room-id-text.center Room ID: 
         span#room-id  
       h5.center#num-users
-      span#announce-turn WAITING TO START
+      span#announce-turn Waiting to start
       p.center#announce
       div.board.p-5
         div.row.align-items-start
@@ -65,11 +65,12 @@ html
         form.game-form.hide#end-turn-form(action='')
           button.btn.btn-dark#end-turn-btn End Turn
       hr
-      audio(src="/public/sounds/bangSound.mp3" type="audio/mpeg")#bang-sound
-      audio(src="/public/sounds/beerSound.mp3" type="audio/mpeg")#beer-sound
-      audio(src="/public/sounds/gatlingSound.mp3" type="audio/mpeg")#gatling-sound
-      audio(src="/public/sounds/dynamiteSound.mp3" type="audio/mpeg")#dynamite-sound
-      audio(src="/public/sounds/arrowSound.mp3" type="audio/mpeg")#arrow-sound
+      audio(src="/public/sounds/bang.mp3" type="audio/mpeg")#bang-sound
+      audio(src="/public/sounds/beer.mp3" type="audio/mpeg")#beer-sound
+      audio(src="/public/sounds/gatling.mp3" type="audio/mpeg")#gatling-sound
+      audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg")#dynamite-sound
+      audio(src="/public/sounds/arrow.mp3" type="audio/mpeg")#arrow-sound
+      audio(src="/public/sounds/crow.mp3" type="audio/mpeg")#crow-sound
       h2.center 
       .logout.left
         a(href='/logout').text Logout
