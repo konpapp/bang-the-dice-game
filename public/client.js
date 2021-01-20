@@ -77,7 +77,7 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
-    $('#announce-turn').text('GAME IS STARTING');
+    $('#announce-turn').text('Game is starting');
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -302,7 +302,6 @@ $(document).ready(function () {
                     data.dice.splice(i, 1);
                   }
                 }
-                $(this).addClass('drop-beer');
                 $(ui.draggable).remove();
                 socket.emit('gain health', { id, playerPos: i });
               } else {
@@ -319,7 +318,6 @@ $(document).ready(function () {
                     }
                   }
                 }
-                $(this).addClass('drop-bang');
                 $(ui.draggable).remove();
                 socket.emit('lose health', { id, playerPos: i, dmgType: 'bang' });
               }
@@ -332,7 +330,6 @@ $(document).ready(function () {
               $(this).css('opacity', '0.4');
             },
             out: function (event, ui) {
-              $(this).removeClass('drop-bang drop-beer');
               $(this).css('background-color', '');
               $(this).css('opacity', '');
             }
@@ -378,7 +375,6 @@ $(document).ready(function () {
 
   function endTurn(players) {
     $('#end-turn-form').submit(function () {
-      $('.pos-border, .pos-border-sheriff').removeClass('drop-beer drop-bang');
       let id = $('#room-id').text();
       let diceNum = 5;
       let roller, playerPos;
@@ -407,11 +403,16 @@ $(document).ready(function () {
     $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${data.players[data.playerPos].health + 1}" class="img-bullet" src="/public/images/bullet.png" />`)
   })
 
-  function playSound(audioId) {
-    const audio = document.getElementById(`${audioId}-sound`);
+  function playSound(sound) {
+    const audio = document.getElementById(`${sound}-sound`);
     audio.pause();
     audio.currentTime = 0;
     audio.play();
   }
+
+  socket.on('player eliminated', (data) => {
+    playSound('crow');
+    $(`#pos${data.playerPos}`).text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+  })
 
 });

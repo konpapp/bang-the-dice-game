@@ -43,6 +43,7 @@ function getRoles(users) {
     playerObj.role = roles[i];
     playerObj.health = 8;
     playerObj.maxHealth = 8;
+    playerObj.alive = true;
     players.push(Object.assign({}, playerObj));
     if (players[i].role == 'sheriff') {
       players[i].health += 2;
