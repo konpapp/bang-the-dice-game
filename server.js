@@ -207,6 +207,42 @@ myDB(async (client) => {
       }
     })
 
+    socket.on('get arrow', (data) => {
+      let emptyArrows = false;
+      let moveTurn = false;
+      players[data.id][data.pos].arrows++;
+      if (data.arrowCount === 1) {
+        emptyArrows = true;
+        for (let i = 0; i < players[data.id].length; i++) {
+          if (players[data.id][i].alive) {
+            players[data.id][i].health -= players[data.id][i].arrows;
+          }
+          if (players[data.id][i].health <= 0) {
+            if (players[data.id][i].socketId == data.roller) { moveTurn = true; }
+            let alivePlayers = players[data.id].filter(player => player.alive);
+            let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
+            let newRoller;
+            if (idx + 1 >= alivePlayers.length) {
+              newRoller = alivePlayers[0].socketId;
+            } else { newRoller = alivePlayers[idx + 1] }
+            players[data.id][i].alive = false;
+            io.to(data.id).emit('player eliminated', {
+              players: players[data.id],
+              playerPos: i,
+              name: players[data.id][i].name,
+              roller: newRoller,
+              moveTurn
+            });
+          }
+          players[data.id][i].arrows = 0;
+        }
+      }
+      io.to(data.id).emit('get arrow', { pos: players[data.id].map(player => player.socketId).indexOf(data.roller), arrowCount: data.arrowCount })
+      if (emptyArrows) {
+        io.to(data.id).emit('refill arrows');
+      }
+    })
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
