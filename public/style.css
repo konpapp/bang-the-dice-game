@@ -175,7 +175,7 @@ form button {
   border-radius: 15px;
 }
 
-#dice-area {
+#dice-area, #arrow-area {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,14 +198,23 @@ form button {
 
 .pos-health {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: left;
   font-size: x-large;
   font-weight: bolder;
   color: black;
 }
 
-.img-bullet {
+.pos-arrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: left;
+  font-size: x-large;
+  font-weight: bolder;
+  color: black;
+}
+
+.img-bullet, .img-arrow {
   width: 20px;
 }
 

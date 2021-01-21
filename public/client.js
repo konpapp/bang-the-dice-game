@@ -87,14 +87,19 @@ $(document).ready(function () {
         $(`#pos${i}`).css({ 'border': 'none' });
       }
     }
+    
+    // Assign arrows
+    for (let z = 0; z < 9; z++) {
+      $('#arrow-area').prepend(`<img id="arrow-${z}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
     for (let i = 0; i < data.players.length; i++) {
 
       // Assign portraits
-      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`)
+      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`);
 
       // Assign health points
       for (let j = 0; j < data.players[i].health; j++) {
-        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
       }
 
       // Announce and mark the sheriff
