@@ -1,5 +1,7 @@
 #cont, html {
-  background-color: rgb(112, 104, 68);
+  min-height: 100vh;
+  background-color: #a44200;
+  background-image: linear-gradient(315deg, #a44200 0%, #f2c17d 74%);
 }
 
 #img-logo {
@@ -17,6 +19,16 @@
   font-display: swap;
 }
 
+@font-face {
+    font-family: 'Cowboy Junior';
+    src: url('/public/fonts/CowboyJunior.woff2') format('woff2'),
+        url('/public/fonts/CowboyJunior.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
 #room-id-text, #num-users {
   font-family: 'Carnivalee Freakshow';
 }
@@ -29,6 +41,10 @@
   font-family: 'Carnivalee Freakshow';
   font-size: x-large;
   color:rgb(70, 23, 5);
+}
+
+#announce {
+  font-family: 'Cowboy Junior';
 }
 
 .border {
@@ -152,7 +168,6 @@ form button {
 .board {
   background-image: url('/public/images/far_west_bg.png');
   background-size: 100% 100%;
-  padding: 1em;
   float: right;
   width: 75%;
   max-height: 100%;
@@ -161,8 +176,6 @@ form button {
 }
 
 #dice-area {
-  margin-bottom: 1em;
-  margin-right: 1em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,47 +183,75 @@ form button {
 
 .pos-border {
   border: 2px solid rgb(0, 0, 0);
+  background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
-  height: 6.5em;
+  align-items: flex-start;
+  justify-content: start;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
+  font-size: x-large;
+  font-weight: bolder;
+  color:white;
+}
+
+.pos-health {
+  display: flex;
+  align-items: baseline;
+  justify-content: left;
   font-size: x-large;
   font-weight: bolder;
   color: black;
+}
+
+.img-bullet {
+  width: 20px;
 }
 
 .pos-border-rdy {
   border: 2px solid lightgreen;
+  background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
-  height: 6.5em;
+  align-items: flex-start;
+  justify-content: start;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
   font-size: x-large;
   font-weight: bolder;
-  color: black;
+  color:white;
 }
 
 .pos-border-sheriff {
-  border: 3px solid rgb(158, 160, 42);
+  border: 2px solid rgb(158, 160, 42);
+  background-size: 100% 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1em;
-  margin-right: 1em;
-  height: 6.5em;
+  align-items: flex-start;
+  justify-content: start;
+  height: 6em;
   max-height: 100%;
   border-radius: 25px;
+  font-family: 'Cowboy Junior';
   font-size: x-large;
   font-weight: bolder;
-  color: black;
+  color:white;
+}
+
+.pos-border-dead {
+  border: 2px solid rgb(0, 0, 0);
+  background-size: 100% 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: start;
+  height: 6em;
+  max-height: 100%;
+  border-radius: 25px;
+  font-family: 'Cowboy Junior';
+  font-size: x-large;
+  font-weight: bolder;
+  color:white;
 }
 
 .pos-border-canvas {
@@ -241,12 +282,4 @@ form button {
 
 .select {
   border: 3px solid rgb(64, 212, 121);
-}
-
-.drop-beer {
-  border: 5px solid rgb(224, 226, 76);
-}
-
-.drop-bang {
-  border: 5px solid rgb(233, 86, 50);
 }

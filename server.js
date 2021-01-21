@@ -145,10 +145,12 @@ myDB(async (client) => {
 
     socket.on('assign roles', (id) => {
       players[id] = game.getRoles(rooms[id]);
+      let chars = game.getChars(rooms[id]);
       let ids = readyUsers[id].map(elem => elem[0]);
       let usernames = readyUsers[id].map(elem => elem[1]);
       for (let i=0; i < usernames.length; i++) {
         players[id][i].socketId = ids[usernames.indexOf(players[id][i].name)];
+        players[id][i].char = chars[i];
       }
       io.to(id).emit('assign roles', { players: players[id] });
     })
@@ -170,8 +172,39 @@ myDB(async (client) => {
         reRolls: data.reRolls,
         roller: data.roller,
         dicePos: data.dicePositions,
-        playerPos: data.playerPos
+        playerPos: players[data.id]
+                    .filter(player => player.alive)
+                    .map(player => player.socketId)
+                    .indexOf(data.roller)
       });
+    })
+
+    socket.on('lose health', (data) => {
+      let name = players[data.id][data.playerPos].name;
+      players[data.id][data.playerPos].health--;
+      if (players[data.id][data.playerPos].health == 0) {
+        players[data.id][data.playerPos].alive = false;
+        io.to(data.id).emit('player eliminated', {
+          players: players[data.id],
+          playerPos: data.playerPos,
+          name
+        });
+      } 
+      io.to(data.id).emit('lose health', {
+        players: players[data.id],
+        playerPos: data.playerPos,
+        dmgType: data.dmgType
+      });
+    })
+
+    socket.on('gain health', (data) => {
+      if (players[data.id][data.playerPos].health < players[data.id][data.playerPos].maxHealth) {
+        players[data.id][data.playerPos].health++;
+        io.to(data.id).emit('gain health', {
+          players: players[data.id],
+          playerPos: data.playerPos
+        })
+      }
     })
 
     socket.on('disconnect', () => {

@@ -77,6 +77,7 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
+    $('#announce-turn').text('Game is starting');
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -87,6 +88,14 @@ $(document).ready(function () {
       }
     }
     for (let i = 0; i < data.players.length; i++) {
+
+      // Assign portraits
+      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`)
+
+      // Assign health points
+      for (let j = 0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
+      }
 
       // Announce and mark the sheriff
       if (data.players[i].role == 'sheriff') {
@@ -124,10 +133,15 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
-    $('#dice-area').html('');
+    $('#dice-area, .pos-health').html('');
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
-    for(let i=0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/${data.dice[i]}.png" />`)
+    for (let i=0; i < data.players.length; i++) {
+      for (let j=0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
+      }
+    }
+    for (let i=0; i < data.dice.length; i++) {
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`)
     }
     let playerTurn = data.players.filter(player => player.socketId == data.roller);
     $('#announce-turn').text(playerTurn[0].name + "'s turn.");
@@ -138,6 +152,7 @@ $(document).ready(function () {
       let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
+      let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
 
       // Helper sets to store droppable positions
       let beerPositions = new Set();
@@ -160,50 +175,44 @@ $(document).ready(function () {
 
           // Set droppables for beer
           if ($(`#die-${i}`).hasClass('beer')) {
-            for (let i=0; i < data.players.length; i++) {
-              beerPositions.add(i);
+            for (let i = 0; i < alivePlayers.length; i++) {
+              beerPositions.add(alivePlayers[i]);
             }
           
           // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
-            let bang1Arr = data.players.filter(player =>  {
+            let bang1Arr = alivePlayers.filter(player =>  {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
-              let expandedArr = data.players.concat(data.players);
-              if (data.playerPos <= data.players.length / 2) {
-                if (expandedArr[data.players.length + data.playerPos - 1] == player || expandedArr[data.players.length + data.playerPos + 1] == player) {
-                  return player;
-                }
-              } else {
-                if (expandedArr[data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) {
-                  return player;
-                }
+              let expandedArr = alivePlayers.concat(alivePlayers);
+              if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+                return player;
               }
             });
-            let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
-              bang1Positions.add(names.indexOf(bang1Arr[i].name));
+              bang1Positions.add(bang1Arr[i]);
             }
 
           // Set droppables for bang2
           } else {
-            let bang2Arr = data.players.filter(player => {
+            let bang2Arr = alivePlayers.filter(player => {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5).
-              let expandedArr = data.players.concat(data.players);
-              if (data.playerPos <= data.players.length / 2) {
-                if (expandedArr[data.players.length + data.playerPos - 2] == player || expandedArr[data.players.length + data.playerPos + 2] == player) {
+              let expandedArr = alivePlayers.concat(alivePlayers);
+
+              // If only 2 players, use as bang1
+              if (alivePlayers.length == 2) {
+                if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
                   return player;
                 }
               } else {
-                if (expandedArr[data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) {
+                if ((expandedArr[alivePlayers.length + data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) && expandedArr[data.playerPos] != player) {
                   return player;
                 }
               }
             });
-            let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
-              bang2Positions.add(names.indexOf(bang2Arr[i].name));
+              bang2Positions.add(bang2Arr[i]);
             }
           }
         }
@@ -275,10 +284,13 @@ $(document).ready(function () {
 
       // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
-        if ([...beerPositions].indexOf(i) != -1 || [...bang1Positions].indexOf(i) != -1 || [...bang2Positions].indexOf(i) != -1) {
+        let name = $(`#pos${i}`).text();
+        if ([...beerPositions].indexOf(name) != -1 || [...bang1Positions].indexOf(name) != -1 || [...bang2Positions].indexOf(name) != -1) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
               $(this).css('background-color', '');
+              $(this).css('opacity', '');
+              let id = $('#room-id').text();
               usableDice--;
               if ($(ui.draggable).hasClass('beer')) {
                 for (let i=0; i < data.dice.length; i++) {
@@ -286,10 +298,8 @@ $(document).ready(function () {
                     data.dice.splice(i, 1);
                   }
                 }
-                $(this).addClass('drop-beer');
                 $(ui.draggable).remove();
-                console.log('beer');
-                data.players[i].health++;
+                socket.emit('gain health', { id, playerPos: i });
               } else {
                 if ($(ui.draggable).hasClass('bang1')) {
                   for (let i = 0; i < data.dice.length; i++) {
@@ -304,10 +314,8 @@ $(document).ready(function () {
                     }
                   }
                 }
-                $(this).addClass('drop-bang');
                 $(ui.draggable).remove();
-                console.log('bang');
-                data.players[i].health--;
+                socket.emit('lose health', { id, playerPos: i, dmgType: 'bang' });
               }
               if (usableDice == 0) {
                 $('#end-turn-form').addClass('show');
@@ -315,20 +323,21 @@ $(document).ready(function () {
             },
             over: function (event, ui) {
               $(this).css('background-color', 'rgb(68, 65, 65)');
+              $(this).css('opacity', '0.4');
             },
             out: function (event, ui) {
-              $(this).removeClass('drop-bang drop-beer');
               $(this).css('background-color', '');
+              $(this).css('opacity', '');
             }
           })
           let acceptArr = [];
-          if ([...beerPositions].indexOf(i) != -1) {
+          if ([...beerPositions].indexOf(name) != -1) {
             acceptArr.push('.beer');
           }
-          if ([...bang1Positions].indexOf(i) != -1) {
+          if ([...bang1Positions].indexOf(name) != -1) {
             acceptArr.push('.bang1');
           }
-          if ([...bang2Positions].indexOf(i) != -1) {
+          if ([...bang2Positions].indexOf(name) != -1) {
             acceptArr.push('.bang2');
           }
           $(`#pos${i}`).droppable({ accept: acceptArr.join(',') });
@@ -362,14 +371,19 @@ $(document).ready(function () {
 
   function endTurn(players) {
     $('#end-turn-form').submit(function () {
-      $('.pos-border, .pos-border-sheriff').removeClass('drop-beer drop-bang');
       let id = $('#room-id').text();
       let diceNum = 5;
       let roller, playerPos;
+      let alivePlayers = [];
       for (let i = 0; i < players.length; i++) {
-        if (players[i].socketId == socket.id) {
-          roller = players.concat(players)[i + 1].socketId;
-          if (i + 1 >= players.length) {
+        if ($(`#health${i}`).html() != '') {
+          alivePlayers.push(players[i]);
+        }
+      }
+      for (let i = 0; i < alivePlayers.length; i++) {
+        if (alivePlayers[i].socketId == socket.id) {
+          roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+          if (i + 1 >= alivePlayers.length) {
             playerPos = 0;
           } else {
             playerPos = i + 1;
@@ -380,4 +394,28 @@ $(document).ready(function () {
       return false;
     })
   }
+
+  socket.on('lose health', (data) => {
+    playSound(data.dmgType);
+    $(`#health${data.playerPos}-${data.players[data.playerPos].health}`).remove();
+  })
+
+  socket.on('gain health', (data) => {
+    playSound('beer');
+    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${data.players[data.playerPos].health + 1}" class="img-bullet" src="/public/images/bullet.png" />`)
+  })
+
+  function playSound(sound) {
+    const audio = document.getElementById(`${sound}-sound`);
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play();
+  }
+
+  socket.on('player eliminated', (data) => {
+    playSound('crow');
+    $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+    
+  })
+
 });
