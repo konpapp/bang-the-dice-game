@@ -7,6 +7,7 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/public/style.css')
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous")
     script(src='https://code.playcanvas.com/playcanvas-stable.min.js')
   body
   div#cont.container-fluid
@@ -15,26 +16,43 @@ html
       h3#room-id-text.center Room ID: 
         span#room-id  
       h5.center#num-users
-      span#announce-turn
+      span#announce-turn Waiting to start
       p.center#announce
-      div.board
-        div.row
-          div.col.pos-border#pos0
-          div.col.pos-border#pos1
-          div.col.pos-border#pos2
-        div.row
-          div.col.pos-border#pos7
-          div.col#dice-area
-          div.col.pos-border#pos3
-        div.row 
-          div.col.pos-border#pos6
-          div.col.pos-border#pos5
-          div.col.pos-border#pos4
+      div.board.p-5
+        div.row.align-items-start
+          .col.row.justify-content-start
+            .col.pos-border#pos0
+            .col.pos-health#health0
+          .col.row.justify-content-center
+            .col.pos-border#pos1
+            .col.pos-health#health1
+          .col.row.justify-content-end
+            .col.pos-border#pos2
+            .col.pos-health#health2
+        div.row.align-items-center.mt-1
+          .col.row.justify-content-start
+            .col.pos-border#pos7
+            .col.pos-health#health7
+          .col#dice-area.justify-content-center
+          .col.row.justify-content-end
+            .col.pos-border#pos3
+            .col.pos-health#health3
+        div.row.align-items-end.mt-1
+          .col.row.justify-content-start
+            .col.pos-border#pos6
+            .col.pos-health#health6
+          .col.row.justify-content-center
+            .col.pos-border#pos5
+            .col.pos-health#health5
+          .col.row.justify-content-end
+            .col.pos-border#pos4
+            .col.pos-health#health4
       div.chat-box
         ul#messages
         form.game-form#msg-form(action='')
           input.rounded#m(autocomplete='off', placeholder='Type a chat message')
-          button.btn.btn-secondary.btn-sm Send
+          button.btn.btn-sm.btn-outline-secondary
+            i.fas.fa-angle-right
         form.game-form#rdy-form(action='')
           button.btn.btn-dark#rdy-btn READY
         form.game-form.hide#start-form(action='')
@@ -47,6 +65,12 @@ html
         form.game-form.hide#end-turn-form(action='')
           button.btn.btn-dark#end-turn-btn End Turn
       hr
+      audio(src="/public/sounds/bang.mp3" type="audio/mpeg")#bang-sound
+      audio(src="/public/sounds/beer.mp3" type="audio/mpeg")#beer-sound
+      audio(src="/public/sounds/gatling.mp3" type="audio/mpeg")#gatling-sound
+      audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg")#dynamite-sound
+      audio(src="/public/sounds/arrow.mp3" type="audio/mpeg")#arrow-sound
+      audio(src="/public/sounds/crow.mp3" type="audio/mpeg")#crow-sound
       h2.center 
       .logout.left
         a(href='/logout').text Logout
