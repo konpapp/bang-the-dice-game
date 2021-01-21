@@ -172,7 +172,10 @@ myDB(async (client) => {
         reRolls: data.reRolls,
         roller: data.roller,
         dicePos: data.dicePositions,
-        playerPos: data.playerPos
+        playerPos: players[data.id]
+                    .filter(player => player.alive)
+                    .map(player => player.socketId)
+                    .indexOf(data.roller)
       });
     })
 

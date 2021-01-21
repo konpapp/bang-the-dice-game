@@ -152,6 +152,7 @@ $(document).ready(function () {
       let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
+      let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
 
       // Helper sets to store droppable positions
       let beerPositions = new Set();
@@ -174,50 +175,44 @@ $(document).ready(function () {
 
           // Set droppables for beer
           if ($(`#die-${i}`).hasClass('beer')) {
-            for (let i=0; i < data.players.length; i++) {
-              beerPositions.add(i);
+            for (let i = 0; i < alivePlayers.length; i++) {
+              beerPositions.add(alivePlayers[i]);
             }
           
           // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
-            let bang1Arr = data.players.filter(player =>  {
+            let bang1Arr = alivePlayers.filter(player =>  {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
-              let expandedArr = data.players.concat(data.players);
-              if (data.playerPos <= data.players.length / 2) {
-                if (expandedArr[data.players.length + data.playerPos - 1] == player || expandedArr[data.players.length + data.playerPos + 1] == player) {
-                  return player;
-                }
-              } else {
-                if (expandedArr[data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) {
-                  return player;
-                }
+              let expandedArr = alivePlayers.concat(alivePlayers);
+              if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+                return player;
               }
             });
-            let names = data.players.map(player => player.name);
             for (let i=0; i < bang1Arr.length; i++) {
-              bang1Positions.add(names.indexOf(bang1Arr[i].name));
+              bang1Positions.add(bang1Arr[i]);
             }
 
           // Set droppables for bang2
           } else {
-            let bang2Arr = data.players.filter(player => {
+            let bang2Arr = alivePlayers.filter(player => {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5).
-              let expandedArr = data.players.concat(data.players);
-              if (data.playerPos <= data.players.length / 2) {
-                if (expandedArr[data.players.length + data.playerPos - 2] == player || expandedArr[data.players.length + data.playerPos + 2] == player) {
+              let expandedArr = alivePlayers.concat(alivePlayers);
+
+              // If only 2 players, use as bang1
+              if (alivePlayers.length == 2) {
+                if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
                   return player;
                 }
               } else {
-                if (expandedArr[data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) {
+                if ((expandedArr[alivePlayers.length + data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) && expandedArr[data.playerPos] != player) {
                   return player;
                 }
               }
             });
-            let names = data.players.map(player => player.name);
             for (let i = 0; i < bang2Arr.length; i++) {
-              bang2Positions.add(names.indexOf(bang2Arr[i].name));
+              bang2Positions.add(bang2Arr[i]);
             }
           }
         }
@@ -289,7 +284,8 @@ $(document).ready(function () {
 
       // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
-        if ([...beerPositions].indexOf(i) != -1 || [...bang1Positions].indexOf(i) != -1 || [...bang2Positions].indexOf(i) != -1) {
+        let name = $(`#pos${i}`).text();
+        if ([...beerPositions].indexOf(name) != -1 || [...bang1Positions].indexOf(name) != -1 || [...bang2Positions].indexOf(name) != -1) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
               $(this).css('background-color', '');
@@ -335,13 +331,13 @@ $(document).ready(function () {
             }
           })
           let acceptArr = [];
-          if ([...beerPositions].indexOf(i) != -1) {
+          if ([...beerPositions].indexOf(name) != -1) {
             acceptArr.push('.beer');
           }
-          if ([...bang1Positions].indexOf(i) != -1) {
+          if ([...bang1Positions].indexOf(name) != -1) {
             acceptArr.push('.bang1');
           }
-          if ([...bang2Positions].indexOf(i) != -1) {
+          if ([...bang2Positions].indexOf(name) != -1) {
             acceptArr.push('.bang2');
           }
           $(`#pos${i}`).droppable({ accept: acceptArr.join(',') });
@@ -378,10 +374,16 @@ $(document).ready(function () {
       let id = $('#room-id').text();
       let diceNum = 5;
       let roller, playerPos;
+      let alivePlayers = [];
       for (let i = 0; i < players.length; i++) {
-        if (players[i].socketId == socket.id) {
-          roller = players.concat(players)[i + 1].socketId;
-          if (i + 1 >= players.length) {
+        if ($(`#health${i}`).html() != '') {
+          alivePlayers.push(players[i]);
+        }
+      }
+      for (let i = 0; i < alivePlayers.length; i++) {
+        if (alivePlayers[i].socketId == socket.id) {
+          roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+          if (i + 1 >= alivePlayers.length) {
             playerPos = 0;
           } else {
             playerPos = i + 1;
@@ -412,7 +414,8 @@ $(document).ready(function () {
 
   socket.on('player eliminated', (data) => {
     playSound('crow');
-    $(`#pos${data.playerPos}`).text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+    $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+    
   })
 
 });
