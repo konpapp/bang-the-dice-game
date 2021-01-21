@@ -138,6 +138,7 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
+    let id = $('#room-id').text();
     $('#dice-area, .pos-health').html('');
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
     for (let i=0; i < data.players.length; i++) {
@@ -166,6 +167,13 @@ $(document).ready(function () {
       let selectedPos = new Set();
       for (let i=0; i < data.dice.length; i++) {
         if ($(`#die-${i}`).hasClass('arrow')) {
+
+          // Count remaining arrows
+          let arrowCount = 0;
+          for (let j = 0; j < 9; j++) {
+            if ($(`#arrow-${j}`).length) { arrowCount++; }
+          }
+          socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, roller: data.roller });
           countArrows++;
         }
         if ($(`#die-${i}`).hasClass('gatling')) {
@@ -255,7 +263,6 @@ $(document).ready(function () {
                 $('#reroll-form').submit(() => {
                   $('#dice-num').text('');
                   $('#reroll-form').addClass('hide');
-                  let id = $('#room-id').text();
                   toReroll = 0;
 
                   // Adjust selected positions
@@ -419,8 +426,26 @@ $(document).ready(function () {
 
   socket.on('player eliminated', (data) => {
     playSound('crow');
+    $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
-    
+    if (data.moveTurn) {
+      let id = $('#room-id').text();
+      let diceNum = 5;
+      socket.emit('start turn', { id, diceNum, roller: data.newRoller });
+    }
+  })
+
+  socket.on('get arrow', (data) => {
+    playSound('arrow');
+    $(`#arrow-${data.arrowCount - 1}`).remove();
+    $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`)
+  })
+
+  socket.on('refill arrows', () => {
+    for (let i = 0; i < 9; i++) {
+      $(`#arrow${i}`).html('');
+      $('#arrow-area').prepend(`<img id="arrow-${i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
   })
 
 });

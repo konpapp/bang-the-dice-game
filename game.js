@@ -41,6 +41,7 @@ function getRoles(users) {
   for (let i=0; i < users.length; i++) {
     playerObj.name = users[i];
     playerObj.role = roles[i];
+    playerObj.arrows = 0;
     playerObj.health = 8;
     playerObj.maxHealth = 8;
     playerObj.alive = true;
