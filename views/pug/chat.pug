@@ -22,7 +22,11 @@ html
         div.row.align-items-start
           .col.row.justify-content-start
             .col.pos-border#pos0
-            .col.pos-health#health0
+            .col
+              .row
+                .col.pos-health#health0
+              .row
+                .col.pos-arrow#arrow0
           .col.row.justify-content-center
             .col.pos-border#pos1
             .col.pos-health#health1
@@ -33,7 +37,11 @@ html
           .col.row.justify-content-start
             .col.pos-border#pos7
             .col.pos-health#health7
-          .col#dice-area.justify-content-center
+          .col.justify-content-center
+            .row
+              .col#arrow-area
+            .row.mt-2
+              .col#dice-area
           .col.row.justify-content-end
             .col.pos-border#pos3
             .col.pos-health#health3
