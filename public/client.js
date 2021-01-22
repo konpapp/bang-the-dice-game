@@ -114,7 +114,7 @@ $(document).ready(function () {
           case 'sheriff':
             $('#announce').text('You are the sheriff. Survive by eliminating outlaws and renegades!');
             $('#roll-form').removeClass('hide').addClass('show');
-            $('#roll-form').submit(function () {
+            $('#roll-form').click(function () {
               $('#roll-form').removeClass('show').addClass('hide');
               let id = $('#room-id').text();
               let diceNum = 5;
@@ -153,6 +153,7 @@ $(document).ready(function () {
       }
     }
     if (socket.id == data.roller) {
+      console.log('starting turn')
       let reRolls = 2;
       let toReroll = 0;
       let usableDice = 0;
@@ -351,14 +352,15 @@ $(document).ready(function () {
         reRolls = 0;
       }
 
-      // Trigger gatling gun and lose arrows
+      // Trigger gatling gun and lose arrows - to be implemented
+
 
       if (countArrows > 0) {
 
         // Count remaining arrows in the middle
         let arrowCount = 0;
-        for (let j = 0; j < 9; j++) {
-          if ($(`#arrow-${j}`).length) { arrowCount++; }
+        for (let i = 0; i < 9; i++) {
+          if ($(`#arrow-${i}`).length) { arrowCount++; }
         }
         socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, arrowsHit: countArrows, roller: data.roller });
       }
@@ -400,17 +402,22 @@ $(document).ready(function () {
     })
   }
 
+  function rollButton(rollerTurn) {
+    $('#roll-form').submit(function () {
+      $('#roll-form').removeClass('show').addClass('hide');
+      let id = $('#room-id').text();
+      socket.emit('start turn', { id, diceNum: 5, roller: rollerTurn });
+      return false;
+    })
+  }
+
   socket.on('turn transition', (data) => {
     $('#announce-turn').text(data.name + "'s turn.");
     $('#dice-area').html('');
     if (socket.id == data.roller) {
       $('#roll-form').removeClass('hide').addClass('show');
-      $('#roll-form').submit(function () {
-        $('#roll-form').removeClass('show').addClass('hide');
-        let id = $('#room-id').text();
-        socket.emit('start turn', { id, diceNum: 5, roller: data.roller });
-        return false;
-      })
+      $('#roll-form').off();
+      $('#roll-form').click(rollButton(data.roller));
     }
   })
 
@@ -445,6 +452,7 @@ $(document).ready(function () {
   })
 
   socket.on('get arrow', (data) => {
+    console.log(data);
     playSound('arrow');
     for (let i=0; i < data.arrowsHit; i++) {
       $(`#arrow-${data.arrowCount - 1 - i}`).remove();

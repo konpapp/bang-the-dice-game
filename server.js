@@ -50,7 +50,6 @@ io.use(
 
 myDB(async (client) => {
   const myDataBase = await client.db('database').collection('users')
-  
   routes.main(app, myDataBase);
   auth(app, myDataBase);
 
@@ -62,12 +61,9 @@ myDB(async (client) => {
 
   // roomId as key, player attributes object as value
   let players = {};
-
   io.on('connection', (socket) => {
-
     let roomId = routes.getRoomId();
     socket.join(roomId);
-    
     if (rooms[roomId]) {
       // Do not allow double sessions
       for (let i=0; i < rooms[roomId].length; i++) {
@@ -92,7 +88,6 @@ myDB(async (client) => {
     } else {
       rooms[roomId] = [socket.request.user.username];
     }
-
     console.log(`User list in room ${roomId}: ${rooms[roomId]}`);
     io.to(roomId).emit('user', {
       name: socket.request.user.username,
@@ -106,9 +101,8 @@ myDB(async (client) => {
       io.to(roomId).emit('chat message', { 
         name: socket.request.user.username, message });
     });
-    
-    socket.on('ready button', (id) => {
 
+    socket.on('ready button', (id) => {
       if (readyUsers[id]) {
         let ids = readyUsers[id].map(elem => elem[0]);
         if (ids.indexOf(socket.id) == -1) {
@@ -137,7 +131,6 @@ myDB(async (client) => {
       if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
         io.to(id).emit('start game', { creatorId: readyUsers[id][0][0] });
       }
-
       io.to(id).emit('ready button', {  
         name: socket.request.user.username, 
         readyUsers: readyUsers[id], posNum });
@@ -276,9 +269,9 @@ myDB(async (client) => {
                 arrowCount: 9,
                 arrowsHit: data.arrowsHit - data.arrowCount
               })
-            }, 500);
+            }, 50);
           }
-        }, 500);
+        }, 250);
       }
     })
 
