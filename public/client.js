@@ -147,7 +147,10 @@ $(document).ready(function () {
       }
     }
     for (let i=0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`)
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`);
+      if (data.arrowIndices && data.arrowIndices.includes(i)) {
+        $(`#die-${i}`).addClass('used');
+      }
     }
     let playerTurn = data.players.filter(player => player.socketId == data.roller);
     $('#announce-turn').text(playerTurn[0].name + "'s turn.");
@@ -166,7 +169,7 @@ $(document).ready(function () {
       let bang2Positions = new Set();
       let selectedPos = new Set();
       for (let i=0; i < data.dice.length; i++) {
-        if ($(`#die-${i}`).hasClass('arrow')) {
+        if ($(`#die-${i}`).hasClass('arrow') && !$(`#die-${i}`).hasClass('used')) {
 
           // Count remaining arrows
           let arrowCount = 0;
@@ -297,7 +300,7 @@ $(document).ready(function () {
       // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
         let name = $(`#pos${i}`).text();
-        if ([...beerPositions].indexOf(name) != -1 || [...bang1Positions].indexOf(name) != -1 || [...bang2Positions].indexOf(name) != -1) {
+        if ([...beerPositions].includes(name) || [...bang1Positions].includes(name) || [...bang2Positions].includes(name)) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
               $(this).css('background-color', '');
@@ -428,23 +431,23 @@ $(document).ready(function () {
     playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
-    if (data.moveTurn) {
-      let id = $('#room-id').text();
-      let diceNum = 5;
-      socket.emit('start turn', { id, diceNum, roller: data.newRoller });
-    }
   })
 
   socket.on('get arrow', (data) => {
     playSound('arrow');
     $(`#arrow-${data.arrowCount - 1}`).remove();
-    $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`)
+    $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`);
   })
 
-  socket.on('refill arrows', () => {
+  socket.on('refill arrows', (data) => {
+    $('.pos-health, .pos-arrow, #arrow-area').html('');
     for (let i = 0; i < 9; i++) {
-      $(`#arrow${i}`).html('');
       $('#arrow-area').prepend(`<img id="arrow-${i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
+    for (let i = 0; i < data.players.length; i++) {
+      for (let j = 0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
+      }
     }
   })
 
