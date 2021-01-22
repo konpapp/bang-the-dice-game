@@ -185,6 +185,10 @@ myDB(async (client) => {
       });
     })
 
+    socket.on('turn transition', (data) => {
+      io.to(data.id).emit('turn transition', data);
+    })
+
     socket.on('lose health', (data) => {
       let name = players[data.id][data.playerPos].name;
       players[data.id][data.playerPos].health--;
@@ -215,41 +219,65 @@ myDB(async (client) => {
 
     socket.on('get arrow', (data) => {
       let emptyArrows = false;
-      players[data.id][data.pos].arrows++;
-      if (data.arrowCount === 1) {
+      let eliminated = false;
+      let alivePlayers;
+      players[data.id][data.pos].arrows += data.arrowsHit;
+      if (data.arrowCount <= data.arrowsHit) {
         emptyArrows = true;
+        io.to(data.id).emit('get arrow', {
+          pos: players[data.id].map(player => player.socketId).indexOf(data.roller),
+          arrowCount: data.arrowCount,
+          arrowsHit: data.arrowCount
+        })
+      } else {
+        io.to(data.id).emit('get arrow', {
+          pos: players[data.id].map(player => player.socketId).indexOf(data.roller),
+          arrowCount: data.arrowCount,
+          arrowsHit: data.arrowsHit
+        })
       }
-      io.to(data.id).emit('get arrow', { pos: players[data.id].map(player => player.socketId).indexOf(data.roller), arrowCount: data.arrowCount })
       if (emptyArrows) {
-        for (let i = 0; i < players[data.id].length; i++) {
-          if (players[data.id][i].alive) {
-            players[data.id][i].health -= players[data.id][i].arrows;
-            players[data.id][i].arrows = 0;
-          }
-          if (players[data.id][i].health <= 0) {
-
-            // If eliminated player's turn
-            if (players[data.id][i].socketId == data.roller) { 
-              let alivePlayers = players[data.id].filter(player => player.alive);
-              let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
-              let newRoller;
-              if (idx + 1 >= alivePlayers.length) {
-                newRoller = alivePlayers[0].socketId;
-              } else { newRoller = alivePlayers[idx + 1] }
-              io.to(data.id).emit('start turn', {
-                players: players[data.id],
-                dice: game.rollDice(5),
-                playerPos: players[data.id]
-                  .filter(player => player.alive)
-                  .map(player => player.socketId)
-                  .indexOf(newRoller)
-              });
+        setTimeout(() => {
+          for (let i = 0; i < players[data.id].length; i++) {
+            if (players[data.id][i].alive) {
+              players[data.id][i].health -= players[data.id][i].arrows;
+              players[data.id][i].arrows = 0;
             }
-            players[data.id][i].alive = false;
-            io.to(data.id).emit('player eliminated', { playerPos: i, name: players[data.id][i].name });
+            if (players[data.id][i].health <= 0) {
+
+              // If eliminated player's turn
+              if (players[data.id][i].socketId == data.roller) {
+                eliminated = true;
+                alivePlayers = players[data.id].filter(player => player.alive);
+                let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
+                let newRoller;
+                if (idx + 1 >= alivePlayers.length) {
+                  newRoller = alivePlayers[0].socketId;
+                } else { newRoller = alivePlayers[idx + 1] }
+                io.to(data.id).emit('start turn', {
+                  players: players[data.id],
+                  dice: game.rollDice(5),
+                  playerPos: players[data.id]
+                    .filter(player => player.alive)
+                    .map(player => player.socketId)
+                    .indexOf(newRoller)
+                });
+              }
+              players[data.id][i].alive = false;
+              io.to(data.id).emit('player eliminated', { left: alivePlayers.length - 1, playerPos: i, name: players[data.id][i].name });
+            }
           }
-        }
-        io.to(data.id).emit('refill arrows', { players: players[data.id] });
+          io.to(data.id).emit('refill arrows', { players: players[data.id] });
+          if (!eliminated) {
+            setTimeout(() => {
+              io.to(data.id).emit('get arrow', {
+                pos: players[data.id].map(player => player.socketId).indexOf(data.roller),
+                arrowCount: 9,
+                arrowsHit: data.arrowsHit - data.arrowCount
+              })
+            }, 500);
+          }
+        }, 500);
       }
     })
 
