@@ -75,9 +75,9 @@ $(document).ready(function () {
       return false;
     })
   })
-  $('#announce-turn').text("Sheriff plays first.");
 
   socket.on('assign roles', (data) => {
+    $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -352,9 +352,6 @@ $(document).ready(function () {
       }
 
       // Trigger gatling gun and lose arrows
-      if (countGatling > 2) {
-        
-      }
 
       if (countArrows > 0) {
 
@@ -378,10 +375,9 @@ $(document).ready(function () {
   function endTurn(players) {
     $('#end-turn-form').submit(function () {
       $('#end-turn-form').removeClass('show').addClass('hide');
-      data.currentDice = '';
       let id = $('#room-id').text();
       let diceNum = 5;
-      let roller, playerPos;
+      let roller, playerPos, name;
       let alivePlayers = [];
       for (let i = 0; i < players.length; i++) {
         if ($(`#health${i}`).html() != '') {
@@ -391,12 +387,13 @@ $(document).ready(function () {
       for (let i = 0; i < alivePlayers.length; i++) {
         if (alivePlayers[i].socketId == socket.id) {
           roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+          name = alivePlayers.concat(alivePlayers)[i + 1].name;
           if (i + 1 >= alivePlayers.length) {
             playerPos = 0;
           } else {
             playerPos = i + 1;
           }
-          socket.emit('turn transition', { id, diceNum, roller, playerPos, name: alivePlayers.concat(alivePlayers)[i + 1].name });
+          socket.emit('turn transition', { id, diceNum, roller, playerPos, name });
         }
       }
       return false;
