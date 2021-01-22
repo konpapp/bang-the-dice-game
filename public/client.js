@@ -75,9 +75,9 @@ $(document).ready(function () {
       return false;
     })
   })
+  $('#announce-turn').text("Sheriff plays first.");
 
   socket.on('assign roles', (data) => {
-    $('#announce-turn').text('Game is starting');
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -152,8 +152,6 @@ $(document).ready(function () {
         $(`#die-${i}`).addClass('used');
       }
     }
-    let playerTurn = data.players.filter(player => player.socketId == data.roller);
-    $('#announce-turn').text(playerTurn[0].name + "'s turn.");
     if (socket.id == data.roller) {
       let reRolls = 2;
       let toReroll = 0;
@@ -170,13 +168,6 @@ $(document).ready(function () {
       let selectedPos = new Set();
       for (let i=0; i < data.dice.length; i++) {
         if ($(`#die-${i}`).hasClass('arrow') && !$(`#die-${i}`).hasClass('used')) {
-
-          // Count remaining arrows
-          let arrowCount = 0;
-          for (let j = 0; j < 9; j++) {
-            if ($(`#arrow-${j}`).length) { arrowCount++; }
-          }
-          socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, roller: data.roller });
           countArrows++;
         }
         if ($(`#die-${i}`).hasClass('gatling')) {
@@ -189,13 +180,11 @@ $(document).ready(function () {
           $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
           $(`#die-${i}`).draggable('enable');
 
-          // Set droppables for beer
+          // Set droppables
           if ($(`#die-${i}`).hasClass('beer')) {
             for (let i = 0; i < alivePlayers.length; i++) {
               beerPositions.add(alivePlayers[i]);
             }
-          
-          // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
             let bang1Arr = alivePlayers.filter(player =>  {
 
@@ -208,8 +197,6 @@ $(document).ready(function () {
             for (let i=0; i < bang1Arr.length; i++) {
               bang1Positions.add(bang1Arr[i]);
             }
-
-          // Set droppables for bang2
           } else {
             let bang2Arr = alivePlayers.filter(player => {
 
@@ -366,13 +353,17 @@ $(document).ready(function () {
 
       // Trigger gatling gun and lose arrows
       if (countGatling > 2) {
-        data.players = data.players.map(player => {
-          if (socket.id != player.socketId) {
-            player.health--;
-          }
-          return player;
-        })
-        countArrows = 0;
+        
+      }
+
+      if (countArrows > 0) {
+
+        // Count remaining arrows in the middle
+        let arrowCount = 0;
+        for (let j = 0; j < 9; j++) {
+          if ($(`#arrow-${j}`).length) { arrowCount++; }
+        }
+        socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, arrowsHit: countArrows, roller: data.roller });
       }
 
       if (reRolls == 0 || usableDice <= 0) {
@@ -386,6 +377,8 @@ $(document).ready(function () {
 
   function endTurn(players) {
     $('#end-turn-form').submit(function () {
+      $('#end-turn-form').removeClass('show').addClass('hide');
+      data.currentDice = '';
       let id = $('#room-id').text();
       let diceNum = 5;
       let roller, playerPos;
@@ -403,12 +396,26 @@ $(document).ready(function () {
           } else {
             playerPos = i + 1;
           }
-          socket.emit('start turn', { id, diceNum, roller, playerPos });
+          socket.emit('turn transition', { id, diceNum, roller, playerPos, name: alivePlayers.concat(alivePlayers)[i + 1].name });
         }
       }
       return false;
     })
   }
+
+  socket.on('turn transition', (data) => {
+    $('#announce-turn').text(data.name + "'s turn.");
+    $('#dice-area').html('');
+    if (socket.id == data.roller) {
+      $('#roll-form').removeClass('hide').addClass('show');
+      $('#roll-form').submit(function () {
+        $('#roll-form').removeClass('show').addClass('hide');
+        let id = $('#room-id').text();
+        socket.emit('start turn', { id, diceNum: 5, roller: data.roller });
+        return false;
+      })
+    }
+  })
 
   socket.on('lose health', (data) => {
     playSound(data.dmgType);
@@ -431,12 +438,21 @@ $(document).ready(function () {
     playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+    if (data.left <= 3) {
+      for (let i=0; i < 5; i++) {
+        if ((`#die-${i}`).hasClass('bang2')) {
+          (`#die-${i}`).addClass('bang1');
+        }
+      }
+    }
   })
 
   socket.on('get arrow', (data) => {
     playSound('arrow');
-    $(`#arrow-${data.arrowCount - 1}`).remove();
-    $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    for (let i=0; i < data.arrowsHit; i++) {
+      $(`#arrow-${data.arrowCount - 1 - i}`).remove();
+      $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
   })
 
   socket.on('refill arrows', (data) => {
