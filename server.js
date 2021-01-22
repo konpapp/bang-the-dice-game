@@ -220,7 +220,7 @@ myDB(async (client) => {
     socket.on('get arrow', (data) => {
       let emptyArrows = false;
       let eliminated = false;
-      let alivePlayers;
+      let left;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
         emptyArrows = true;
@@ -248,12 +248,13 @@ myDB(async (client) => {
               // If eliminated player's turn
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
-                alivePlayers = players[data.id].filter(player => player.alive);
+                let alivePlayers = players[data.id].filter(player => player.alive);
                 let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
                 let newRoller;
                 if (idx + 1 >= alivePlayers.length) {
                   newRoller = alivePlayers[0].socketId;
                 } else { newRoller = alivePlayers[idx + 1] }
+                left = alivePlayers.length - 1;
                 io.to(data.id).emit('start turn', {
                   players: players[data.id],
                   dice: game.rollDice(5),
@@ -264,7 +265,7 @@ myDB(async (client) => {
                 });
               }
               players[data.id][i].alive = false;
-              io.to(data.id).emit('player eliminated', { left: alivePlayers.length - 1, playerPos: i, name: players[data.id][i].name });
+              io.to(data.id).emit('player eliminated', { playerPos: i, name: players[data.id][i].name, left });
             }
           }
           io.to(data.id).emit('refill arrows', { players: players[data.id] });
