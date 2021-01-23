@@ -153,6 +153,9 @@ $(document).ready(function () {
       if (data.arrowIndices && data.arrowIndices.includes(i)) {
         $(`#die-${i}`).addClass('used');
       }
+      if (data.gatlingIndices && data.gatlingIndices.includes(i)) {
+        $(`#die-${i}`).addClass('activated');
+      }
       if (data.dice[i] == 'dynamite') {
         countDynamites++;
       }
@@ -162,10 +165,9 @@ $(document).ready(function () {
         dynamiteOff = false;
       }
       let reRolls = 2;
-      let toReroll = 0;
-      let usableDice = 0;
-      let countArrows = 0;
-      let countGatling = 0;
+      let toReroll, usableDice, countArrows, countGatling;
+      toReroll = usableDice = countArrows = countGatling = 0;
+      let gatlingDice = [];
       let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
 
       // Helper sets to store droppable positions
@@ -177,7 +179,8 @@ $(document).ready(function () {
         if ($(`#die-${i}`).hasClass('arrow') && !$(`#die-${i}`).hasClass('used')) {
           countArrows++;
         }
-        if ($(`#die-${i}`).hasClass('gatling')) {
+        if ($(`#die-${i}`).hasClass('gatling') && !$(`#die-${i}`).hasClass('activated')) {
+          gatlingDice.push(i);
           countGatling++;
         }
         if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
@@ -351,13 +354,7 @@ $(document).ready(function () {
           $(`#pos${i}`).droppable({ accept: acceptArr.join(',') });
         }
       }
-
-      // Trigger gatling gun and lose arrows - to be implemented
-
-
       if (countArrows > 0) {
-
-        // Count remaining arrows in the middle
         let arrowCount = 0;
         for (let i = 0; i < 9; i++) {
           if ($(`#arrow-${i}`).length) { arrowCount++; }
@@ -367,6 +364,13 @@ $(document).ready(function () {
 
       if (!dynamiteOff) {
         socket.emit('trigger dynamite', { pos: data.playerPos, id, roller: data.roller, dmgType: 'dynamite' })
+      }
+
+      if (countGatling > 2) {
+        for (let i=0; i < 3; i++) {
+          $(`#die-${gatlingDice[i]}`).off();
+        }
+        socket.emit('fire gatling', { pos: data.playerPos, id, roller: data.roller, dmgType: 'gatling' })
       }
 
       if (reRolls == 0 || usableDice <= 0) {
@@ -451,6 +455,7 @@ $(document).ready(function () {
   }
 
   socket.on('player eliminated', (data) => {
+    playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
     if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, .ui-droppable-hover, .ui-droppable")) {
@@ -475,9 +480,6 @@ $(document).ready(function () {
         }
       }
     }
-    setTimeout(() => {
-      playSound('crow');
-    }, 100);
   })
 
   socket.on('get arrow', (data) => {
@@ -498,6 +500,17 @@ $(document).ready(function () {
       for (let j = 0; j < data.players[i].health; j++) {
         $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
       }
+    }
+  })
+
+  socket.on('fire gatling', (data) => {
+    $(`#arrow${data.pos}`).html('');
+    let arrowCount = 0;
+    for (let i = 0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { arrowCount++; }
+    }
+    for (let i = 0; i < data.arrows; i++) {
+      $('#arrow-area').prepend(`<img id="arrow-${arrowCount + i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
     }
   })
 
