@@ -323,6 +323,13 @@ myDB(async (client) => {
       }, 500);
     })
 
+    socket.on('win check', (data) => {
+      let winMessage = game.winCheck(players[data.id]);
+      if (winMessage) {
+        io.to(data.id).emit('win check', { winMessage });
+      }
+    })
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);

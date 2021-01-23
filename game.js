@@ -73,6 +73,27 @@ function rollDice(num) {
   return dice;
 }
 
+function winCheck(players) {
+  let alivePlayers = players.filter(players => players.alive);
+  if (alivePlayers.length === 1 && alivePlayers[0].role == ' renegade') {
+    return alivePlayers[0].name, ' wins as Renegade!';
+  }
+  if (alivePlayers.filter(player => player.role == 'sheriff') == []) {
+    return 'Outlaws win!';
+  }
+  if (alivePlayers.filter(player => player.role == 'outlaw' || player.role == 'renegade') == []) {
+    if (players.length == 6) {
+      return 'Sheriff and Deputy win!';
+    } else if (players.length == 7) {
+      return 'Sheriff and Deputies win!';
+    } else {
+      return 'Sheriff wins!';
+    }
+  }
+  return false;
+}
+
 exports.getRoles = getRoles;
 exports.getChars = getChars;
 exports.rollDice = rollDice;
+exports.winCheck = winCheck;
