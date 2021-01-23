@@ -52,20 +52,13 @@ myDB(async (client) => {
   const myDataBase = await client.db('database').collection('users')
   routes.main(app, myDataBase);
   auth(app, myDataBase);
-
-  // Rooms object: roomId as key, users array as value
   let rooms = {};
-
-  // roomId as key, ready user IDs array
   let readyUsers = {};
-
-  // roomId as key, player attributes object as value
   let players = {};
   io.on('connection', (socket) => {
     let roomId = routes.getRoomId();
     socket.join(roomId);
     if (rooms[roomId]) {
-      // Do not allow double sessions
       for (let i=0; i < rooms[roomId].length; i++) {
         if (socket.request.user.username == rooms[roomId][i]) {
           socket.disconnect();
@@ -73,8 +66,6 @@ myDB(async (client) => {
           return false;
         }
       }
-
-      // Game is played with max 8 players
       if (rooms[roomId].length === 8) {
         socket.disconnect();
         console.log('Player limit reached. Unable to connect.');
@@ -82,7 +73,6 @@ myDB(async (client) => {
       }
     }
 
-    // Assign user to room
     if (rooms[roomId]) {
       rooms[roomId].push(socket.request.user.username);
     } else {
@@ -106,28 +96,18 @@ myDB(async (client) => {
       if (readyUsers[id]) {
         let ids = readyUsers[id].map(elem => elem[0]);
         if (ids.indexOf(socket.id) == -1) {
-
-          // If the user is the creator, insert his ID in front of the ready user IDs array
           if (socket.request.user.username == rooms[id][0]) {
             readyUsers[id].unshift([socket.id, socket.request.user.username]);
-
-          // otherwise, push it in the back
           } else {
             readyUsers[id].push([socket.id, socket.request.user.username]);
           }
-        
-        // If it already exists, remove it
         } else {
           readyUsers[id] = readyUsers[id].filter(elem => elem[0] != socket.id);
         }
-      
-      // If it is the first ID, store it and create an array
       } else {
         readyUsers[id] = [[socket.id, socket.request.user.username]];
       }
       let posNum = rooms[id].indexOf(socket.request.user.username);
-
-      // If all users ready and more than 3 users connected, the creator can start the game
       if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
         io.to(id).emit('start game', { creatorId: readyUsers[id][0][0] });
       }
@@ -167,8 +147,7 @@ myDB(async (client) => {
         }
         dice = data.currentDice;
       } else {
-        dice = ['gatling', 'gatling', 'arrow', 'arrow', 'arrow'];
-        // dice = game.rollDice(5);
+        dice = game.rollDice(5);
       }
       io.to(data.id).emit('start turn', { 
         players: players[data.id],
@@ -286,8 +265,6 @@ myDB(async (client) => {
       setTimeout(() => {
         players[data.id][data.pos].health--;
         if (players[data.id][data.pos].health <= 0) {
-
-          // If eliminated player's turn
           if (players[data.id][data.pos].socketId == data.roller) {
             let alivePlayers = players[data.id].filter(player => player.alive);
             let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
@@ -352,7 +329,6 @@ myDB(async (client) => {
       if (readyUsers[roomId]) {
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
       }
-      // If last user is disconnected, delete the room ID
       if (rooms[roomId].length == 0) {
         delete rooms[roomId];
         delete readyUsers[roomId];
