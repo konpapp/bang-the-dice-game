@@ -150,28 +150,36 @@ myDB(async (client) => {
 
     socket.on('start turn', (data) => {
       let dice;
-      let arrowIndices;
+      let arrowIndices, gatlingIndices;
       if (data.currentDice) {
         arrowIndices = data.currentDice
                             .map((elem, i) => elem == 'arrow' ? i : '')
                             .filter(elem => elem !== '')
                             .filter(diePos => !data.dicePositions.includes(diePos));
+        gatlingIndices = data.currentDice
+                            .map((elem, i) => elem == 'gatling' ? i : '')
+                            .filter(elem => elem !== '')
+                            .filter(diePos => !data.dicePositions.includes(diePos));
+        if (gatlingIndices.length < 3) { gatlingIndices = ''; }
         for (let i=0; i < data.dicePositions.length; i++) {
           data.currentDice[data.dicePositions[i]] = game.rollDice(1)[0];
           data.reRolls--;
         }
         dice = data.currentDice;
       } else {
-        dice = game.rollDice(5);
+        dice = ['gatling', 'gatling', 'arrow', 'arrow', 'arrow'];
+        // dice = game.rollDice(5);
       }
       io.to(data.id).emit('start turn', { 
         players: players[data.id],
-        dice,
-        arrowIndices,
+        dice, arrowIndices, gatlingIndices,
         reRolls: data.reRolls,
         roller: data.roller,
         dicePos: data.dicePositions,
         playerPos: players[data.id]
+                    .map(player => player.socketId)
+                    .indexOf(data.roller),
+        alivePlayerPos: players[data.id]
                     .filter(player => player.alive)
                     .map(player => player.socketId)
                     .indexOf(data.roller)
@@ -235,29 +243,29 @@ myDB(async (client) => {
               players[data.id][i].arrows = 0;
             }
             if (players[data.id][i].health <= 0) {
-
-              // If eliminated player's turn
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
-                let alivePlayers = players[data.id].filter(player => player.alive);
-                let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
-                let newRoller;
-                if (idx + 1 >= alivePlayers.length) {
-                  newRoller = alivePlayers[0].socketId;
-                } else { newRoller = alivePlayers[idx + 1].socketId; }
-                left = alivePlayers.length - 1;
-                let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
-                io.to(data.id).emit('turn transition', {
-                  id: data.id,
-                  name: players[data.id].filter(player => player.alive)[playerPos].name,
-                  diceNum: 5,
-                  roller: newRoller,
-                  playerPos
-                });
               }
-              players[data.id][i].alive = false;
               io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
             }
+          }
+          if (eliminated) {
+            let alivePlayers = players[data.id].filter(player => player.alive);
+            let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
+            let newRoller;
+            if (idx + 1 >= alivePlayers.length) {
+              newRoller = alivePlayers[0].socketId;
+            } else { newRoller = alivePlayers[idx + 1].socketId; }
+            players[data.id][data.pos].alive = false;
+            left = alivePlayers.length - 1;
+            let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
+            io.to(data.id).emit('turn transition', {
+              id: data.id,
+              name: players[data.id].filter(player => player.alive)[playerPos].name,
+              diceNum: 5,
+              roller: newRoller,
+              playerPos
+            });
           }
           io.to(data.id).emit('refill arrows', { players: players[data.id] });
           if (!eliminated) {
@@ -309,6 +317,33 @@ myDB(async (client) => {
           dmgType: data.dmgType
         })
       }, 1000);
+    })
+
+    socket.on('fire gatling', (data) => {
+      setTimeout(() => {
+        for (let i=0; i < players[data.id].length; i++) {
+          if (players[data.id][i].alive && i !== data.pos) {
+            players[data.id][i].health--;
+            if (players[data.id][i].health <= 0) {
+              players[data.id].alive = false;
+              io.to(data.id).emit('player eliminated', {
+                players: players[data.id],
+                playerPos: i
+              });
+            }
+            io.to(data.id).emit('lose health', {
+              players: players[data.id],
+              playerPos: i,
+              dmgType: data.dmgType
+            });
+          }
+        }
+        io.to(data.id).emit('fire gatling', {
+          pos: data.pos,
+          arrows: players[data.id][data.pos].arrows
+        })
+        players[data.id][data.pos].arrows = 0;
+      }, 500);
     })
 
     socket.on('disconnect', () => {
