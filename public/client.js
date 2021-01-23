@@ -77,7 +77,7 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
-    $('#announce-turn').text('Game is starting');
+    $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
     // Clear up open positions on board
@@ -87,14 +87,19 @@ $(document).ready(function () {
         $(`#pos${i}`).css({ 'border': 'none' });
       }
     }
+    
+    // Assign arrows
+    for (let z = 0; z < 9; z++) {
+      $('#arrow-area').prepend(`<img id="arrow-${z}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
     for (let i = 0; i < data.players.length; i++) {
 
       // Assign portraits
-      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`)
+      $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`);
 
       // Assign health points
       for (let j = 0; j < data.players[i].health; j++) {
-        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`)
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
       }
 
       // Announce and mark the sheriff
@@ -109,7 +114,7 @@ $(document).ready(function () {
           case 'sheriff':
             $('#announce').text('You are the sheriff. Survive by eliminating outlaws and renegades!');
             $('#roll-form').removeClass('hide').addClass('show');
-            $('#roll-form').submit(function () {
+            $('#roll-form').click(function () {
               $('#roll-form').removeClass('show').addClass('hide');
               let id = $('#room-id').text();
               let diceNum = 5;
@@ -133,6 +138,7 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
+    let id = $('#room-id').text();
     $('#dice-area, .pos-health').html('');
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
     for (let i=0; i < data.players.length; i++) {
@@ -141,11 +147,13 @@ $(document).ready(function () {
       }
     }
     for (let i=0; i < data.dice.length; i++) {
-      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`)
+      $('#dice-area').prepend(`<img id="die-${i}" class="dice ${data.dice[i]}" src="/public/images/dice/${data.dice[i]}.jpg" />`);
+      if (data.arrowIndices && data.arrowIndices.includes(i)) {
+        $(`#die-${i}`).addClass('used');
+      }
     }
-    let playerTurn = data.players.filter(player => player.socketId == data.roller);
-    $('#announce-turn').text(playerTurn[0].name + "'s turn.");
     if (socket.id == data.roller) {
+      console.log('starting turn')
       let reRolls = 2;
       let toReroll = 0;
       let usableDice = 0;
@@ -160,7 +168,7 @@ $(document).ready(function () {
       let bang2Positions = new Set();
       let selectedPos = new Set();
       for (let i=0; i < data.dice.length; i++) {
-        if ($(`#die-${i}`).hasClass('arrow')) {
+        if ($(`#die-${i}`).hasClass('arrow') && !$(`#die-${i}`).hasClass('used')) {
           countArrows++;
         }
         if ($(`#die-${i}`).hasClass('gatling')) {
@@ -173,13 +181,11 @@ $(document).ready(function () {
           $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
           $(`#die-${i}`).draggable('enable');
 
-          // Set droppables for beer
+          // Set droppables
           if ($(`#die-${i}`).hasClass('beer')) {
             for (let i = 0; i < alivePlayers.length; i++) {
               beerPositions.add(alivePlayers[i]);
             }
-          
-          // Set droppables for bang1
           } else if ($(`#die-${i}`).hasClass('bang1')) {
             let bang1Arr = alivePlayers.filter(player =>  {
 
@@ -192,8 +198,6 @@ $(document).ready(function () {
             for (let i=0; i < bang1Arr.length; i++) {
               bang1Positions.add(bang1Arr[i]);
             }
-
-          // Set droppables for bang2
           } else {
             let bang2Arr = alivePlayers.filter(player => {
 
@@ -250,7 +254,6 @@ $(document).ready(function () {
                 $('#reroll-form').submit(() => {
                   $('#dice-num').text('');
                   $('#reroll-form').addClass('hide');
-                  let id = $('#room-id').text();
                   toReroll = 0;
 
                   // Adjust selected positions
@@ -285,7 +288,7 @@ $(document).ready(function () {
       // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
         let name = $(`#pos${i}`).text();
-        if ([...beerPositions].indexOf(name) != -1 || [...bang1Positions].indexOf(name) != -1 || [...bang2Positions].indexOf(name) != -1) {
+        if ([...beerPositions].includes(name) || [...bang1Positions].includes(name) || [...bang2Positions].includes(name)) {
           $(`#pos${i}`).droppable({
             drop: function (event, ui) {
               $(this).css('background-color', '');
@@ -349,15 +352,17 @@ $(document).ready(function () {
         reRolls = 0;
       }
 
-      // Trigger gatling gun and lose arrows
-      if (countGatling > 2) {
-        data.players = data.players.map(player => {
-          if (socket.id != player.socketId) {
-            player.health--;
-          }
-          return player;
-        })
-        countArrows = 0;
+      // Trigger gatling gun and lose arrows - to be implemented
+
+
+      if (countArrows > 0) {
+
+        // Count remaining arrows in the middle
+        let arrowCount = 0;
+        for (let i = 0; i < 9; i++) {
+          if ($(`#arrow-${i}`).length) { arrowCount++; }
+        }
+        socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, arrowsHit: countArrows, roller: data.roller });
       }
 
       if (reRolls == 0 || usableDice <= 0) {
@@ -371,9 +376,10 @@ $(document).ready(function () {
 
   function endTurn(players) {
     $('#end-turn-form').submit(function () {
+      $('#end-turn-form').removeClass('show').addClass('hide');
       let id = $('#room-id').text();
       let diceNum = 5;
-      let roller, playerPos;
+      let roller, playerPos, name;
       let alivePlayers = [];
       for (let i = 0; i < players.length; i++) {
         if ($(`#health${i}`).html() != '') {
@@ -383,26 +389,54 @@ $(document).ready(function () {
       for (let i = 0; i < alivePlayers.length; i++) {
         if (alivePlayers[i].socketId == socket.id) {
           roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+          name = alivePlayers.concat(alivePlayers)[i + 1].name;
           if (i + 1 >= alivePlayers.length) {
             playerPos = 0;
           } else {
             playerPos = i + 1;
           }
-          socket.emit('start turn', { id, diceNum, roller, playerPos });
+          socket.emit('turn transition', { id, diceNum, roller, playerPos, name });
         }
       }
       return false;
     })
   }
 
+  function rollButton(rollerTurn) {
+    $('#roll-form').submit(function () {
+      $('#roll-form').removeClass('show').addClass('hide');
+      let id = $('#room-id').text();
+      socket.emit('start turn', { id, diceNum: 5, roller: rollerTurn });
+      return false;
+    })
+  }
+
+  socket.on('turn transition', (data) => {
+    $('#announce-turn').text(data.name + "'s turn.");
+    $('#dice-area').html('');
+    if (socket.id == data.roller) {
+      $('#roll-form').removeClass('hide').addClass('show');
+      $('#roll-form').off();
+      $('#roll-form').click(rollButton(data.roller));
+    }
+  })
+
   socket.on('lose health', (data) => {
     playSound(data.dmgType);
-    $(`#health${data.playerPos}-${data.players[data.playerPos].health}`).remove();
+    let healthPoints = 0;
+    for (let i=0; i < 10; i++) {
+      if ($(`#health${data.playerPos}-${i}`).length) { healthPoints++; }
+    }
+    $(`#health${data.playerPos}-${healthPoints - 1}`).remove();
   })
 
   socket.on('gain health', (data) => {
     playSound('beer');
-    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${data.players[data.playerPos].health + 1}" class="img-bullet" src="/public/images/bullet.png" />`)
+    let healthPoints = 0;
+    for (let i = 0; i < 10; i++) {
+      if ($(`#health${data.playerPos}-${i}`).length) { healthPoints++; }
+    }
+    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${healthPoints}" class="img-bullet" src="/public/images/bullet.png" />`);
   })
 
   function playSound(sound) {
@@ -414,8 +448,45 @@ $(document).ready(function () {
 
   socket.on('player eliminated', (data) => {
     playSound('crow');
-    $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
-    
+    $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
+    $(`#pos${data.playerPos}`).droppable('destroy').text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
+
+    // Return arrows in middle
+    let arrowCount = 0;
+    for (let i=0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { arrowCount++; }
+    }
+    for (let i=0; i < data.players[data.playerPos].arrows; i++) {
+      $('#arrow-area').prepend(`<img id="arrow-${arrowCount + i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
+    if (data.left <= 3) {
+      for (let i=0; i < 5; i++) {
+        if ((`#die-${i}`).hasClass('bang2')) {
+          (`#die-${i}`).addClass('bang1');
+        }
+      }
+    }
+  })
+
+  socket.on('get arrow', (data) => {
+    playSound('arrow');
+    for (let i=0; i < data.arrowsHit; i++) {
+      $(`#arrow-${data.arrowCount - 1 - i}`).remove();
+      $(`#arrow${data.pos}`).prepend(`<img class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
+  })
+
+  socket.on('refill arrows', (data) => {
+    $('.pos-health, .pos-arrow, #arrow-area').html('');
+    for (let i = 0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { continue; }
+      $('#arrow-area').prepend(`<img id="arrow-${i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
+    for (let i = 0; i < data.players.length; i++) {
+      for (let j = 0; j < data.players[i].health; j++) {
+        $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
+      }
+    }
   })
 
 });
