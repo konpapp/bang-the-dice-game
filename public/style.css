@@ -183,6 +183,7 @@ form button {
 
 .pos-border {
   border: 2px solid rgb(0, 0, 0);
+  box-shadow: 4px 4px 6px 4px #000000;
   background-size: 100% 100%;
   display: flex;
   align-items: flex-start;
@@ -220,6 +221,7 @@ form button {
 
 .pos-border-rdy {
   border: 2px solid lightgreen;
+  box-shadow: 4px 4px 6px 4px lightgreen;
   background-size: 100% 100%;
   display: flex;
   align-items: flex-start;
@@ -235,6 +237,7 @@ form button {
 
 .pos-border-sheriff {
   border: 2px solid rgb(158, 160, 42);
+  box-shadow: 4px 4px 6px 4px #000000;
   background-size: 100% 100%;
   display: flex;
   align-items: flex-start;
@@ -291,4 +294,8 @@ form button {
 
 .select {
   border: 3px solid rgb(64, 212, 121);
+}
+
+.shade {
+  box-shadow: 4px 4px 6px 4px #c5c33c;
 }
