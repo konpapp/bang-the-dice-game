@@ -83,8 +83,7 @@ $(document).ready(function () {
     // Clear up open positions on board
     for (let i=0; i < 8; i++) {
       if ($(`#pos${i}`).text() == '') {
-        $(`#pos${i}`).css({ 'background': '' });
-        $(`#pos${i}`).css({ 'border': 'none' });
+        $(`#pos${i}`).removeClass('pos-border')
       }
     }
     
@@ -106,6 +105,7 @@ $(document).ready(function () {
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
         $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
+        $(`#pos${i}`).addClass('shade');
       }
 
       // Assign each role privately
@@ -414,6 +414,10 @@ $(document).ready(function () {
   socket.on('turn transition', (data) => {
     $('#announce-turn').text(data.name + "'s turn.");
     $('#dice-area').html('');
+    for (let i=0; i < 8; i++) {
+      $(`#pos${i}`).removeClass('shade');
+    }
+    $(`#pos${data.playerPos}`).addClass('shade');
     if (socket.id == data.roller) {
       $('#roll-form').removeClass('hide').addClass('show');
       $('#roll-form').off();
