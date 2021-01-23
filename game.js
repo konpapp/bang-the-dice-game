@@ -79,15 +79,18 @@ function winCheck(players) {
     return alivePlayers[0].name, ' wins as Renegade!';
   }
   if (alivePlayers.filter(player => player.role == 'sheriff') == []) {
-    return 'Outlaws win!';
+    let outlawList = players.filter(player => player.role == 'outlaw').map(player => player.name);
+    return outlawList.join(', '), ' win as Outlaws!';
   }
   if (alivePlayers.filter(player => player.role == 'outlaw' || player.role == 'renegade') == []) {
+    let sheriffName = alivePlayers.filter(player => player.role == 'sheriff')[0].name;
+    let deputyList = players.filter(player => player.role == 'deputy').map(player => player.name);
     if (players.length == 6) {
-      return 'Sheriff and Deputy win!';
+      return sheriffName + ' and ' + deputyList[0], ' win as Sheriff and Deputy!';
     } else if (players.length == 7) {
-      return 'Sheriff and Deputies win!';
+      return sheriffName + ', ' + deputyList.join(', '), ' win as Sheriff and Deputies!';
     } else {
-      return 'Sheriff wins!';
+      return sheriffName, ' wins as Sheriff!';
     }
   }
   return false;
