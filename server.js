@@ -172,6 +172,9 @@ myDB(async (client) => {
         roller: data.roller,
         dicePos: data.dicePositions,
         playerPos: players[data.id]
+                    .map(player => player.socketId)
+                    .indexOf(data.roller),
+        alivePlayerPos: players[data.id]
                     .filter(player => player.alive)
                     .map(player => player.socketId)
                     .indexOf(data.roller)
@@ -235,29 +238,29 @@ myDB(async (client) => {
               players[data.id][i].arrows = 0;
             }
             if (players[data.id][i].health <= 0) {
-
-              // If eliminated player's turn
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
-                let alivePlayers = players[data.id].filter(player => player.alive);
-                let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
-                let newRoller;
-                if (idx + 1 >= alivePlayers.length) {
-                  newRoller = alivePlayers[0].socketId;
-                } else { newRoller = alivePlayers[idx + 1].socketId; }
-                left = alivePlayers.length - 1;
-                let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
-                io.to(data.id).emit('turn transition', {
-                  id: data.id,
-                  name: players[data.id].filter(player => player.alive)[playerPos].name,
-                  diceNum: 5,
-                  roller: newRoller,
-                  playerPos
-                });
               }
               players[data.id][i].alive = false;
               io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
             }
+          }
+          if (eliminated) {
+            let alivePlayers = players[data.id].filter(player => player.alive);
+            let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
+            let newRoller;
+            if (idx + 1 >= alivePlayers.length) {
+              newRoller = alivePlayers[0].socketId;
+            } else { newRoller = alivePlayers[idx + 1].socketId; }
+            left = alivePlayers.length - 1;
+            let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
+            io.to(data.id).emit('turn transition', {
+              id: data.id,
+              name: players[data.id].filter(player => player.alive)[playerPos].name,
+              diceNum: 5,
+              roller: newRoller,
+              playerPos
+            });
           }
           io.to(data.id).emit('refill arrows', { players: players[data.id] });
           if (!eliminated) {

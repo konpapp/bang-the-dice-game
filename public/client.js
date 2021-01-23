@@ -197,7 +197,7 @@ $(document).ready(function () {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
               let expandedArr = alivePlayers.concat(alivePlayers);
-              if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+              if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                 return player;
               }
             });
@@ -212,11 +212,11 @@ $(document).ready(function () {
 
               // If only 2 players, use as bang1
               if (alivePlayers.length == 2) {
-                if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+                if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                   return player;
                 }
               } else {
-                if ((expandedArr[alivePlayers.length + data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) && expandedArr[data.playerPos] != player) {
+                if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 2] == player || expandedArr[data.alivePlayerPos + 2] == player) && expandedArr[data.alivePlayerPos] != player) {
                   return player;
                 }
               }
@@ -453,7 +453,7 @@ $(document).ready(function () {
   socket.on('player eliminated', (data) => {
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
-    if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, ui-droppable-hover, ui-droppable")) {
+    if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, .ui-droppable-hover, .ui-droppable")) {
       $(`#pos${data.playerPos}`).droppable('destroy');
     }
     if (data.players[data.playerPos].socketId == socket.id && $('#end-turn-form').hasClass('show')) {
