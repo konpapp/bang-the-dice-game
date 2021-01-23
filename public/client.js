@@ -83,8 +83,7 @@ $(document).ready(function () {
     // Clear up open positions on board
     for (let i=0; i < 8; i++) {
       if ($(`#pos${i}`).text() == '') {
-        $(`#pos${i}`).css({ 'background': '' });
-        $(`#pos${i}`).css({ 'border': 'none' });
+        $(`#pos${i}`).removeClass('pos-border')
       }
     }
     
@@ -106,6 +105,7 @@ $(document).ready(function () {
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
         $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
+        $(`#pos${i}`).addClass('shade');
       }
 
       // Assign each role privately
@@ -153,6 +153,9 @@ $(document).ready(function () {
       if (data.arrowIndices && data.arrowIndices.includes(i)) {
         $(`#die-${i}`).addClass('used');
       }
+      if (data.gatlingIndices && data.gatlingIndices.includes(i)) {
+        $(`#die-${i}`).addClass('activated');
+      }
       if (data.dice[i] == 'dynamite') {
         countDynamites++;
       }
@@ -162,10 +165,9 @@ $(document).ready(function () {
         dynamiteOff = false;
       }
       let reRolls = 2;
-      let toReroll = 0;
-      let usableDice = 0;
-      let countArrows = 0;
-      let countGatling = 0;
+      let toReroll, usableDice, countArrows, countGatling;
+      toReroll = usableDice = countArrows = countGatling = 0;
+      let gatlingDice = [];
       let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
 
       // Helper sets to store droppable positions
@@ -177,7 +179,8 @@ $(document).ready(function () {
         if ($(`#die-${i}`).hasClass('arrow') && !$(`#die-${i}`).hasClass('used')) {
           countArrows++;
         }
-        if ($(`#die-${i}`).hasClass('gatling')) {
+        if ($(`#die-${i}`).hasClass('gatling') && !$(`#die-${i}`).hasClass('activated')) {
+          gatlingDice.push(i);
           countGatling++;
         }
         if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
@@ -197,7 +200,7 @@ $(document).ready(function () {
 
               // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
               let expandedArr = alivePlayers.concat(alivePlayers);
-              if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+              if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                 return player;
               }
             });
@@ -212,11 +215,11 @@ $(document).ready(function () {
 
               // If only 2 players, use as bang1
               if (alivePlayers.length == 2) {
-                if ((expandedArr[alivePlayers.length + data.playerPos - 1] == player || expandedArr[data.playerPos + 1] == player) && expandedArr[data.playerPos] != player) {
+                if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                   return player;
                 }
               } else {
-                if ((expandedArr[alivePlayers.length + data.playerPos - 2] == player || expandedArr[data.playerPos + 2] == player) && expandedArr[data.playerPos] != player) {
+                if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 2] == player || expandedArr[data.alivePlayerPos + 2] == player) && expandedArr[data.alivePlayerPos] != player) {
                   return player;
                 }
               }
@@ -351,13 +354,7 @@ $(document).ready(function () {
           $(`#pos${i}`).droppable({ accept: acceptArr.join(',') });
         }
       }
-
-      // Trigger gatling gun and lose arrows - to be implemented
-
-
       if (countArrows > 0) {
-
-        // Count remaining arrows in the middle
         let arrowCount = 0;
         for (let i = 0; i < 9; i++) {
           if ($(`#arrow-${i}`).length) { arrowCount++; }
@@ -367,6 +364,13 @@ $(document).ready(function () {
 
       if (!dynamiteOff) {
         socket.emit('trigger dynamite', { pos: data.playerPos, id, roller: data.roller, dmgType: 'dynamite' })
+      }
+
+      if (countGatling > 2) {
+        for (let i=0; i < 3; i++) {
+          $(`#die-${gatlingDice[i]}`).off();
+        }
+        socket.emit('fire gatling', { pos: data.playerPos, id, roller: data.roller, dmgType: 'gatling' })
       }
 
       if (reRolls == 0 || usableDice <= 0) {
@@ -414,6 +418,10 @@ $(document).ready(function () {
   socket.on('turn transition', (data) => {
     $('#announce-turn').text(data.name + "'s turn.");
     $('#dice-area').html('');
+    for (let i=0; i < 8; i++) {
+      $(`#pos${i}`).removeClass('shade');
+    }
+    $(`#pos${data.playerPos}`).addClass('shade');
     if (socket.id == data.roller) {
       $('#roll-form').removeClass('hide').addClass('show');
       $('#roll-form').off();
@@ -447,9 +455,10 @@ $(document).ready(function () {
   }
 
   socket.on('player eliminated', (data) => {
+    playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
     $(`#pos${data.playerPos}`).text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
-    if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, ui-droppable-hover, ui-droppable")) {
+    if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, .ui-droppable-hover, .ui-droppable")) {
       $(`#pos${data.playerPos}`).droppable('destroy');
     }
     if (data.players[data.playerPos].socketId == socket.id && $('#end-turn-form').hasClass('show')) {
@@ -471,9 +480,6 @@ $(document).ready(function () {
         }
       }
     }
-    setTimeout(() => {
-      playSound('crow');
-    }, 100);
   })
 
   socket.on('get arrow', (data) => {
@@ -494,6 +500,17 @@ $(document).ready(function () {
       for (let j = 0; j < data.players[i].health; j++) {
         $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
       }
+    }
+  })
+
+  socket.on('fire gatling', (data) => {
+    $(`#arrow${data.pos}`).html('');
+    let arrowCount = 0;
+    for (let i = 0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { arrowCount++; }
+    }
+    for (let i = 0; i < data.arrows; i++) {
+      $('#arrow-area').prepend(`<img id="arrow-${arrowCount + i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
     }
   })
 
