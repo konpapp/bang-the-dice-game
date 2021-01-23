@@ -22,31 +22,67 @@ html
         div.row.align-items-start
           .col.row.justify-content-start
             .col.pos-border#pos0
-            .col.pos-health#health0
+            .col
+              .row
+                .col.pos-health#health0
+              .row
+                .col.pos-arrow#arrow0
           .col.row.justify-content-center
             .col.pos-border#pos1
-            .col.pos-health#health1
+            .col
+              .row
+                .col.pos-health#health1
+              .row
+                .col.pos-arrow#arrow1
           .col.row.justify-content-end
             .col.pos-border#pos2
-            .col.pos-health#health2
+            .col
+              .row
+                .col.pos-health#health2
+              .row
+                .col.pos-arrow#arrow2
         div.row.align-items-center.mt-1
           .col.row.justify-content-start
             .col.pos-border#pos7
-            .col.pos-health#health7
-          .col#dice-area.justify-content-center
+            .col
+              .row
+                .col.pos-health#health7
+              .row
+                .col.pos-arrow#arrow7
+          .col.justify-content-center
+            .row
+              .col#arrow-area
+            .row.mt-2
+              .col#dice-area
           .col.row.justify-content-end
             .col.pos-border#pos3
-            .col.pos-health#health3
+            .col
+              .row
+                .col.pos-health#health3
+              .row
+                .col.pos-arrow#arrow3
         div.row.align-items-end.mt-1
           .col.row.justify-content-start
             .col.pos-border#pos6
-            .col.pos-health#health6
+            .col
+              .row
+                .col.pos-health#health6
+              .row
+                .col.pos-arrow#arrow6
           .col.row.justify-content-center
             .col.pos-border#pos5
-            .col.pos-health#health5
+            .col
+              .row
+                .col.pos-health#health5
+              .row
+                .col.pos-arrow#health5
           .col.row.justify-content-end
             .col.pos-border#pos4
-            .col.pos-health#health4
+            .col
+              .row
+                .col.pos-health#health4
+              .row
+                .col.pos-arrow#arrow4
       div.chat-box
         ul#messages
         form.game-form#msg-form(action='')
