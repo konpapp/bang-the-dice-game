@@ -423,12 +423,20 @@ $(document).ready(function () {
 
   socket.on('lose health', (data) => {
     playSound(data.dmgType);
-    $(`#health${data.playerPos}-${data.players[data.playerPos].health}`).remove();
+    let healthPoints = 0;
+    for (let i=0; i < 10; i++) {
+      if ($(`#health${data.playerPos}-${i}`).length) { healthPoints++; }
+    }
+    $(`#health${data.playerPos}-${healthPoints - 1}`).remove();
   })
 
   socket.on('gain health', (data) => {
     playSound('beer');
-    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${data.players[data.playerPos].health + 1}" class="img-bullet" src="/public/images/bullet.png" />`)
+    let healthPoints = 0;
+    for (let i = 0; i < 10; i++) {
+      if ($(`#health${data.playerPos}-${i}`).length) { healthPoints++; }
+    }
+    $(`#health${data.playerPos}`).prepend(`<img id="health${data.playerPos}-${healthPoints}" class="img-bullet" src="/public/images/bullet.png" />`);
   })
 
   function playSound(sound) {
@@ -441,7 +449,16 @@ $(document).ready(function () {
   socket.on('player eliminated', (data) => {
     playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
-    $(`#pos${data.playerPos}`).droppable('destroy').text(data.name).css('background-image', "url('/public/images/tombstone.png')");
+    $(`#pos${data.playerPos}`).droppable('destroy').text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
+
+    // Return arrows in middle
+    let arrowCount = 0;
+    for (let i=0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { arrowCount++; }
+    }
+    for (let i=0; i < data.players[data.playerPos].arrows; i++) {
+      $('#arrow-area').prepend(`<img id="arrow-${arrowCount + i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
+    }
     if (data.left <= 3) {
       for (let i=0; i < 5; i++) {
         if ((`#die-${i}`).hasClass('bang2')) {
@@ -452,7 +469,6 @@ $(document).ready(function () {
   })
 
   socket.on('get arrow', (data) => {
-    console.log(data);
     playSound('arrow');
     for (let i=0; i < data.arrowsHit; i++) {
       $(`#arrow-${data.arrowCount - 1 - i}`).remove();
@@ -463,6 +479,7 @@ $(document).ready(function () {
   socket.on('refill arrows', (data) => {
     $('.pos-health, .pos-arrow, #arrow-area').html('');
     for (let i = 0; i < 9; i++) {
+      if ($(`#arrow-${i}`).length) { continue; }
       $('#arrow-area').prepend(`<img id="arrow-${i}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
     }
     for (let i = 0; i < data.players.length; i++) {

@@ -183,14 +183,12 @@ myDB(async (client) => {
     })
 
     socket.on('lose health', (data) => {
-      let name = players[data.id][data.playerPos].name;
       players[data.id][data.playerPos].health--;
       if (players[data.id][data.playerPos].health == 0) {
         players[data.id][data.playerPos].alive = false;
         io.to(data.id).emit('player eliminated', {
           players: players[data.id],
-          playerPos: data.playerPos,
-          name
+          playerPos: data.playerPos
         });
       } 
       io.to(data.id).emit('lose health', {
@@ -211,8 +209,8 @@ myDB(async (client) => {
     })
 
     socket.on('get arrow', (data) => {
-      let emptyArrows = false;
-      let eliminated = false;
+      let emptyArrows, eliminated;
+      emptyArrows, eliminated = false;
       let left;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
@@ -246,19 +244,19 @@ myDB(async (client) => {
                 let newRoller;
                 if (idx + 1 >= alivePlayers.length) {
                   newRoller = alivePlayers[0].socketId;
-                } else { newRoller = alivePlayers[idx + 1] }
+                } else { newRoller = alivePlayers[idx + 1].socketId; }
                 left = alivePlayers.length - 1;
-                io.to(data.id).emit('start turn', {
-                  players: players[data.id],
-                  dice: game.rollDice(5),
-                  playerPos: players[data.id]
-                    .filter(player => player.alive)
-                    .map(player => player.socketId)
-                    .indexOf(newRoller)
+                let playerPos = players[data.id].filter(player => player.alive).map(player => player.socketId).indexOf(newRoller);
+                io.to(data.id).emit('turn transition', {
+                  id: data.id,
+                  name: players[data.id].filter(player => player.alive)[playerPos].name,
+                  diceNum: 5,
+                  roller: newRoller,
+                  playerPos
                 });
               }
               players[data.id][i].alive = false;
-              io.to(data.id).emit('player eliminated', { playerPos: i, name: players[data.id][i].name, left });
+              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
             }
           }
           io.to(data.id).emit('refill arrows', { players: players[data.id] });
