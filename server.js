@@ -184,7 +184,7 @@ myDB(async (client) => {
 
     socket.on('lose health', (data) => {
       players[data.id][data.playerPos].health--;
-      if (players[data.id][data.playerPos].health == 0) {
+      if (players[data.id][data.playerPos].health <= 0) {
         players[data.id][data.playerPos].alive = false;
         io.to(data.id).emit('player eliminated', {
           players: players[data.id],
@@ -246,7 +246,7 @@ myDB(async (client) => {
                   newRoller = alivePlayers[0].socketId;
                 } else { newRoller = alivePlayers[idx + 1].socketId; }
                 left = alivePlayers.length - 1;
-                let playerPos = players[data.id].filter(player => player.alive).map(player => player.socketId).indexOf(newRoller);
+                let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
                 io.to(data.id).emit('turn transition', {
                   id: data.id,
                   name: players[data.id].filter(player => player.alive)[playerPos].name,
@@ -271,6 +271,44 @@ myDB(async (client) => {
           }
         }, 250);
       }
+    })
+
+    socket.on('trigger dynamite', (data) => {
+      let left;
+      setTimeout(() => {
+        players[data.id][data.pos].health--;
+        if (players[data.id][data.pos].health <= 0) {
+
+          // If eliminated player's turn
+          if (players[data.id][data.pos].socketId == data.roller) {
+            let alivePlayers = players[data.id].filter(player => player.alive);
+            let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
+            let newRoller;
+            if (idx + 1 >= alivePlayers.length) {
+              newRoller = alivePlayers[0].socketId;
+            } else { newRoller = alivePlayers[idx + 1].socketId; }
+            left = alivePlayers.length - 1;
+            let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
+            io.to(data.id).emit('turn transition', {
+              id: data.id,
+              name: players[data.id].filter(player => player.alive)[playerPos].name,
+              diceNum: 5,
+              roller: newRoller,
+              playerPos
+            });
+          }
+          players[data.id][data.pos].alive = false;
+          io.to(data.id).emit('player eliminated', {
+            players: players[data.id],
+            playerPos: data.pos
+          });
+        }
+        io.to(data.id).emit('lose health', {
+          players: players[data.id],
+          playerPos: data.pos,
+          dmgType: data.dmgType
+        })
+      }, 1000);
     })
 
     socket.on('disconnect', () => {

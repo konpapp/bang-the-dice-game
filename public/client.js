@@ -138,6 +138,8 @@ $(document).ready(function () {
   })
 
   socket.on('start turn', (data) => {
+    let dynamiteOff = true;
+    let countDynamites = 0;
     let id = $('#room-id').text();
     $('#dice-area, .pos-health').html('');
     $('#reroll-form, #end-turn-form').removeClass('show').addClass('hide');
@@ -151,13 +153,17 @@ $(document).ready(function () {
       if (data.arrowIndices && data.arrowIndices.includes(i)) {
         $(`#die-${i}`).addClass('used');
       }
+      if (data.dice[i] == 'dynamite') {
+        countDynamites++;
+      }
     }
     if (socket.id == data.roller) {
-      console.log('starting turn')
+      if (countDynamites > 2) {
+        dynamiteOff = false;
+      }
       let reRolls = 2;
       let toReroll = 0;
       let usableDice = 0;
-      let countDynamites = 0;
       let countArrows = 0;
       let countGatling = 0;
       let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
@@ -221,12 +227,11 @@ $(document).ready(function () {
           }
         }
         if ($(`#die-${i}`).hasClass('dynamite')) {
-          countDynamites++;
           continue;
         }
 
         // Click on dice to reroll
-        if ((!data.reRolls && data.reRolls != 0) || data.reRolls > 0) {
+        if (dynamiteOff && ((!data.reRolls && data.reRolls != 0) || data.reRolls > 0)) {
           $(`#die-${i}`).click(() => {
             if ($(`#die-${i}`).hasClass('select')) {
               $(`#die-${i}`).removeClass('select');
@@ -347,11 +352,6 @@ $(document).ready(function () {
         }
       }
 
-      // No rerolls left if dynamite is triggered
-      if (countDynamites > 2) {
-        reRolls = 0;
-      }
-
       // Trigger gatling gun and lose arrows - to be implemented
 
 
@@ -363,6 +363,10 @@ $(document).ready(function () {
           if ($(`#arrow-${i}`).length) { arrowCount++; }
         }
         socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, arrowsHit: countArrows, roller: data.roller });
+      }
+
+      if (!dynamiteOff) {
+        socket.emit('trigger dynamite', { pos: data.playerPos, id, roller: data.roller, dmgType: 'dynamite' })
       }
 
       if (reRolls == 0 || usableDice <= 0) {
@@ -390,11 +394,7 @@ $(document).ready(function () {
         if (alivePlayers[i].socketId == socket.id) {
           roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
           name = alivePlayers.concat(alivePlayers)[i + 1].name;
-          if (i + 1 >= alivePlayers.length) {
-            playerPos = 0;
-          } else {
-            playerPos = i + 1;
-          }
+          playerPos = players.map(player => player.socketId).indexOf(roller);
           socket.emit('turn transition', { id, diceNum, roller, playerPos, name });
         }
       }
@@ -447,9 +447,14 @@ $(document).ready(function () {
   }
 
   socket.on('player eliminated', (data) => {
-    playSound('crow');
     $(`#health${data.playerPos}, #arrow${data.playerPos}`).html('');
-    $(`#pos${data.playerPos}`).droppable('destroy').text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
+    $(`#pos${data.playerPos}`).text(data.players[data.playerPos].name).css('background-image', "url('/public/images/tombstone.png')");
+    if ($(`#pos${data.playerPos}`).is(".ui-droppable-active, ui-droppable-hover, ui-droppable")) {
+      $(`#pos${data.playerPos}`).droppable('destroy');
+    }
+    if (data.players[data.playerPos].socketId == socket.id && $('#end-turn-form').hasClass('show')) {
+      $('#end-turn-form').removeClass('show').addClass('hide');
+    }
 
     // Return arrows in middle
     let arrowCount = 0;
@@ -461,11 +466,14 @@ $(document).ready(function () {
     }
     if (data.left <= 3) {
       for (let i=0; i < 5; i++) {
-        if ((`#die-${i}`).hasClass('bang2')) {
-          (`#die-${i}`).addClass('bang1');
+        if ($(`#die-${i}`).hasClass('bang2')) {
+          $(`#die-${i}`).addClass('bang1');
         }
       }
     }
+    setTimeout(() => {
+      playSound('crow');
+    }, 100);
   })
 
   socket.on('get arrow', (data) => {
