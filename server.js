@@ -167,8 +167,7 @@ myDB(async (client) => {
         }
         dice = data.currentDice;
       } else {
-        dice = ['gatling', 'gatling', 'arrow', 'arrow', 'arrow'];
-        // dice = game.rollDice(5);
+        dice = game.rollDice(5);
       }
       io.to(data.id).emit('start turn', { 
         players: players[data.id],
