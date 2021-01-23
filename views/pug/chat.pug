@@ -101,12 +101,12 @@ html
         form.game-form.hide#end-turn-form(action='')
           button.btn.btn-dark#end-turn-btn End Turn
       hr
-      audio(src="/public/sounds/bang.mp3" type="audio/mpeg")#bang-sound
-      audio(src="/public/sounds/beer.mp3" type="audio/mpeg")#beer-sound
-      audio(src="/public/sounds/gatling.mp3" type="audio/mpeg")#gatling-sound
-      audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg")#dynamite-sound
-      audio(src="/public/sounds/arrow.mp3" type="audio/mpeg")#arrow-sound
-      audio(src="/public/sounds/crow.mp3" type="audio/mpeg")#crow-sound
+      audio(src="/public/sounds/bang.mp3" type="audio/mpeg" preload="auto")#bang-sound
+      audio(src="/public/sounds/beer.mp3" type="audio/mpeg" preload="auto")#beer-sound
+      audio(src="/public/sounds/gatling.mp3" type="audio/mpeg" preload="auto")#gatling-sound
+      audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg" preload="auto")#dynamite-sound
+      audio(src="/public/sounds/arrow.mp3" type="audio/mpeg" preload="auto")#arrow-sound
+      audio(src="/public/sounds/crow.mp3" type="audio/mpeg" preload="auto")#crow-sound
       h2.center 
       .logout.left
         a(href='/logout').text Logout

@@ -447,6 +447,8 @@ $(document).ready(function () {
         }
       }
     }
+    let id = $('#room-id').text();
+    socket.emit('win check', { id });
   })
 
   socket.on('get arrow', (data) => {
