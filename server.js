@@ -5,10 +5,8 @@ const myDB = require('./connection');
 const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes.js');
-
 const auth = require('./auth.js');
 const game = require('./game.js');
-
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
@@ -61,19 +59,18 @@ myDB(async (client) => {
     if (rooms[roomId]) {
       for (let i=0; i < rooms[roomId].length; i++) {
         if (socket.request.user.username == rooms[roomId][i]) {
+          io.to(roomId).emit('disconnection', { socket: socket.id, msg: 'Username already exists.'});
           socket.disconnect();
           console.log('Disconnecting existing user.');
           return false;
         }
       }
       if (rooms[roomId].length === 8) {
+        io.to(roomId).emit('disconnection', { msg: 'Player limit reached.' });
         socket.disconnect();
         console.log('Player limit reached. Unable to connect.');
         return false;
       }
-    }
-
-    if (rooms[roomId]) {
       rooms[roomId].push(socket.request.user.username);
     } else {
       rooms[roomId] = [socket.request.user.username];
@@ -87,6 +84,7 @@ myDB(async (client) => {
       connected: true
     });
     console.log('A user has connected.');
+    
     socket.on('chat message', (message) => {
       io.to(roomId).emit('chat message', { 
         name: socket.request.user.username, message });
@@ -175,7 +173,8 @@ myDB(async (client) => {
         players[data.id][data.playerPos].alive = false;
         io.to(data.id).emit('player eliminated', {
           players: players[data.id],
-          playerPos: data.playerPos
+          playerPos: data.playerPos,
+          left: players[data.id].filter(player => player.alive).length - 1
         });
       } 
       io.to(data.id).emit('lose health', {
@@ -198,7 +197,6 @@ myDB(async (client) => {
     socket.on('get arrow', (data) => {
       let emptyArrows, eliminated;
       emptyArrows, eliminated = false;
-      let left;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
         emptyArrows = true;
@@ -225,7 +223,7 @@ myDB(async (client) => {
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
               }
-              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
+              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left: players[data.id].filter(player => player.alive).length - 1 });
             }
           }
           if (eliminated) {
@@ -236,7 +234,6 @@ myDB(async (client) => {
               newRoller = alivePlayers[0].socketId;
             } else { newRoller = alivePlayers[idx + 1].socketId; }
             players[data.id][data.pos].alive = false;
-            left = alivePlayers.length - 1;
             let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
             io.to(data.id).emit('turn transition', {
               id: data.id,
@@ -261,7 +258,6 @@ myDB(async (client) => {
     })
 
     socket.on('trigger dynamite', (data) => {
-      let left;
       setTimeout(() => {
         players[data.id][data.pos].health--;
         if (players[data.id][data.pos].health <= 0) {
@@ -272,7 +268,6 @@ myDB(async (client) => {
             if (idx + 1 >= alivePlayers.length) {
               newRoller = alivePlayers[0].socketId;
             } else { newRoller = alivePlayers[idx + 1].socketId; }
-            left = alivePlayers.length - 1;
             let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
             io.to(data.id).emit('turn transition', {
               id: data.id,
