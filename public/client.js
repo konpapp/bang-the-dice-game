@@ -1,9 +1,14 @@
 $(document).ready(function () {
-  /* Global io */
   let socket = io();
   
+  socket.on('disconnection', (data) => {
+    if (data.socket == socket.id) {
+      alert(data.msg);
+    }
+  })
+
   socket.on('disconnect', () => {
-    alert('User already exists or room is full. Disconnected from server.');
+    alert('Disconnected from server.');
     window.location = "/"; 
   });
 
@@ -15,8 +20,6 @@ $(document).ready(function () {
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
     for (let i = 0; i < data.users.length; i++) {
       $(`#pos${i}`).text(data.users[i]);
-
-      // Ready check
       if (data.readyUsers) {
         let usernames = data.readyUsers.map(elem => elem[1]);
         if (usernames.indexOf(data.users[i]) != -1) {
@@ -24,14 +27,10 @@ $(document).ready(function () {
         }
       }
     }
-
-    // Toggle text for users online
     if (data.users.length === 1) {
       $('#num-users').text('1 user online');
     } else { $('#num-users').text(data.users.length + ' users online'); }
-
-    // Announce new user on chat
-    let message = data.name + (data.connected ? ' has joined the chat.' : ' has left the chat.');
+    let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
     $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
   });
 
@@ -47,13 +46,11 @@ $(document).ready(function () {
     }
   })
 
-  // Form submittion with new message in field with id 'm'
   $('#msg-form').submit(function () {
     let messageToSend = $('#m').val();
-    // Send message to server here?
     socket.emit('chat message', messageToSend);
     $('#m').val('');
-    return false; // Prevent form submit from refreshing page
+    return false;
   });
 
   $('#rdy-form').submit(function () {
@@ -62,7 +59,6 @@ $(document).ready(function () {
     return false;
   })
 
-  // Start the game
   socket.on('start game', (data) => {
     if (socket.id == data.creatorId) {
       $('#start-form').removeClass('hide').addClass('show');
@@ -80,35 +76,29 @@ $(document).ready(function () {
     $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
-    // Clear up open positions on board
     for (let i=0; i < 8; i++) {
       if ($(`#pos${i}`).text() == '') {
         $(`#pos${i}`).removeClass('pos-border')
       }
     }
     
-    // Assign arrows
     for (let z = 0; z < 9; z++) {
       $('#arrow-area').prepend(`<img id="arrow-${z}" class="img-arrow" src="/public/images/indian_arrow.png" />`);
     }
     for (let i = 0; i < data.players.length; i++) {
 
-      // Assign portraits
       $(`#pos${i}`).css('background-image', `url('/public/images/chars/${data.players[i].char}.jpg')`);
 
-      // Assign health points
       for (let j = 0; j < data.players[i].health; j++) {
         $(`#health${i}`).prepend(`<img id="health${i}-${j}" class="img-bullet" src="/public/images/bullet.png" />`);
       }
 
-      // Announce and mark the sheriff
       if (data.players[i].role == 'sheriff') {
         $('#num-users').text(data.players[i].name + ' is the Sheriff.');
         $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-sheriff');
         $(`#pos${i}`).addClass('shade');
       }
 
-      // Assign each role privately
       if (data.players[i].socketId == socket.id) {
         switch (data.players[i].role) {
           case 'sheriff':
@@ -169,8 +159,6 @@ $(document).ready(function () {
       toReroll = usableDice = countArrows = countGatling = 0;
       let gatlingDice = [];
       let alivePlayers = data.players.filter(player => player.alive).map(player => player.name);
-
-      // Helper sets to store droppable positions
       let beerPositions = new Set();
       let bang1Positions = new Set();
       let bang2Positions = new Set();
@@ -185,20 +173,14 @@ $(document).ready(function () {
         }
         if ($(`#die-${i}`).is('.bang1, .bang2, .beer')) {
           usableDice++;
-
-          // Set draggable dice
           $(`#die-${i}`).draggable(({ revert: 'invalid', containment: '.board' }));
           $(`#die-${i}`).draggable('enable');
-
-          // Set droppables
           if ($(`#die-${i}`).hasClass('beer')) {
             for (let i = 0; i < alivePlayers.length; i++) {
               beerPositions.add(alivePlayers[i]);
             }
           } else if ($(`#die-${i}`).hasClass('bang1')) {
             let bang1Arr = alivePlayers.filter(player =>  {
-
-              // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 0 can shoot player in position 5).
               let expandedArr = alivePlayers.concat(alivePlayers);
               if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                 return player;
@@ -209,11 +191,7 @@ $(document).ready(function () {
             }
           } else {
             let bang2Arr = alivePlayers.filter(player => {
-
-              // Expanding the array to cover edge cases (ex. When 6 players (0 - 5), player in position 1 can shoot player in position 5).
               let expandedArr = alivePlayers.concat(alivePlayers);
-
-              // If only 2 players, use as bang1
               if (alivePlayers.length == 2) {
                 if ((expandedArr[alivePlayers.length + data.alivePlayerPos - 1] == player || expandedArr[data.alivePlayerPos + 1] == player) && expandedArr[data.alivePlayerPos] != player) {
                   return player;
@@ -232,8 +210,6 @@ $(document).ready(function () {
         if ($(`#die-${i}`).hasClass('dynamite')) {
           continue;
         }
-
-        // Click on dice to reroll
         if (dynamiteOff && ((!data.reRolls && data.reRolls != 0) || data.reRolls > 0)) {
           $(`#die-${i}`).click(() => {
             if ($(`#die-${i}`).hasClass('select')) {
@@ -263,8 +239,6 @@ $(document).ready(function () {
                   $('#dice-num').text('');
                   $('#reroll-form').addClass('hide');
                   toReroll = 0;
-
-                  // Adjust selected positions
                   let dicePositions = [...selectedPos];
                   let corr;
                   for (let i = 0; i < dicePositions.length; i++) {
@@ -292,8 +266,6 @@ $(document).ready(function () {
           })
         }
       }
-
-      // Assign droppable positions
       for (let i=0; i < data.players.length; i++) {
         let name = $(`#pos${i}`).text();
         if ([...beerPositions].includes(name) || [...bang1Positions].includes(name) || [...bang2Positions].includes(name)) {
@@ -361,22 +333,18 @@ $(document).ready(function () {
         }
         socket.emit('get arrow', { pos: data.playerPos, id, arrowCount, arrowsHit: countArrows, roller: data.roller });
       }
-
       if (!dynamiteOff) {
         socket.emit('trigger dynamite', { pos: data.playerPos, id, roller: data.roller, dmgType: 'dynamite' })
       }
-
       if (countGatling > 2) {
         for (let i=0; i < 3; i++) {
           $(`#die-${gatlingDice[i]}`).off();
         }
         socket.emit('fire gatling', { pos: data.playerPos, id, roller: data.roller, dmgType: 'gatling' })
       }
-
       if (reRolls == 0 || usableDice <= 0) {
         $('#end-turn-form').removeClass('hide').addClass('show');
       }
-
       $('#end-turn-form').off();
       $('#end-turn-form').click(endTurn(data.players));
     }
@@ -464,8 +432,6 @@ $(document).ready(function () {
     if (data.players[data.playerPos].socketId == socket.id && $('#end-turn-form').hasClass('show')) {
       $('#end-turn-form').removeClass('show').addClass('hide');
     }
-
-    // Return arrows in middle
     let arrowCount = 0;
     for (let i=0; i < 9; i++) {
       if ($(`#arrow-${i}`).length) { arrowCount++; }
@@ -480,6 +446,8 @@ $(document).ready(function () {
         }
       }
     }
+    let id = $('#room-id').text();
+    socket.emit('win check', { id });
   })
 
   socket.on('get arrow', (data) => {
@@ -514,4 +482,15 @@ $(document).ready(function () {
     }
   })
 
+  socket.on('win check', (data) => {
+    $('#dice-area').html('');
+    $('#num-users, #announce').text('');
+    $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').remove();
+    setTimeout(() => {
+      $('.board').addClass('blur');
+      $('.logout').removeClass('hide').addClass('show');
+      $('#announce-turn').text(data.winMessage);
+      $('#announce-turn').css('font-size', '36px');
+    }, 1500);
+  })
 });
