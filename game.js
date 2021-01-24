@@ -42,13 +42,13 @@ function getRoles(users) {
     playerObj.name = users[i];
     playerObj.role = roles[i];
     playerObj.arrows = 0;
-    playerObj.health = 8;
-    playerObj.maxHealth = 8;
+    playerObj.health = 1;
+    playerObj.maxHealth = 1;
     playerObj.alive = true;
     players.push(Object.assign({}, playerObj));
     if (players[i].role == 'sheriff') {
-      players[i].health += 2;
-      players[i].maxHealth += 2;
+      players[i].health += 0;
+      players[i].maxHealth += 0;
     }
   }
   return players;
@@ -74,23 +74,23 @@ function rollDice(num) {
 }
 
 function winCheck(players) {
-  let alivePlayers = players.filter(players => players.alive);
-  if (alivePlayers.length === 1 && alivePlayers[0].role == ' renegade') {
-    return alivePlayers[0].name, ' wins as Renegade!';
+  let alivePlayers = players.filter(player => player.alive);
+  if (alivePlayers.length === 1 && alivePlayers[0].role == 'renegade') {
+    return alivePlayers[0].name + ' wins as Renegade!';
   }
-  if (alivePlayers.filter(player => player.role == 'sheriff') == []) {
+  if (alivePlayers.find(player => player.role == 'sheriff') == undefined) {
     let outlawList = players.filter(player => player.role == 'outlaw').map(player => player.name);
-    return outlawList.join(', '), ' win as Outlaws!';
+    return outlawList.join(', ') + ' win as Outlaws!';
   }
-  if (alivePlayers.filter(player => player.role == 'outlaw' || player.role == 'renegade') == []) {
+  if (alivePlayers.find(player => player.role == 'outlaw' || player.role == 'renegade') == undefined) {
     let sheriffName = alivePlayers.filter(player => player.role == 'sheriff')[0].name;
     let deputyList = players.filter(player => player.role == 'deputy').map(player => player.name);
     if (players.length == 6) {
-      return sheriffName + ' and ' + deputyList[0], ' win as Sheriff and Deputy!';
+      return sheriffName + ' and ' + deputyList[0] + ' win as Sheriff and Deputy!';
     } else if (players.length == 7) {
-      return sheriffName + ', ' + deputyList.join(', '), ' win as Sheriff and Deputies!';
+      return sheriffName + ', ' + deputyList.join(', ') + ' win as Sheriff and Deputies!';
     } else {
-      return sheriffName, ' wins as Sheriff!';
+      return sheriffName + ' wins as Sheriff!';
     }
   }
   return false;

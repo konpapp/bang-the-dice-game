@@ -483,4 +483,16 @@ $(document).ready(function () {
     }
   })
 
+  socket.on('win check', (data) => {
+    $('#dice-area').html('');
+    $('#num-users, #announce').text('');
+    $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').removeClass('show').addClass('hide');
+    setTimeout(() => {
+      $('.board').addClass('blur');
+      $('#announce-turn').text(data.winMessage);
+      $('#announce-turn').css('font-size', '36px');
+    }, 1500);
+    
+  })
+
 });

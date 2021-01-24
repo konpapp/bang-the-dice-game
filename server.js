@@ -240,7 +240,7 @@ myDB(async (client) => {
             let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
             io.to(data.id).emit('turn transition', {
               id: data.id,
-              name: players[data.id].filter(player => player.alive)[playerPos].name,
+              name: players[data.id][playerPos].name,
               diceNum: 5,
               roller: newRoller,
               playerPos
