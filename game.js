@@ -42,13 +42,13 @@ function getRoles(users) {
     playerObj.name = users[i];
     playerObj.role = roles[i];
     playerObj.arrows = 0;
-    playerObj.health = 1;
-    playerObj.maxHealth = 1;
+    playerObj.health = 8;
+    playerObj.maxHealth = 8;
     playerObj.alive = true;
     players.push(Object.assign({}, playerObj));
     if (players[i].role == 'sheriff') {
-      players[i].health += 0;
-      players[i].maxHealth += 0;
+      players[i].health += 2;
+      players[i].maxHealth += 2;
     }
   }
   return players;
