@@ -5,10 +5,8 @@ const myDB = require('./connection');
 const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes.js');
-
 const auth = require('./auth.js');
 const game = require('./game.js');
-
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
@@ -52,38 +50,27 @@ myDB(async (client) => {
   const myDataBase = await client.db('database').collection('users')
   routes.main(app, myDataBase);
   auth(app, myDataBase);
-
-  // Rooms object: roomId as key, users array as value
   let rooms = {};
-
-  // roomId as key, ready user IDs array
   let readyUsers = {};
-
-  // roomId as key, player attributes object as value
   let players = {};
   io.on('connection', (socket) => {
     let roomId = routes.getRoomId();
     socket.join(roomId);
     if (rooms[roomId]) {
-      // Do not allow double sessions
       for (let i=0; i < rooms[roomId].length; i++) {
         if (socket.request.user.username == rooms[roomId][i]) {
+          io.to(roomId).emit('disconnection', { socket: socket.id, msg: 'Username already exists.'});
           socket.disconnect();
           console.log('Disconnecting existing user.');
           return false;
         }
       }
-
-      // Game is played with max 8 players
       if (rooms[roomId].length === 8) {
+        io.to(roomId).emit('disconnection', { msg: 'Player limit reached.' });
         socket.disconnect();
         console.log('Player limit reached. Unable to connect.');
         return false;
       }
-    }
-
-    // Assign user to room
-    if (rooms[roomId]) {
       rooms[roomId].push(socket.request.user.username);
     } else {
       rooms[roomId] = [socket.request.user.username];
@@ -97,6 +84,7 @@ myDB(async (client) => {
       connected: true
     });
     console.log('A user has connected.');
+    
     socket.on('chat message', (message) => {
       io.to(roomId).emit('chat message', { 
         name: socket.request.user.username, message });
@@ -106,28 +94,18 @@ myDB(async (client) => {
       if (readyUsers[id]) {
         let ids = readyUsers[id].map(elem => elem[0]);
         if (ids.indexOf(socket.id) == -1) {
-
-          // If the user is the creator, insert his ID in front of the ready user IDs array
           if (socket.request.user.username == rooms[id][0]) {
             readyUsers[id].unshift([socket.id, socket.request.user.username]);
-
-          // otherwise, push it in the back
           } else {
             readyUsers[id].push([socket.id, socket.request.user.username]);
           }
-        
-        // If it already exists, remove it
         } else {
           readyUsers[id] = readyUsers[id].filter(elem => elem[0] != socket.id);
         }
-      
-      // If it is the first ID, store it and create an array
       } else {
         readyUsers[id] = [[socket.id, socket.request.user.username]];
       }
       let posNum = rooms[id].indexOf(socket.request.user.username);
-
-      // If all users ready and more than 3 users connected, the creator can start the game
       if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
         io.to(id).emit('start game', { creatorId: readyUsers[id][0][0] });
       }
@@ -195,7 +173,8 @@ myDB(async (client) => {
         players[data.id][data.playerPos].alive = false;
         io.to(data.id).emit('player eliminated', {
           players: players[data.id],
-          playerPos: data.playerPos
+          playerPos: data.playerPos,
+          left: players[data.id].filter(player => player.alive).length - 1
         });
       } 
       io.to(data.id).emit('lose health', {
@@ -218,7 +197,6 @@ myDB(async (client) => {
     socket.on('get arrow', (data) => {
       let emptyArrows, eliminated;
       emptyArrows, eliminated = false;
-      let left;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
         emptyArrows = true;
@@ -245,7 +223,7 @@ myDB(async (client) => {
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
               }
-              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
+              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left: players[data.id].filter(player => player.alive).length - 1 });
             }
           }
           if (eliminated) {
@@ -256,11 +234,10 @@ myDB(async (client) => {
               newRoller = alivePlayers[0].socketId;
             } else { newRoller = alivePlayers[idx + 1].socketId; }
             players[data.id][data.pos].alive = false;
-            left = alivePlayers.length - 1;
             let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
             io.to(data.id).emit('turn transition', {
               id: data.id,
-              name: players[data.id].filter(player => player.alive)[playerPos].name,
+              name: players[data.id][playerPos].name,
               diceNum: 5,
               roller: newRoller,
               playerPos
@@ -281,12 +258,9 @@ myDB(async (client) => {
     })
 
     socket.on('trigger dynamite', (data) => {
-      let left;
       setTimeout(() => {
         players[data.id][data.pos].health--;
         if (players[data.id][data.pos].health <= 0) {
-
-          // If eliminated player's turn
           if (players[data.id][data.pos].socketId == data.roller) {
             let alivePlayers = players[data.id].filter(player => player.alive);
             let idx = alivePlayers.map(player => player.socketId).indexOf(data.roller);
@@ -294,7 +268,6 @@ myDB(async (client) => {
             if (idx + 1 >= alivePlayers.length) {
               newRoller = alivePlayers[0].socketId;
             } else { newRoller = alivePlayers[idx + 1].socketId; }
-            left = alivePlayers.length - 1;
             let playerPos = players[data.id].map(player => player.socketId).indexOf(newRoller);
             io.to(data.id).emit('turn transition', {
               id: data.id,
@@ -345,13 +318,19 @@ myDB(async (client) => {
       }, 500);
     })
 
+    socket.on('win check', (data) => {
+      let winMessage = game.winCheck(players[data.id]);
+      if (winMessage) {
+        io.to(data.id).emit('win check', { winMessage });
+      }
+    })
+
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
       if (readyUsers[roomId]) {
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
       }
-      // If last user is disconnected, delete the room ID
       if (rooms[roomId].length == 0) {
         delete rooms[roomId];
         delete readyUsers[roomId];

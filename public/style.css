@@ -152,7 +152,7 @@ form button {
 }
 
 #messages li:nth-child(odd) { 
-  background: rgb(155, 130, 83);
+  background: rgb(194, 162, 103);
 }
 
 #messages li:nth-child(even) { 
@@ -160,7 +160,7 @@ form button {
 }
 
 #m {
-  font-family: sans;
+  font-family: sans-serif;
   background-color: rgb(250, 232, 198);;
   width: 80%;
 }
@@ -298,4 +298,12 @@ form button {
 
 .shade {
   box-shadow: 4px 4px 6px 4px #c5c33c;
+}
+
+.blur {
+  -webkit-filter: blur(10px);
+  -moz-filter: blur(10px);
+  -o-filter: blur(10px);
+  -ms-filter: blur(10px);
+  filter: blur(10px);
 }
