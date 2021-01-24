@@ -73,6 +73,7 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
+    horseSounds();
     $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
@@ -483,10 +484,13 @@ $(document).ready(function () {
   })
 
   socket.on('win check', (data) => {
+    let theme = new Audio('/public/sounds/cowboy_theme.mp3');
+    theme.type = "audio/mpeg";
     $('#dice-area').html('');
     $('#num-users, #announce').text('');
     $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').remove();
     setTimeout(() => {
+      theme.play();
       $('.board').addClass('blur');
       $('.logout').removeClass('hide').addClass('show');
       $('#announce-turn').text(data.winMessage);

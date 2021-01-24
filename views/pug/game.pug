@@ -85,27 +85,31 @@ html
                 .col.pos-arrow#arrow4
       div.chat-box
         ul#messages
-        form.game-form#msg-form(action='')
+        form.game-form#msg-form(action='', onsubmit="msgSounds()")
           input.rounded#m(autocomplete='off', placeholder='Type message', required)
           button.btn.btn-sm.btn-outline-secondary(onclick="scrollToBottom()")
             i.fas.fa-angle-right
         form.game-form#rdy-form(action='')
-          button.btn.btn-dark#rdy-btn READY
+          button.btn.btn-dark#rdy-btn(onmousedown="buttonSounds()") READY
         form.game-form.hide#start-form(action='')
-          button.btn.btn-dark#start-btn Start Game
+          button.btn.btn-dark#start-btn(onmousedown="buttonSounds()") Start Game
         form.game-form.hide#roll-form(action='')
-          button.btn.btn-dark#roll-btn Roll Dice
+          button.btn.btn-dark#roll-btn(onmousedown="diceSounds()") Roll Dice
         form.game-form.hide#reroll-form(action='')
-          button.btn.btn-dark#reroll-btn Re-Roll 
+          button.btn.btn-dark#reroll-btn(onmousedown="diceSounds()") Re-Roll 
             span#dice-num
         form.game-form.hide#end-turn-form(action='')
-          button.btn.btn-dark#end-turn-btn End Turn
+          button.btn.btn-dark#end-turn-btn(onmousedown="buttonSounds()") End Turn
       audio(src="/public/sounds/bang.mp3" type="audio/mpeg" preload="auto")#bang-sound
       audio(src="/public/sounds/beer.mp3" type="audio/mpeg" preload="auto")#beer-sound
       audio(src="/public/sounds/gatling.mp3" type="audio/mpeg" preload="auto")#gatling-sound
       audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg" preload="auto")#dynamite-sound
       audio(src="/public/sounds/arrow.mp3" type="audio/mpeg" preload="auto")#arrow-sound
       audio(src="/public/sounds/crow.mp3" type="audio/mpeg" preload="auto")#crow-sound
+      audio(src="/public/sounds/button.mp3" type="audio/mpeg" preload="auto")#button-sound
+      audio(src="/public/sounds/dice.mp3" type="audio/mpeg" preload="auto")#dice-sound
+      audio(src="/public/sounds/msg.mp3" type="audio/mpeg" preload="auto")#msg-sound
+      audio(src="/public/sounds/horse.mp3" type="audio/mpeg" preload="auto")#horse-sound
       .logout.left.hide
         a(href='/logout').text Logout
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js', integrity='sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=', crossorigin='anonymous')
