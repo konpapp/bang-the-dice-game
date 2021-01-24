@@ -86,8 +86,8 @@ html
       div.chat-box
         ul#messages
         form.game-form#msg-form(action='')
-          input.rounded#m(autocomplete='off', placeholder='Type message')
-          button.btn.btn-sm.btn-outline-secondary
+          input.rounded#m(autocomplete='off', placeholder='Type message', required)
+          button.btn.btn-sm.btn-outline-secondary(onclick="scrollToBottom()")
             i.fas.fa-angle-right
         form.game-form#rdy-form(action='')
           button.btn.btn-dark#rdy-btn READY
