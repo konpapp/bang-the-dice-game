@@ -1,9 +1,14 @@
 $(document).ready(function () {
-  /* Global io */
   let socket = io();
   
+  socket.on('disconnection', (data) => {
+    if (data.socket == socket.id) {
+      alert(data.msg);
+    }
+  })
+
   socket.on('disconnect', () => {
-    alert('User already exists or room is full. Disconnected from server.');
+    alert('Disconnected from server.');
     window.location = "/"; 
   });
 
@@ -15,8 +20,6 @@ $(document).ready(function () {
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
     for (let i = 0; i < data.users.length; i++) {
       $(`#pos${i}`).text(data.users[i]);
-
-      // Ready check
       if (data.readyUsers) {
         let usernames = data.readyUsers.map(elem => elem[1]);
         if (usernames.indexOf(data.users[i]) != -1) {
@@ -24,14 +27,10 @@ $(document).ready(function () {
         }
       }
     }
-
-    // Toggle text for users online
     if (data.users.length === 1) {
       $('#num-users').text('1 user online');
     } else { $('#num-users').text(data.users.length + ' users online'); }
-
-    // Announce new user on chat
-    let message = data.name + (data.connected ? ' has joined the chat.' : ' has left the chat.');
+    let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
     $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
   });
 
@@ -486,13 +485,12 @@ $(document).ready(function () {
   socket.on('win check', (data) => {
     $('#dice-area').html('');
     $('#num-users, #announce').text('');
-    $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').removeClass('show').addClass('hide');
+    $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').remove();
     setTimeout(() => {
       $('.board').addClass('blur');
+      $('.logout').removeClass('hide').addClass('show');
       $('#announce-turn').text(data.winMessage);
       $('#announce-turn').css('font-size', '36px');
     }, 1500);
-    
   })
-
 });

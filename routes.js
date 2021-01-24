@@ -6,11 +6,9 @@ var roomId;
 
 function main(app, myDataBase) {
   app.route('/').get((req, res) => {
-    
     if(req.isAuthenticated()) {
       res.render('pug', { title: '', message: '', showLogin: false, showRegistration: false, showSocialAuth: false, showCreateGame: true });
     } else {
-    // Change the response to render the Pug template
       res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false });
     }
   });
@@ -20,17 +18,17 @@ function main(app, myDataBase) {
   app.route('/create').post(ensureAuthenticated, (req, res) => {
     let shid = shortid.generate()
     roomId = shid;
-    res.redirect(`/chat?roomid=${shid}`);
+    res.redirect(`/game?id=${shid}`);
   });
   app.route('/join').post(ensureAuthenticated, (req, res) => {
     roomId = req.body.gameId;
-    res.redirect(`/chat?roomid=${roomId}`);
+    res.redirect(`/game?id=${roomId}`);
   });
   app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render('pug/profile', { username: req.user.username });
   });
-  app.route('/chat').get(ensureAuthenticated, (req, res) => {
-    res.render('pug/chat', { user: req.user });
+  app.route('/game').get(ensureAuthenticated, (req, res) => {
+    res.render('pug/game', { user: req.user });
   });
   app.route('/logout').get((req, res) => {
     req.logout();
@@ -60,13 +58,11 @@ function main(app, myDataBase) {
       res.redirect('/profile');
     }
   );
-
   app.route('/auth/github').get(passport.authenticate('github'));
   app.route('/auth/github/callback').get(passport.authenticate('github', { failureRedirect: '/' }), (req, res) => {
     req.session.user_id = req.user.id;
-    res.redirect('/chat');
+    res.redirect('/game');
   });
-
   app.use((req, res, next) => {
     res.status(404).type('text').send('Not Found');
   });

@@ -152,7 +152,7 @@ form button {
 }
 
 #messages li:nth-child(odd) { 
-  background: rgb(155, 130, 83);
+  background: rgb(194, 162, 103);
 }
 
 #messages li:nth-child(even) { 
@@ -160,7 +160,7 @@ form button {
 }
 
 #m {
-  font-family: sans;
+  font-family: sans-serif;
   background-color: rgb(250, 232, 198);;
   width: 80%;
 }
