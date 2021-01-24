@@ -220,6 +220,7 @@ myDB(async (client) => {
               players[data.id][i].arrows = 0;
             }
             if (players[data.id][i].health <= 0) {
+              players[data.id][i].alive = false;
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
               }
