@@ -299,3 +299,11 @@ form button {
 .shade {
   box-shadow: 4px 4px 6px 4px #c5c33c;
 }
+
+.blur {
+  -webkit-filter: blur(10px);
+  -moz-filter: blur(10px);
+  -o-filter: blur(10px);
+  -ms-filter: blur(10px);
+  filter: blur(10px);
+}
