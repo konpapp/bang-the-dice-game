@@ -47,6 +47,11 @@
   font-family: 'Cowboy Junior';
 }
 
+#pug-success-message {
+  font-family: 'Carnivalee Freakshow';
+  font-size: xx-large;
+}
+
 .border {
   border-style: inset;
   border-width: 1px;

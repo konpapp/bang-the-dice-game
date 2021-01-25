@@ -7,23 +7,22 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/public/style.css')
   body
-    h1.border.center BANG! The Dice Game
-    h4.center#pug-success-message Play with your friends online! #{title}
+    h1.center
+      img#img-logo(src='/public/images/bang_logo.png')
+    h2.center#pug-success-message THE DICE GAME! ONLINE! #{title}
     p.center#pug-variable=message
     
+    
     if showLogin
-      hr
-      h2.center Login Form
+      h2.center
       form(action='/login', method='post').center
         div
-          label Username:
-          input(type='text', name='username')
+          input(type='text', name='username', placeholder="Username")
         div
-          label Password:
-          input(type='password', name='password')
+          input(type='password', name='password', placeholder="Password")
         div
           input(class='btn', type='submit', value='Log In')
-          
+        
     if showRegistration
       hr
       h2.center Registration Form
