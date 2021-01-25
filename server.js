@@ -339,8 +339,8 @@ myDB(async (client) => {
         delete rooms[roomId];
         delete readyUsers[roomId];
       }
-      let removedUsername = socket.request.user.username
-      routes.remove(app, myDataBase, removedUsername);
+      let removedUsername = socket.request.user.username;
+      routes.remove(myDataBase, removedUsername);
       io.to(roomId).emit('user', {
         name: socket.request.user.username,
         users: rooms[roomId],

@@ -1,7 +1,15 @@
 const passport = require('passport');
-const shortid = require('shortid');
+const mongoose = require('mongoose');
 
 var roomId;
+
+const roomSchema = new mongoose.Schema({
+  room_id: {type: String, required: true},
+  open: {type: Boolean, default: true},
+  has_capacity: { type: Boolean, default: true }
+})
+
+var Room = mongoose.model('Room', roomSchema);
 
 function main(app, myDataBase) {
   app.route('/').get((req, res) => {
@@ -15,25 +23,39 @@ function main(app, myDataBase) {
     
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
-    let shid = shortid.generate()
+    let shid = (Math.floor(1000 + Math.random() * 9000)).toString();
     roomId = shid;
+    let room = new Room({
+      room_id: roomId,
+      open: true,
+      has_capacity: true
+    })
+    if (!req.body.allow) {
+      room.open = false;
+    }
+    console.log(room);
+    room.save();
     res.redirect(`/game?id=${shid}`);
   });
-  app.route('/join').post(ensureAuthenticated, (req, res) => {
+  app.route('/join-rand').post(ensureAuthenticated, (req, res) => {
     roomId = req.body.gameId;
     res.redirect(`/game?id=${roomId}`);
   });
-  app.route('/profile').get(ensureAuthenticated, (req, res) => {
-    res.render('pug/profile', { username: req.user.username });
+  app.route('/join-id').post(ensureAuthenticated, (req, res) => {
+    roomId = req.body.gameId;
+    Room.findOne({ room_id: roomId }, (err, data) => {
+      if (err) { console.log(err); }
+      if (!data) { return res.render('pug', { title: '', message: `No room found with ID ${roomId}` , showLogin: false, showCreateGame: true }) };
+      res.redirect(`/game?id=${roomId}`);
+    })
   });
   app.route('/game').get(ensureAuthenticated, (req, res) => {
     res.render('pug/game', { user: req.user });
   });
-  app.route('/logout').get((req, res) => {
+  app.route('/logout').get((req, res, done) => {
     if (req.user != undefined) {
       myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
         if (err) { console.log(err); }
-        console.log(user.value.username, 'removed')
       })
     }
     req.logout();
@@ -65,17 +87,15 @@ function main(app, myDataBase) {
     if (req.user != undefined) {
       myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
         if (err) { console.log(err); }
-        console.log(user.value.username, 'removed')
       })
     }
     res.status(404).type('text').send('Not Found');
   });
 };
 
-async function remove(app, myDataBase, user) {
+async function remove(myDataBase, user) {
   await myDataBase.findOneAndDelete({ username: user }, function(err, doc) {
     if (err) { console.log(err); }
-    console.log(doc.value.username, 'removed')
   })
 }
 

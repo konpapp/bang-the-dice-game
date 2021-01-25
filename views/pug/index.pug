@@ -9,7 +9,7 @@ html
   body
     h1.center
       img#img-logo(src='/public/images/bang_logo.png')
-    h2.center#pug-success-message THE DICE GAME! ONLINE! #{title}
+    h2.center#pug-success-message THE DICE GAME! ONLINE!
     
     if showLogin
       h2.center
@@ -31,13 +31,15 @@ html
           input(type="checkbox", id="allow", name="allow", value="allow")
           label(for="allow", id="allow-label") Allow everyone to join
       h2.center#join-form
-      form(action='/join', method='post').center
+      form(action='/join-rand', method='post').center
         div
           input(class='btn', id="join-rand-btn", type='submit', value='Join Random Game')
+      form(action='/join-id', method='post').center
         div
           input(class='btn', id="join-id-btn", type='submit', value='Join Game with ID')
         div
-          input(type='text', id="join-input", name='gameId', placeholder="Game ID")
+          input(type='text', id="join-input", name='gameId', placeholder="Game ID", required)
+          p.center#pug-variable=message
 
       h2.center#rules-form
       form(action='/rules', method='post').center

@@ -39,7 +39,7 @@ $(document).ready(function () {
   });
 
   socket.on('ready button', (data) => {
-    if ($(`#pos${data.posNum}`).hasClass("pos-border")) {
+    if ($(`#pos${data.posNum}`).hasClass('pos-border')) {
       $(`#pos${data.posNum}`).removeClass('pos-border').addClass('pos-border-rdy');
     } else {
       $(`#pos${data.posNum}`).removeClass('pos-border-rdy').addClass('pos-border');
