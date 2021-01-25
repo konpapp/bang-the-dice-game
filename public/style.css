@@ -74,11 +74,6 @@ input[type=checkbox]
   font-size: xx-large;
 }
 
-#bmac {
-  position: relative;
-  margin:auto;
-}
-
 #pug-variable, #play-btn, #play-input, #create-btn, #join-input, #join-id-btn, #join-rand-btn, #rules-btn, #allow-label {
   font-family: 'Cowboy Junior';
   font-size: x-large;
