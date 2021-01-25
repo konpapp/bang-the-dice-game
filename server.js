@@ -195,7 +195,7 @@ myDB(async (client) => {
     })
 
     socket.on('get arrow', (data) => {
-      let emptyArrows, eliminated;
+      let emptyArrows, eliminated, left;
       emptyArrows, eliminated = false;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
@@ -220,11 +220,14 @@ myDB(async (client) => {
               players[data.id][i].arrows = 0;
             }
             if (players[data.id][i].health <= 0) {
-              players[data.id][i].alive = false;
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
+                left = players[data.id].filter(player => player.alive).length - 2;
+              } else {
+                players[data.id][i].alive = false;
+                left = players[data.id].filter(player => player.alive).length - 1;
               }
-              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left: players[data.id].filter(player => player.alive).length - 1 });
+              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
             }
           }
           if (eliminated) {
