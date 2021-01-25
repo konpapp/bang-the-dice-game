@@ -19,20 +19,30 @@ html
         div.hide
           input(type='password', name='password', placeholder="Password", value=' ')
         div
-          input(class='btn', id="play-btn", type='submit', value='Play')
+          input(class='btn', id="play-btn", type='submit', value='Play', onclick="this.disabled=true; this.form.submit();")
       p.center#pug-variable=message
 
     if showCreateGame
-      h2.center Create New Game
-      form(action='/create', method='post').center   
+      h2.center
+      form(action='/create', method='post').center
         div
-          input(class='btn', type='submit', value='New Game')
-      h2.center Join Game
+          input(class='btn', id="create-btn" type='submit', value='Create Game')
+        div
+          input(type="checkbox", id="allow", name="allow", value="allow")
+          label(for="allow", id="allow-label") Allow everyone to join
+      h2.center#join-form
       form(action='/join', method='post').center
         div
-          input(type='text', name='gameId')
+          input(class='btn', id="join-rand-btn", type='submit', value='Join Random Game')
         div
-          input(class='btn', type='submit', value='Join Game')
+          input(class='btn', id="join-id-btn", type='submit', value='Join Game with ID')
+        div
+          input(type='text', id="join-input", name='gameId', placeholder="Game ID")
+
+      h2.center#rules-form
+      form(action='/rules', method='post').center
+        div
+          input(class='btn', id="rules-btn", type='submit', value='How to Play')
       
       h2.center 
       .logout.center
@@ -43,3 +53,4 @@ html
         small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
         div
           small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
+<script data-name="BMC-Widget" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gusleak" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting. You can now buy me a coffee!" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>

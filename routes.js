@@ -5,11 +5,14 @@ var roomId;
 
 function main(app, myDataBase) {
   app.route('/').get((req, res) => {
-    if(req.isAuthenticated()) {
-      res.render('pug', { title: '', message: '', showLogin: false, showCreateGame: true });
-    } else {
-      res.render('pug', { title: '', message: '', showLogin: true });
-    }
+    setTimeout(() => {
+      if (req.isAuthenticated()) {
+        res.render('pug', { title: '', message: '', showLogin: false, showCreateGame: true });
+      } else {
+        res.render('pug', { title: '', message: '', showLogin: true });
+      }
+    }, 100);
+    
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
     let shid = shortid.generate()
@@ -30,6 +33,7 @@ function main(app, myDataBase) {
     if (req.user != undefined) {
       myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
         if (err) { console.log(err); }
+        console.log(user.value.username, 'removed')
       })
     }
     req.logout();
@@ -58,13 +62,20 @@ function main(app, myDataBase) {
     }
   );
   app.use((req, res, next) => {
+    if (req.user != undefined) {
+      myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
+        if (err) { console.log(err); }
+        console.log(user.value.username, 'removed')
+      })
+    }
     res.status(404).type('text').send('Not Found');
   });
 };
 
-function remove(app, myDataBase, user) {
-  myDataBase.findOneAndDelete({ username: user }, function(err, doc) {
+async function remove(app, myDataBase, user) {
+  await myDataBase.findOneAndDelete({ username: user }, function(err, doc) {
     if (err) { console.log(err); }
+    console.log(doc.value.username, 'removed')
   })
 }
 
