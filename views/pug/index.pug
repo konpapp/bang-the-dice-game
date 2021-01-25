@@ -10,40 +10,19 @@ html
     h1.center
       img#img-logo(src='/public/images/bang_logo.png')
     h2.center#pug-success-message THE DICE GAME! ONLINE! #{title}
-    p.center#pug-variable=message
-    
     
     if showLogin
       h2.center
       form(action='/login', method='post').center
         div
-          input(type='text', name='username', placeholder="Username")
+          input(type='text', id="play-input", name='username', placeholder="Name", autocomplete="off", pattern="[a-zA-Z0-9]*", maxlength="12", required)
+        div.hide
+          input(type='password', name='password', placeholder="Password", value=' ')
         div
-          input(type='password', name='password', placeholder="Password")
-        div
-          input(class='btn', type='submit', value='Log In')
-        
-    if showRegistration
-      hr
-      h2.center Registration Form
-      form(action='/register', method='post').center
-        div
-          label Username:
-          input(type='text', name='username')
-        div
-          label Password:
-          input(type='password', name='password')
-        div
-          input(class='btn', type='submit', value='Register')
-
-    if showSocialAuth
-      hr
-      h2.center Social Login
-      .login.center
-        a(href='/auth/github').text Login with Github!
+          input(class='btn', id="play-btn", type='submit', value='Play')
+      p.center#pug-variable=message
 
     if showCreateGame
-      hr
       h2.center Create New Game
       form(action='/create', method='post').center   
         div
@@ -54,11 +33,13 @@ html
           input(type='text', name='gameId')
         div
           input(class='btn', type='submit', value='Join Game')
-      hr
-      h2.center 
-      .logout.center
-        a(href='/profile').text Profile    
       
       h2.center 
       .logout.center
         a(href='/logout').text Logout
+
+    div#copyright.center
+      footer#footer-1
+        small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
+        div
+          small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
