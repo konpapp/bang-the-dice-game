@@ -1,5 +1,4 @@
 const passport = require('passport');
-const bcrypt = require('bcrypt');
 const shortid = require('shortid');
 
 var roomId;
@@ -7,13 +6,10 @@ var roomId;
 function main(app, myDataBase) {
   app.route('/').get((req, res) => {
     if(req.isAuthenticated()) {
-      res.render('pug', { title: '', message: '', showLogin: false, showRegistration: false, showSocialAuth: false, showCreateGame: true });
+      res.render('pug', { title: '', message: '', showLogin: false, showCreateGame: true });
     } else {
-      res.render('pug', { title: '', message: '', showLogin: true, showRegistration: true, showSocialAuth: false });
+      res.render('pug', { title: '', message: '', showLogin: true });
     }
-  });
-  app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
-    res.redirect('/');
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
     let shid = shortid.generate()
@@ -31,42 +27,46 @@ function main(app, myDataBase) {
     res.render('pug/game', { user: req.user });
   });
   app.route('/logout').get((req, res) => {
+    if (req.user != undefined) {
+      myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
+        if (err) { console.log(err); }
+      })
+    }
     req.logout();
     res.redirect('/');
   });
-  app.route('/register').post(
-    (req, res, next) => {
-      const hash = bcrypt.hashSync(req.body.password, 12);
-      myDataBase.findOne({ username: req.body.username }, function (err, user) {
-        if (err) {
-          next(err);
-        } else if (user) {
-          res.redirect('/');
-        } else {
-          myDataBase.insertOne({ username: req.body.username, password: hash }, (err, doc) => {
-            if (err) {
-              res.redirect('/');
-            } else {
-              next(null, doc.ops[0]);
-            }
-          });
-        }
-      });
+  app.route('/login').post((req, res, next) => {
+    myDataBase.findOne({ username: req.body.username }, function (err, user) {
+      if (err) {
+        next(err);
+      } else if (user) {
+        res.render('pug', { title: '', message: `The name '${req.body.username}' is in use.`, showLogin: true });
+      } else {
+        myDataBase.insertOne({ username: req.body.username, password: ' ' }, (err, doc) => {
+          if (err) {
+            res.redirect('/');
+          } else {
+            next(null, doc.ops[0]);
+          }
+        });
+      }
+    });
     },
     passport.authenticate('local', { failureRedirect: '/' }),
     (req, res, next) => {
-      res.redirect('/profile');
+      res.redirect('/');
     }
   );
-  app.route('/auth/github').get(passport.authenticate('github'));
-  app.route('/auth/github/callback').get(passport.authenticate('github', { failureRedirect: '/' }), (req, res) => {
-    req.session.user_id = req.user.id;
-    res.redirect('/game');
-  });
   app.use((req, res, next) => {
     res.status(404).type('text').send('Not Found');
   });
 };
+
+function remove(app, myDataBase, user) {
+  myDataBase.findOneAndDelete({ username: user }, function(err, doc) {
+    if (err) { console.log(err); }
+  })
+}
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -81,3 +81,4 @@ function getRoomId () {
 
 exports.main = main;
 exports.getRoomId = getRoomId;
+exports.remove = remove;

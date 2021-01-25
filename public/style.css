@@ -10,6 +10,13 @@
   display: block;
 }
 
+#copyright {
+  margin-top: 5vh;
+  display: flexbox;
+  align-self: center;
+  justify-content: center;
+}
+
 @font-face {
   font-family: 'Carnivalee Freakshow';
   src: url('/public/fonts/CarnivaleeFreakshow.woff2') format('woff2'),
@@ -27,7 +34,6 @@
     font-style: normal;
     font-display: swap;
 }
-
 
 #room-id-text, #num-users {
   font-family: 'Carnivalee Freakshow';
@@ -50,6 +56,11 @@
 #pug-success-message {
   font-family: 'Carnivalee Freakshow';
   font-size: xx-large;
+}
+
+#pug-variable, #play-btn, #play-input {
+  font-family: 'Cowboy Junior';
+  font-size: x-large;
 }
 
 .border {
