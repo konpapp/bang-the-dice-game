@@ -375,7 +375,7 @@ myDB(async (client) => {
             players: players[roomId],
             playerPos: posIndex
           });
-        }, 1500);
+        }, 500);
       }
     });
   });
