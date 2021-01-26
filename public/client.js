@@ -98,7 +98,9 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
-    horseSounds();
+    setTimeout(() => {
+      horseSounds();
+    }, 500);
     $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
