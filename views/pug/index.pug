@@ -19,7 +19,7 @@ html
         div.hide
           input(type='password', name='password', placeholder="Password", value=' ')
         div
-          input(class='btn', id="play-btn", type='submit', value='Play', onclick="this.disabled=true; this.form.submit();")
+          input(class='btn', id="play-btn", type='submit', value='Play', onclick="this.form.submit(); this.disabled=true;")
       p.center#pug-variable=message
 
     if showCreateGame
