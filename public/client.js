@@ -13,25 +13,50 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
-    $('#announce').text('');
-    $('#room-id').text(data.roomId);
-    $('#rdy-form').removeClass('hide').addClass('show');
-    $('.pos-border, .pos-border-rdy').text('');
-    $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
-    for (let i = 0; i < data.users.length; i++) {
-      $(`#pos${i}`).text(data.users[i]);
-      if (data.readyUsers) {
-        let usernames = data.readyUsers.map(elem => elem[1]);
-        if (usernames.indexOf(data.users[i]) != -1) {
-          $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
+    if (data.ongoingGame) {
+      if ($(`#pos${data.posIndex}`).hasClass('shade')) {
+        $('#end-turn-form').removeClass('show').addClass('hide');
+        let id = $('#room-id').text();
+        let diceNum = 5;
+        let roller, playerPos, name;
+        let alivePlayers = [];
+        for (let i = 0; i < data.players.length; i++) {
+          if ($(`#health${i}`).html() != '') {
+            alivePlayers.push(data.players[i]);
+          }
+        }
+        for (let i = 0; i < alivePlayers.length; i++) {
+          if (alivePlayers[i].socketId == data.players[data.posIndex].socketId) {
+            roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+            name = alivePlayers.concat(alivePlayers)[i + 1].name;
+            playerPos = data.players.map(player => player.socketId).indexOf(roller);
+            socket.emit('turn transition', { id, diceNum, roller, playerPos, name });
+          }
         }
       }
+      let message = data.name + ' has left the game.';
+      $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
+    } else {
+      $('#announce').text('');
+      $('#room-id').text(data.roomId);
+      $('#rdy-form').removeClass('hide').addClass('show');
+      $('.pos-border, .pos-border-rdy').text('');
+      $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
+      for (let i = 0; i < data.users.length; i++) {
+        $(`#pos${i}`).text(data.users[i]);
+        if (data.readyUsers) {
+          let usernames = data.readyUsers.map(elem => elem[1]);
+          if (usernames.indexOf(data.users[i]) != -1) {
+            $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
+          }
+        }
+      }
+      if (data.users.length === 1) {
+        $('#num-users').text('1 user online');
+      } else { $('#num-users').text(data.users.length + ' users online'); }
+      let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
+      $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
     }
-    if (data.users.length === 1) {
-      $('#num-users').text('1 user online');
-    } else { $('#num-users').text(data.users.length + ' users online'); }
-    let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
-    $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
   });
 
   socket.on('chat message', (data) => {
