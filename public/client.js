@@ -13,25 +13,50 @@ $(document).ready(function () {
   });
 
   socket.on('user', (data) => {
-    $('#announce').text('');
-    $('#room-id').text(data.roomId);
-    $('#rdy-form').removeClass('hide').addClass('show');
-    $('.pos-border, .pos-border-rdy').text('');
-    $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
-    for (let i = 0; i < data.users.length; i++) {
-      $(`#pos${i}`).text(data.users[i]);
-      if (data.readyUsers) {
-        let usernames = data.readyUsers.map(elem => elem[1]);
-        if (usernames.indexOf(data.users[i]) != -1) {
-          $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
+    if (data.ongoingGame) {
+      if ($(`#pos${data.posIndex}`).hasClass('shade')) {
+        $('#end-turn-form').removeClass('show').addClass('hide');
+        let id = $('#room-id').text();
+        let diceNum = 5;
+        let roller, playerPos, name;
+        let alivePlayers = [];
+        for (let i = 0; i < data.players.length; i++) {
+          if ($(`#health${i}`).html() != '') {
+            alivePlayers.push(data.players[i]);
+          }
+        }
+        for (let i = 0; i < alivePlayers.length; i++) {
+          if (alivePlayers[i].socketId == data.players[data.posIndex].socketId) {
+            roller = alivePlayers.concat(alivePlayers)[i + 1].socketId;
+            name = alivePlayers.concat(alivePlayers)[i + 1].name;
+            playerPos = data.players.map(player => player.socketId).indexOf(roller);
+            socket.emit('turn transition', { id, diceNum, roller, playerPos, name });
+          }
         }
       }
+      let message = data.name + ' has left the game.';
+      $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
+    } else {
+      $('#announce').text('');
+      $('#room-id').text(data.roomId);
+      $('#rdy-form').removeClass('hide').addClass('show');
+      $('.pos-border, .pos-border-rdy').text('');
+      $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
+      for (let i = 0; i < data.users.length; i++) {
+        $(`#pos${i}`).text(data.users[i]);
+        if (data.readyUsers) {
+          let usernames = data.readyUsers.map(elem => elem[1]);
+          if (usernames.indexOf(data.users[i]) != -1) {
+            $(`#pos${i}`).removeClass('pos-border').addClass('pos-border-rdy');
+          }
+        }
+      }
+      if (data.users.length === 1) {
+        $('#num-users').text('1 user online');
+      } else { $('#num-users').text(data.users.length + ' users online'); }
+      let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
+      $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
     }
-    if (data.users.length === 1) {
-      $('#num-users').text('1 user online');
-    } else { $('#num-users').text(data.users.length + ' users online'); }
-    let message = data.name + (data.connected ? ' has joined the game.' : ' has left the game.');
-    $('#messages').append($('<li>').html('<b>' + message + '</b>').addClass('rounded-pill'));
   });
 
   socket.on('chat message', (data) => {
@@ -39,7 +64,7 @@ $(document).ready(function () {
   });
 
   socket.on('ready button', (data) => {
-    if ($(`#pos${data.posNum}`).hasClass("pos-border")) {
+    if ($(`#pos${data.posNum}`).hasClass('pos-border')) {
       $(`#pos${data.posNum}`).removeClass('pos-border').addClass('pos-border-rdy');
     } else {
       $(`#pos${data.posNum}`).removeClass('pos-border-rdy').addClass('pos-border');
@@ -63,7 +88,7 @@ $(document).ready(function () {
     if (socket.id == data.creatorId) {
       $('#start-form').removeClass('hide').addClass('show');
     }
-    $('#rdy-form').removeClass('show').addClass('hide')
+    $('#rdy-form').removeClass('show').addClass('hide');
     $('#start-form').submit(function () {
       $('#start-form').removeClass('show').addClass('hide');
       let id = $('#room-id').text();
@@ -73,6 +98,9 @@ $(document).ready(function () {
   })
 
   socket.on('assign roles', (data) => {
+    setTimeout(() => {
+      horseSounds();
+    }, 500);
     $('#announce-turn').text("Sheriff plays first.");
     $('.pos-border-rdy').removeClass('pos-border-rdy').addClass('pos-border');
 
@@ -483,10 +511,13 @@ $(document).ready(function () {
   })
 
   socket.on('win check', (data) => {
+    let theme = new Audio('/public/sounds/cowboy_theme.mp3');
+    theme.type = "audio/mpeg";
     $('#dice-area').html('');
     $('#num-users, #announce').text('');
     $('#end-turn-form, #roll-form, #reroll-form, #rdy-form').remove();
     setTimeout(() => {
+      theme.play();
       $('.board').addClass('blur');
       $('.logout').removeClass('hide').addClass('show');
       $('#announce-turn').text(data.winMessage);

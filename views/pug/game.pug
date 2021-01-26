@@ -8,7 +8,6 @@ html
     link(rel='stylesheet', href='/public/style.css')
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
     link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous")
-    script(src='https://code.playcanvas.com/playcanvas-stable.min.js')
   body
   div#cont.container-fluid
     img#img-logo.img-fluid(src='/public/images/bang_logo.png')
@@ -85,29 +84,43 @@ html
                 .col.pos-arrow#arrow4
       div.chat-box
         ul#messages
-        form.game-form#msg-form(action='')
-          input.rounded#m(autocomplete='off', placeholder='Type message')
-          button.btn.btn-sm.btn-outline-secondary
+        form.game-form#msg-form(action='', onsubmit="msgSounds()")
+          input.rounded#m(autocomplete='off', placeholder='Type message', required)
+          button.btn.btn-sm.btn-outline-secondary(onclick="scrollToBottom()")
             i.fas.fa-angle-right
         form.game-form#rdy-form(action='')
-          button.btn.btn-dark#rdy-btn READY
+          button.btn.btn-dark#rdy-btn(onmousedown="buttonSounds()") READY
         form.game-form.hide#start-form(action='')
-          button.btn.btn-dark#start-btn Start Game
+          button.btn.btn-dark#start-btn(onmousedown="buttonSounds()") Start Game
         form.game-form.hide#roll-form(action='')
-          button.btn.btn-dark#roll-btn Roll Dice
+          button.btn.btn-dark#roll-btn(onmousedown="diceSounds()") Roll Dice
         form.game-form.hide#reroll-form(action='')
-          button.btn.btn-dark#reroll-btn Re-Roll 
+          button.btn.btn-dark#reroll-btn(onmousedown="diceSounds()") Re-Roll 
             span#dice-num
         form.game-form.hide#end-turn-form(action='')
-          button.btn.btn-dark#end-turn-btn End Turn
+          button.btn.btn-dark#end-turn-btn(onmousedown="buttonSounds()") End Turn
       audio(src="/public/sounds/bang.mp3" type="audio/mpeg" preload="auto")#bang-sound
       audio(src="/public/sounds/beer.mp3" type="audio/mpeg" preload="auto")#beer-sound
       audio(src="/public/sounds/gatling.mp3" type="audio/mpeg" preload="auto")#gatling-sound
       audio(src="/public/sounds/dynamite.mp3" type="audio/mpeg" preload="auto")#dynamite-sound
       audio(src="/public/sounds/arrow.mp3" type="audio/mpeg" preload="auto")#arrow-sound
       audio(src="/public/sounds/crow.mp3" type="audio/mpeg" preload="auto")#crow-sound
+      audio(src="/public/sounds/button.mp3" type="audio/mpeg" preload="auto")#button-sound
+      audio(src="/public/sounds/dice.mp3" type="audio/mpeg" preload="auto")#dice-sound
+      audio(src="/public/sounds/msg.mp3" type="audio/mpeg" preload="auto")#msg-sound
+      audio(src="/public/sounds/horse.mp3" type="audio/mpeg" preload="auto")#horse-sound
       .logout.left.hide
         a(href='/logout').text Logout
+    div#copyright.center
+      footer#footer-1
+        div
+          small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
+        div
+          small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
+        div
+          small This offer is independent from dV Giochi - daVinci Editrice S.r.l.
+        div
+          small dV Giochi - daVinci Editrice S.r.l. is in no way responsible for the contents. 
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js', integrity='sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=', crossorigin='anonymous')
     script(src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
     <script src='/socket.io/socket.io.js'></script>
