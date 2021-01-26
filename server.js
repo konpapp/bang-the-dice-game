@@ -346,7 +346,7 @@ myDB(async (client) => {
           posIndex = players[roomId].map(player => player.socketId).indexOf(socket.id);
         }
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
-        if (readyUsers[roomId].length > 2 && readyUsers[roomId].length === rooms[roomId].length) {
+        if (players[roomId] && readyUsers[roomId].length === rooms[roomId].length) {
           ongoingGame = true;
         }
       }
