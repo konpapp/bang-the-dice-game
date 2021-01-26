@@ -61,6 +61,13 @@ function main(app, myDataBase) {
   app.route('/game').get(ensureAuthenticated, (req, res) => {
     res.render('pug/game', { user: req.user });
   });
+  app.route('/rules')
+    .get(ensureAuthenticated, (req, res) => {
+      res.render('pug/rules');
+    })
+    .post(ensureAuthenticated, (req, res) => {
+      res.redirect('/rules');
+    });
   app.route('/logout').get((req, res, done) => {
     if (req.user != undefined) {
       myDataBase.findOneAndDelete({ username: req.user.username }, function (err, user) {
@@ -138,10 +145,10 @@ async function noCapacity(id) {
 async function addPlayer(id) {
   await Room.findOne({ room_id: id }, (err, gameRoom) => {
     if (err) { console.log(err); }
-    if (gameRoom.players < 8) {
+    if (gameRoom && gameRoom.players < 8) {
       gameRoom.players++;
+      gameRoom.save();
     }
-    gameRoom.save();
   })
 }
 
@@ -150,8 +157,8 @@ async function removePlayer(id) {
     if (err) { console.log(err); }
     if (gameRoom && gameRoom.players > 0) {
       gameRoom.players--;
+      gameRoom.save();
     }
-    gameRoom.save();
   })
 }
 

@@ -10,8 +10,22 @@
   display: block;
 }
 
+#img-rules-logo {
+  width: 10vw;
+  margin: auto;
+  display: block;
+}
+
 #copyright {
-  margin-top: 5vh;
+  margin-top: 4vh;
+  display: flexbox;
+  align-self: center;
+  justify-content: center;
+}
+
+#copyright-main {
+  position: absolute;
+  bottom: 0;
   display: flexbox;
   align-self: center;
   justify-content: center;
@@ -48,7 +62,7 @@ input[type=checkbox]
 }
 
 #join-form, #rules-form {
-  margin-top: 5vh;
+  margin-top: 4vh;
 }
 
 #room-id-text, #num-users {
@@ -332,4 +346,12 @@ form button {
   -o-filter: blur(10px);
   -ms-filter: blur(10px);
   filter: blur(10px);
+}
+
+#rules-link, #rules-back {
+  color: black;
+}
+
+#rules-link:hover, #rules-back:hover {
+  color: rgb(46, 44, 44);
 }
