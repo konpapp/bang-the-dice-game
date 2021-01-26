@@ -1,0 +1,60 @@
+html
+  head
+    title BANG! The Dice Game
+    meta(name='description', content='Home page')
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', href='/public/style.css')
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+  body#cont
+  div.container
+    img#img-rules-logo.img-fluid(src='/public/images/bang_logo.png')
+    h5.center#pug-success-message THE DICE GAME! ONLINE!
+
+    h1 How to Play
+    p The game hosted on this website is based on the board game &copy;BANG! The Dice Game. The same rules with the board game version are adapted and followed. For an overview of the rules click on the link 
+     a(href='https://www.ultraboardgames.com/bang/dice-game-rules.php').text here.
+    
+    h2 Create / Join Game
+    p The player has an option to either create or join a game. On a game creation, a random 4-digit ID is generated corresponding to the room. If you create a new game, you can restrict access to people that you share the Game ID with by leaving the following option unticked: 
+        img.img-fluid(src='/public/images/allow_tick.png') 
+        span  . If this option is ticked, other players without the Game ID are allowed to join your game.
+    
+    p To join a game, you can either join a random open game or enter a Game ID that has been shared with you and join the Game with that ID.
+
+    h2 Lobby
+    p Once you entered a lobby, you may indicate that you are ready to start by clicking on Ready button. A <b>minimum of 4 players</b> is required to start a game. Once this minimum number is reached, and all players are ready, the game creator can start the game.
+
+    h2 Game Screen
+    p
+        img.img-fluid.img-thumbnail(src='/public/images/game_screen.png')
+    ol
+        li The Game ID. Share it with people that you want to join your game.
+        li The player that got the Sheriff role.
+        li Player's turn
+        li Your personal role and objective. This message is only visible to you!
+        li The remaining health points, represented by bullets. Maximum 8, and 10 for the Sheriff.
+        li If the player has received any arrow tokens, they are displayed here.
+        li The buttons for rolling/ re-rolling dice, and ending your turn are displayed in this area.
+        li The remaining arrow tokes in the middle (maximum 9). Once all arrow tokens are distributed, all players lose a health point for each arrow token they have.
+        li The area where the dice are displayed. If the player has remaining rolls (2 each turn), click on a dice to reroll. (Dynamite cannot be rerolled)
+        li Dice that can be applied on someone (bang, beer), are dragged and dropped on the player.
+        li Use the chat function to communicate with all players in the game.
+    
+    h3 Game Rules
+    p For a description of the rules of the game, please visit this link: 
+        a(id="rules-link" href='https://www.ultraboardgames.com/bang/dice-game-rules.php').text https://www.ultraboardgames.com/bang/dice-game-rules.php
+    
+        
+    
+      
+    h2.center
+      a(id="rules-back" href='/').text Back
+
+    div#copyright.center
+      footer#footer-1
+        small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
+        div
+          small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
+<script data-name="BMC-Widget" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gusleak" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting. You can now buy me a coffee!" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
