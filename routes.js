@@ -1,12 +1,15 @@
 const passport = require('passport');
 const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var roomId;
 
 const roomSchema = new mongoose.Schema({
   room_id: {type: String, required: true},
+  players: {type: Number, default: 0},
   open: {type: Boolean, default: true},
-  has_capacity: { type: Boolean, default: true }
+  has_capacity: { type: Boolean, default: true },
+  has_started: { type: Boolean, default: false }
 })
 
 var Room = mongoose.model('Room', roomSchema);
@@ -28,24 +31,30 @@ function main(app, myDataBase) {
     let room = new Room({
       room_id: roomId,
       open: true,
-      has_capacity: true
+      has_capacity: true,
+      has_started: false
     })
     if (!req.body.allow) {
       room.open = false;
     }
-    console.log(room);
     room.save();
     res.redirect(`/game?id=${shid}`);
   });
   app.route('/join-rand').post(ensureAuthenticated, (req, res) => {
-    roomId = req.body.gameId;
-    res.redirect(`/game?id=${roomId}`);
+    Room.findOne({ open: true, has_capacity: true, has_started: false })
+        .sort('-players')
+        .exec((err, gameRoom) => {
+      if (err) { console.log(err); }
+      if (!gameRoom) { return res.render('pug', { title: '', message: 'No available room found', showLogin: false, showCreateGame: true }); }
+      roomId = gameRoom.room_id;
+      res.redirect(`/game?id=${roomId}`);
+    })
   });
   app.route('/join-id').post(ensureAuthenticated, (req, res) => {
     roomId = req.body.gameId;
-    Room.findOne({ room_id: roomId }, (err, data) => {
+    Room.findOne({ room_id: roomId, has_capacity: true, has_started: false }, (err, data) => {
       if (err) { console.log(err); }
-      if (!data) { return res.render('pug', { title: '', message: `No room found with ID ${roomId}` , showLogin: false, showCreateGame: true }) };
+      if (!data) { return res.render('pug', { title: '', message: `No available room found with ID ${roomId}`, showLogin: false, showCreateGame: true }); }
       res.redirect(`/game?id=${roomId}`);
     })
   });
@@ -106,10 +115,58 @@ function ensureAuthenticated(req, res, next) {
   res.redirect('/');
 }
 
-function getRoomId () {
+function getRoomId() {
   return roomId;
 }
+
+async function gameOn(id) {
+  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+    if (err) { console.log(err); }
+    gameRoom.has_started = true;
+    gameRoom.save();
+  })
+}
+
+async function noCapacity(id) {
+  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+    if (err) { console.log(err); }
+    gameRoom.has_capacity = false;
+    gameRoom.save();
+  })
+}
+
+async function addPlayer(id) {
+  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+    if (err) { console.log(err); }
+    if (gameRoom.players < 8) {
+      gameRoom.players++;
+    }
+    gameRoom.save();
+  })
+}
+
+async function removePlayer(id) {
+  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+    if (err) { console.log(err); }
+    if (gameRoom.players && gameRoom.players > 0) {
+      gameRoom.players--;
+    }
+    gameRoom.save();
+  })
+}
+
+async function removeRoom(id) {
+  await Room.findOneAndDelete({ room_id: id }, (err, gameRoom) => {
+    if (err) { console.log(err); }
+  })
+}
+
 
 exports.main = main;
 exports.getRoomId = getRoomId;
 exports.remove = remove;
+exports.gameOn = gameOn;
+exports.noCapacity = noCapacity;
+exports.addPlayer = addPlayer;
+exports.removePlayer = removePlayer;
+exports.removeRoom = removeRoom;

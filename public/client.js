@@ -63,7 +63,7 @@ $(document).ready(function () {
     if (socket.id == data.creatorId) {
       $('#start-form').removeClass('hide').addClass('show');
     }
-    $('#rdy-form').removeClass('show').addClass('hide')
+    $('#rdy-form').removeClass('show').addClass('hide');
     $('#start-form').submit(function () {
       $('#start-form').removeClass('show').addClass('hide');
       let id = $('#room-id').text();

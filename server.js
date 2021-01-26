@@ -72,8 +72,13 @@ myDB(async (client) => {
         return false;
       }
       rooms[roomId].push(socket.request.user.username);
+      routes.addPlayer(roomId);
+      if (rooms[roomId].length === 8) {
+        routes.noCapacity(roomId);
+      }
     } else {
       rooms[roomId] = [socket.request.user.username];
+      routes.addPlayer(roomId);
     }
     console.log(`User list in room ${roomId}: ${rooms[roomId]}`);
     io.to(roomId).emit('user', {
@@ -107,6 +112,7 @@ myDB(async (client) => {
       }
       let posNum = rooms[id].indexOf(socket.request.user.username);
       if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
+        routes.gameOn(id);
         io.to(id).emit('start game', { creatorId: readyUsers[id][0][0] });
       }
       io.to(id).emit('ready button', {  
@@ -331,11 +337,13 @@ myDB(async (client) => {
 
     socket.on('disconnect', () => {
       console.log('A user has disconnected.');
+      routes.removePlayer(roomId);
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
       if (readyUsers[roomId]) {
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
       }
       if (rooms[roomId].length == 0) {
+        routes.removeRoom(roomId);
         delete rooms[roomId];
         delete readyUsers[roomId];
       }
