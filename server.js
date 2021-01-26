@@ -72,8 +72,13 @@ myDB(async (client) => {
         return false;
       }
       rooms[roomId].push(socket.request.user.username);
+      routes.addPlayer(roomId);
+      if (rooms[roomId].length === 8) {
+        routes.noCapacity(roomId);
+      }
     } else {
       rooms[roomId] = [socket.request.user.username];
+      routes.addPlayer(roomId);
     }
     console.log(`User list in room ${roomId}: ${rooms[roomId]}`);
     io.to(roomId).emit('user', {
@@ -107,6 +112,7 @@ myDB(async (client) => {
       }
       let posNum = rooms[id].indexOf(socket.request.user.username);
       if (readyUsers[id].length > 3 && readyUsers[id].length === rooms[id].length) {
+        routes.gameOn(id);
         io.to(id).emit('start game', { creatorId: readyUsers[id][0][0] });
       }
       io.to(id).emit('ready button', {  
@@ -195,7 +201,7 @@ myDB(async (client) => {
     })
 
     socket.on('get arrow', (data) => {
-      let emptyArrows, eliminated;
+      let emptyArrows, eliminated, left;
       emptyArrows, eliminated = false;
       players[data.id][data.pos].arrows += data.arrowsHit;
       if (data.arrowCount <= data.arrowsHit) {
@@ -222,8 +228,12 @@ myDB(async (client) => {
             if (players[data.id][i].health <= 0) {
               if (players[data.id][i].socketId == data.roller) {
                 eliminated = true;
+                left = players[data.id].filter(player => player.alive).length - 2;
+              } else {
+                players[data.id][i].alive = false;
+                left = players[data.id].filter(player => player.alive).length - 1;
               }
-              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left: players[data.id].filter(player => player.alive).length - 1 });
+              io.to(data.id).emit('player eliminated', { players: players[data.id], playerPos: i, left });
             }
           }
           if (eliminated) {
@@ -326,22 +336,47 @@ myDB(async (client) => {
     })
 
     socket.on('disconnect', () => {
+      let ongoingGame = false;
+      let posIndex;
       console.log('A user has disconnected.');
+      routes.removePlayer(roomId);
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
       if (readyUsers[roomId]) {
+        if (players[roomId]) {
+          posIndex = players[roomId].map(player => player.socketId).indexOf(socket.id);
+        }
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
+        if (players[roomId] && readyUsers[roomId].length === rooms[roomId].length) {
+          ongoingGame = true;
+        }
       }
       if (rooms[roomId].length == 0) {
+        routes.removeRoom(roomId);
         delete rooms[roomId];
         delete readyUsers[roomId];
       }
+      let removedUsername = socket.request.user.username;
+      routes.remove(myDataBase, removedUsername);
       io.to(roomId).emit('user', {
         name: socket.request.user.username,
         users: rooms[roomId],
         readyUsers: readyUsers[roomId],
         roomId,
-        connected: false
+        connected: false,
+        ongoingGame,
+        posIndex,
+        players: players[roomId]
       });
+      if (ongoingGame) {
+        setTimeout(() => {
+          players[roomId][posIndex].alive = false;
+          players[roomId][posIndex].health = 0;
+          io.to(roomId).emit('player eliminated', {
+            players: players[roomId],
+            playerPos: posIndex
+          });
+        }, 500);
+      }
     });
   });
 

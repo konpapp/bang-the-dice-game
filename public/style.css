@@ -10,6 +10,13 @@
   display: block;
 }
 
+#copyright {
+  margin-top: 5vh;
+  display: flexbox;
+  align-self: center;
+  justify-content: center;
+}
+
 @font-face {
   font-family: 'Carnivalee Freakshow';
   src: url('/public/fonts/CarnivaleeFreakshow.woff2') format('woff2'),
@@ -28,6 +35,21 @@
     font-display: swap;
 }
 
+input[type=checkbox]
+{
+  width:1em;
+  -ms-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  transform: scale(1.5);
+  padding: 1em;
+  margin-right: 1em;
+}
+
+#join-form, #rules-form {
+  margin-top: 5vh;
+}
 
 #room-id-text, #num-users {
   font-family: 'Carnivalee Freakshow';
@@ -45,6 +67,16 @@
 
 #announce {
   font-family: 'Cowboy Junior';
+}
+
+#pug-success-message {
+  font-family: 'Carnivalee Freakshow';
+  font-size: xx-large;
+}
+
+#pug-variable, #play-btn, #play-input, #create-btn, #join-input, #join-id-btn, #join-rand-btn, #rules-btn, #allow-label {
+  font-family: 'Cowboy Junior';
+  font-size: x-large;
 }
 
 .border {
@@ -67,12 +99,6 @@ div > input {
   border: solid 2px #777;
   width: 50%;
   background-color: aliceblue;
-}
-
-.logout {
-  border: solid 2px #777;
-  width: 10%;
-  background-color: rgb(137, 176, 211);
 }
 
 a.text {
