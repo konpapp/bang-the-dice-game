@@ -336,11 +336,19 @@ myDB(async (client) => {
     })
 
     socket.on('disconnect', () => {
+      let ongoingGame = false;
+      let posIndex;
       console.log('A user has disconnected.');
       routes.removePlayer(roomId);
       rooms[roomId] = rooms[roomId].filter(user => user !== socket.request.user.username);
       if (readyUsers[roomId]) {
+        if (players[roomId]) {
+          posIndex = players[roomId].map(player => player.socketId).indexOf(socket.id);
+        }
         readyUsers[roomId] = readyUsers[roomId].filter(elem => elem[0] != socket.id);
+        if (readyUsers[roomId].length > 2 && readyUsers[roomId].length === rooms[roomId].length) {
+          ongoingGame = true;
+        }
       }
       if (rooms[roomId].length == 0) {
         routes.removeRoom(roomId);
@@ -354,8 +362,21 @@ myDB(async (client) => {
         users: rooms[roomId],
         readyUsers: readyUsers[roomId],
         roomId,
-        connected: false
+        connected: false,
+        ongoingGame,
+        posIndex,
+        players: players[roomId]
       });
+      if (ongoingGame) {
+        setTimeout(() => {
+          players[roomId][posIndex].alive = false;
+          players[roomId][posIndex].health = 0;
+          io.to(roomId).emit('player eliminated', {
+            players: players[roomId],
+            playerPos: posIndex
+          });
+        }, 1500);
+      }
     });
   });
 

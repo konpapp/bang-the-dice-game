@@ -148,7 +148,7 @@ async function addPlayer(id) {
 async function removePlayer(id) {
   await Room.findOne({ room_id: id }, (err, gameRoom) => {
     if (err) { console.log(err); }
-    if (gameRoom.players && gameRoom.players > 0) {
+    if (gameRoom && gameRoom.players > 0) {
       gameRoom.players--;
     }
     gameRoom.save();
