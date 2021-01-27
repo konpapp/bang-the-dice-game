@@ -15,7 +15,6 @@ const cookieParser = require('cookie-parser');
 const { read } = require('fs');
 const MongoStore = require('connect-mongo')(session);
 const URI = process.env.MONGO_URI;
-const store = new MongoStore({ url: URI });
 
 app.set('view engine', 'pug');
 
@@ -29,7 +28,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 365 },
   key: 'express.sid',
-  store: store
+  store: new MongoStore({ url: URI })
 }));
 
 app.use(passport.initialize());
