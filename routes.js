@@ -1,6 +1,6 @@
 const passport = require('passport');
 const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
 var roomId;
 
@@ -16,14 +16,11 @@ var Room = mongoose.model('Room', roomSchema);
 
 function main(app, myDataBase) {
   app.route('/').get((req, res) => {
-    setTimeout(() => {
-      if (req.isAuthenticated()) {
-        res.render('pug', { title: '', message: '', showLogin: false, showCreateGame: true });
-      } else {
-        res.render('pug', { title: '', message: '', showLogin: true });
-      }
-    }, 100);
-    
+    if (req.isAuthenticated()) {
+      res.render('pug', { title: '', message: '', showLogin: false, showCreateGame: true });
+    } else {
+      res.render('pug', { title: '', message: '', showLogin: true });
+    }
   });
   app.route('/create').post(ensureAuthenticated, (req, res) => {
     let shid = (Math.floor(1000 + Math.random() * 9000)).toString();
@@ -95,7 +92,11 @@ function main(app, myDataBase) {
     });
     },
     passport.authenticate('local', { failureRedirect: '/' }),
-    (req, res, next) => {
+    (req, res) => {
+      async function authCheck() {
+        await req.isAuthenticated();
+      }
+      authCheck();
       res.redirect('/');
     }
   );
@@ -109,8 +110,8 @@ function main(app, myDataBase) {
   });
 };
 
-async function remove(myDataBase, user) {
-  await myDataBase.findOneAndDelete({ username: user }, function(err, doc) {
+async function remove(myDataBase, removedUser) {
+  await myDataBase.findOneAndDelete({ username: removedUser }, function(err, doc) {
     if (err) { console.log(err); }
   })
 }
@@ -127,38 +128,26 @@ function getRoomId() {
 }
 
 async function gameOn(id) {
-  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+  await Room.findOneAndUpdate({ room_id: id }, { has_started: true }, (err, gameRoom) => {
     if (err) { console.log(err); }
-    gameRoom.has_started = true;
-    gameRoom.save();
   })
 }
 
 async function noCapacity(id) {
-  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+  await Room.findOneAndUpdate({ room_id: id }, { has_capacity: false }, (err, gameRoom) => {
     if (err) { console.log(err); }
-    gameRoom.has_capacity = false;
-    gameRoom.save();
   })
 }
 
 async function addPlayer(id) {
-  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+  await Room.findOneAndUpdate({ room_id: id }, {$inc: {players: +1}}, (err, gameRoom) => {
     if (err) { console.log(err); }
-    if (gameRoom && gameRoom.players < 8) {
-      gameRoom.players++;
-      gameRoom.save();
-    }
   })
 }
 
 async function removePlayer(id) {
-  await Room.findOne({ room_id: id }, (err, gameRoom) => {
+  await Room.findOneAndUpdate({ room_id: id }, {$inc: {players: -1}}, (err, gameRoom) => {
     if (err) { console.log(err); }
-    if (gameRoom && gameRoom.players > 0) {
-      gameRoom.players--;
-      gameRoom.save();
-    }
   })
 }
 

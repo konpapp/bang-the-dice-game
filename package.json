@@ -1,8 +1,8 @@
 {
-  "name": "bang_online_dice_game",
-  "author": "ConstantParalias",
-  "version": "0.0.1",
-  "description": "BANG!",
+  "name": "bang_dice_game_online",
+  "author": "ConstantParalia",
+  "version": "1.0.0",
+  "description": "Adaptation of BANG! The Dice Game board game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://glitch.com/#!/project/welcome-project"
+    "url": "https://github.com/gusleak/btdg_online"
   },
   "keywords": [
     "node",
