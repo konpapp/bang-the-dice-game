@@ -30,3 +30,9 @@ A **minimum of 4 players** is required to start a game. Once this minimum number
 
 ## Requirements
 Node.js
+
+## Copyright
+BANG! is a - registered – trademark of daVinci Editrice S.r.l.  
+dV Giochi is a - registered – trademark of daVinci Editrice S.r.l.  
+This offer is independent from dV Giochi - daVinci Editrice S.r.l.  
+dV Giochi - daVinci Editrice S.r.l. is in no way responsible for the contents. 
