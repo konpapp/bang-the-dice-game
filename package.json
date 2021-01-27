@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gusleak/btdg_online"
+    "url": "git+https://github.com/gusleak/btdg_online.git"
   },
   "keywords": [
     "node",
@@ -38,5 +38,9 @@
   "license": "MIT",
   "devDependencies": {
     "nodemon": "^2.0.7"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/gusleak/btdg_online/issues"
+  },
+  "homepage": "https://github.com/gusleak/btdg_online#readme"
 }
