@@ -1,4 +1,4 @@
-# BANG! The Dice Game Online
+# BANG! The Dice Game
 This is an online adaption of the board game using Node.js and Socket.io.
 
 For an overview of the board game and its rules you can visit [this link](https://www.ultraboardgames.com/bang/dice-game-rules.php).
