@@ -8,7 +8,7 @@ npm install
 ```
 A few parameters need to be specified in the `.env` file before the application can start:  
 1.`SESSION_SECRET`: Any personal string  
-2.`MONGO_URI`: The app needs to connect to a MongoDB. Paste your personal MONGO_URI, or edit the username and password fields on the draft.
+2.`MONGO_URI`: The app connects to a MongoDB. Paste your personal MONGO_URI, or edit the username and password fields on the draft.
 
 After those are implemented, start the application with:
 ```
