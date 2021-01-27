@@ -1,8 +1,8 @@
 {
-  "name": "bang_online_dice_game",
-  "author": "ConstantParalias",
-  "version": "0.0.1",
-  "description": "BANG!",
+  "name": "bang_dice_game_online",
+  "author": "ConstantParalia",
+  "version": "1.0.0",
+  "description": "Adaptation of BANG! The Dice Game board game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -18,15 +18,15 @@
     "mongoose": "^5.6.5",
     "node": "12.18.0",
     "passport": "^0.3.2",
-    "passport-local": "^1.0.0",
     "passport-github": "^1.1.0",
+    "passport-local": "^1.0.0",
     "passport.socketio": "^3.7.0",
     "pug": "^3.0.0",
-    "socket.io": "^3.0.4"
+    "socket.io": "^3.1.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://glitch.com/#!/project/welcome-project"
+    "url": "https://github.com/gusleak/btdg_online"
   },
   "keywords": [
     "node",
@@ -37,6 +37,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.7"
   }
 }
