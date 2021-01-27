@@ -27,7 +27,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
-  cookie: { secure: false },
+  cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 365 },
   key: 'express.sid',
   store: store
 }));
@@ -350,13 +350,13 @@ myDB(async (client) => {
           ongoingGame = true;
         }
       }
+      let removedUsername = socket.request.user.username;
+      routes.remove(myDataBase, removedUsername);
       if (rooms[roomId].length == 0) {
         routes.removeRoom(roomId);
         delete rooms[roomId];
         delete readyUsers[roomId];
       }
-      let removedUsername = socket.request.user.username;
-      routes.remove(myDataBase, removedUsername);
       io.to(roomId).emit('user', {
         name: socket.request.user.username,
         users: rooms[roomId],
