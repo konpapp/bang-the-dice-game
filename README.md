@@ -9,6 +9,7 @@ To start the application, download the repository and change into the root direc
 npm install
 ```
 A environment variables need to be specified before the application can start. Rename the `.sampleenv` to `.env` and input the following:
+
 1.`SESSION_SECRET`: Any personal string,  
 2.`MONGO_URI`: The app connects to a MongoDB. Paste your personal MONGO_URI, or edit the username and password fields on the draft.
 
