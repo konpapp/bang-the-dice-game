@@ -16,6 +16,7 @@ To join a game, thep player can either join a random open game or enter a Game I
 A **minimum of 4 players** is required to start a game. Once this minimum number is reached, and all players are ready, the game creator can start the game.
 
 ## Preview
+![preview gif](https://github.com/gusleak/bang-the-dice-game/blob/master/preview.gif)
 
 ## Requirements
 Node.js
