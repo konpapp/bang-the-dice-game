@@ -1,4 +1,5 @@
-# BANG! The Dice Game
+# BANG! The Dice Game Online
+This is an online adaption of the board game. For an overview of the board game and its rules you can visit [this link](https://www.ultraboardgames.com/bang/dice-game-rules.php).
 
 ### References
 
