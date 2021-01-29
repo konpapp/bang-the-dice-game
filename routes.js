@@ -1,4 +1,5 @@
 const passport = require('passport');
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
@@ -75,13 +76,14 @@ function main(app, myDataBase) {
     res.redirect('/');
   });
   app.route('/login').post((req, res, next) => {
+    const hash = bcrypt.hashSync(req.body.password, 12);
     myDataBase.findOne({ username: req.body.username }, function (err, user) {
       if (err) {
         next(err);
       } else if (user) {
         res.render('pug', { title: '', message: `The name '${req.body.username}' is in use.`, showLogin: true });
       } else {
-        myDataBase.insertOne({ username: req.body.username, password: ' ' }, (err, doc) => {
+        myDataBase.insertOne({ username: req.body.username, password: hash }, (err, doc) => {
           if (err) {
             res.redirect('/');
           } else {

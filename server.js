@@ -12,7 +12,6 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const passportSocketIo = require('passport.socketio');
 const cookieParser = require('cookie-parser');
-const { read } = require('fs');
 const MongoStore = require('connect-mongo')(session);
 const URI = process.env.MONGO_URI;
 
@@ -39,7 +38,7 @@ io.use(
     cookieParser: cookieParser,
     key: 'express.sid',
     secret: process.env.SESSION_SECRET,
-    store: store,
+    store: new MongoStore({ url: URI }),
     success: onAuthorizeSuccess,
     fail: onAuthorizeFail
   })
