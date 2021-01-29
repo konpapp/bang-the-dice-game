@@ -17,88 +17,89 @@ html
       h5.center#num-users
       span#announce-turn Waiting to start
       p.center#announce
-      div.board.p-4
-        div.row.align-items-start.mt-2
-          .col.row.justify-content-start
-            .col.pos-border#pos0
-            .col
+      div#main-body
+        div.board.p-4
+          div.row.align-items-start.mt-2
+            .col.row.justify-content-start
+              .col.pos-border#pos0
+              .col
+                .row
+                  .col.pos-health#health0
+                .row
+                  .col.pos-arrow#arrow0
+            .col.row.justify-content-center
+              .col.pos-border#pos1
+              .col
+                .row
+                  .col.pos-health#health1
+                .row
+                  .col.pos-arrow#arrow1
+            .col.row.justify-content-end
+              .col.pos-border#pos2
+              .col
+                .row
+                  .col.pos-health#health2
+                .row
+                  .col.pos-arrow#arrow2
+          div.row.align-items-center.mt-4
+            .col.row.justify-content-start
+              .col.pos-border#pos7
+              .col
+                .row
+                  .col.pos-health#health7
+                .row
+                  .col.pos-arrow#arrow7
+            .col.justify-content-center
               .row
-                .col.pos-health#health0
-              .row
-                .col.pos-arrow#arrow0
-          .col.row.justify-content-center
-            .col.pos-border#pos1
-            .col
-              .row
-                .col.pos-health#health1
-              .row
-                .col.pos-arrow#arrow1
-          .col.row.justify-content-end
-            .col.pos-border#pos2
-            .col
-              .row
-                .col.pos-health#health2
-              .row
-                .col.pos-arrow#arrow2
-        div.row.align-items-center.mt-4
-          .col.row.justify-content-start
-            .col.pos-border#pos7
-            .col
-              .row
-                .col.pos-health#health7
-              .row
-                .col.pos-arrow#arrow7
-          .col.justify-content-center
-            .row
-              .col#arrow-area
-            .row.mt-2
-              .col#dice-area
-          .col.row.justify-content-end
-            .col.pos-border#pos3
-            .col
-              .row
-                .col.pos-health#health3
-              .row
-                .col.pos-arrow#arrow3
-        div.row.align-items-end.mt-4
-          .col.row.justify-content-start
-            .col.pos-border#pos6
-            .col
-              .row
-                .col.pos-health#health6
-              .row
-                .col.pos-arrow#arrow6
-          .col.row.justify-content-center
-            .col.pos-border#pos5
-            .col
-              .row
-                .col.pos-health#health5
-              .row
-                .col.pos-arrow#health5
-          .col.row.justify-content-end
-            .col.pos-border#pos4
-            .col
-              .row
-                .col.pos-health#health4
-              .row
-                .col.pos-arrow#arrow4
-      div.chat-box
-        ul#messages
-        form.game-form#msg-form(action='', onsubmit="msgSounds()")
-          input.rounded#m(autocomplete='off', placeholder='Type message', required)
-          button.btn.btn-sm.btn-outline-secondary(onclick="scrollToBottom()")
-            i.fas.fa-angle-right
-        form.game-form#rdy-form(action='')
-          button.btn.btn-dark#rdy-btn(onmousedown="buttonSounds()") READY
-        form.game-form.hide#start-form(action='')
-          button.btn.btn-dark#start-btn(onmousedown="buttonSounds()") Start Game
-        form.game-form.hide#roll-form(action='')
-          button.btn.btn-dark#roll-btn(onmousedown="diceSounds()") Roll Dice
-        form.game-form.hide#reroll-form(action='')
-          button.btn.btn-dark#reroll-btn(onmousedown="diceSounds()") Re-Roll 
-            span#dice-num
-        form.game-form.hide#end-turn-form(action='')
-          button.btn.btn-dark#end-turn-btn(onmousedown="buttonSounds()") End Turn
+                .col#arrow-area
+              .row.mt-2
+                .col#dice-area
+            .col.row.justify-content-end
+              .col.pos-border#pos3
+              .col
+                .row
+                  .col.pos-health#health3
+                .row
+                  .col.pos-arrow#arrow3
+          div.row.align-items-end.mt-4
+            .col.row.justify-content-start
+              .col.pos-border#pos6
+              .col
+                .row
+                  .col.pos-health#health6
+                .row
+                  .col.pos-arrow#arrow6
+            .col.row.justify-content-center
+              .col.pos-border#pos5
+              .col
+                .row
+                  .col.pos-health#health5
+                .row
+                  .col.pos-arrow#health5
+            .col.row.justify-content-end
+              .col.pos-border#pos4
+              .col
+                .row
+                  .col.pos-health#health4
+                .row
+                  .col.pos-arrow#arrow4
+        div.chat-box
+          ul#messages
+          form.game-form#msg-form(action='', onsubmit="msgSounds()")
+            input.rounded#m(autocomplete='off', placeholder='Type message', required)
+            button.btn.btn-sm.btn-outline-secondary(onclick="scrollToBottom()")
+              i.fas.fa-angle-right
+          form.game-form#rdy-form(action='')
+            button.btn.btn-dark#rdy-btn(onmousedown="buttonSounds()") READY
+          form.game-form.hide#start-form(action='')
+            button.btn.btn-dark#start-btn(onmousedown="buttonSounds()") Start Game
+          form.game-form.hide#roll-form(action='')
+            button.btn.btn-dark#roll-btn(onmousedown="diceSounds()") Roll Dice
+          form.game-form.hide#reroll-form(action='')
+            button.btn.btn-dark#reroll-btn(onmousedown="diceSounds()") Re-Roll 
+              span#dice-num
+          form.game-form.hide#end-turn-form(action='')
+            button.btn.btn-dark#end-turn-btn(onmousedown="buttonSounds()") End Turn
       audio(src="/public/sounds/bang.mp3" type="audio/mpeg" preload="auto")#bang-sound
       audio(src="/public/sounds/beer.mp3" type="audio/mpeg" preload="auto")#beer-sound
       audio(src="/public/sounds/gatling.mp3" type="audio/mpeg" preload="auto")#gatling-sound
@@ -111,19 +112,20 @@ html
       audio(src="/public/sounds/horse.mp3" type="audio/mpeg" preload="auto")#horse-sound
       .logout.left.hide
         a(href='/logout').text Logout
-    div#copyright-main.center
-      footer#footer-1
-        div
-          small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
-        div
-          small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
-        div
-          small This offer is independent from dV Giochi - daVinci Editrice S.r.l.
-        div
-          small dV Giochi - daVinci Editrice S.r.l. is in no way responsible for the contents. 
+      div#copyright-main.center
+        footer#footer-1
+          div
+            small BANG! is a - registered – trademark of daVinci Editrice S.r.l.
+          div
+            small dV Giochi is a - registered – trademark of daVinci Editrice S.r.l. 
+          div
+            small This offer is independent from dV Giochi - daVinci Editrice S.r.l.
+          div
+            small dV Giochi - daVinci Editrice S.r.l. is in no way responsible for the contents. 
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js', integrity='sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=', crossorigin='anonymous')
     script(src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
-    <script src='/socket.io/socket.io.js'></script>
+    script(src="/public/libraries/jquery.ui.touch-punch.min.js")
+    script(src='/socket.io/socket.io.js')
     script(async, defer, src='/public/client.js')
     script(async, defer, src='/public/utilities.js')
-    <script data-name="BMC-Widget" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gusleak" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting. You can now buy me a coffee!" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+    script(data-name="BMC-Widget" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gusleak" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting. You can now buy me a coffee!" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18")
