@@ -1,7 +1,7 @@
 {
   "name": "bang_dice_game_online",
   "author": "ConstantParalia",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adaptation of BANG! The Dice Game board game",
   "main": "server.js",
   "scripts": {
