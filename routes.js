@@ -23,9 +23,8 @@ function main(app, myDataBase) {
       res.render('pug', { title: '', message: '', showLogin: true });
     }
   });
-  app.route('/create').post(ensureAuthenticated, (req, res) => {
-    let shid = (Math.floor(1000 + Math.random() * 9000)).toString();
-    roomId = shid;
+  app.route('/create').post(ensureAuthenticated, (req, res) => { 
+    roomId = (Math.floor(1000 + Math.random() * 9000)).toString();
     let room = new Room({
       room_id: roomId,
       open: true,
