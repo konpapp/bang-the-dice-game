@@ -13,7 +13,7 @@ const io = require('socket.io')(http);
 const passportSocketIo = require('passport.socketio');
 const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo')(session);
-const URI = 'mongodb+srv://gus_13:Mongoose13@cluster0.5jghw.mongodb.net/<dbname>?retryWrites=true&w=majority';
+const URI = process.env.MONGO_URI;
 
 app.set('view engine', 'pug');
 
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-  secret: 'elakaipou',
+  secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 365 },
@@ -37,7 +37,7 @@ io.use(
   passportSocketIo.authorize({
     cookieParser: cookieParser,
     key: 'express.sid',
-    secret: 'elakaipou',
+    secret: process.env.SESSION_SECRET,
     store: new MongoStore({ url: URI }),
     success: onAuthorizeSuccess,
     fail: onAuthorizeFail
