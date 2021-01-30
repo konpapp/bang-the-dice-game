@@ -3,6 +3,7 @@ A browser game based on the actual board game using Node.js and Socket.io.
 
 For an overview of the board game and its rules you can visit [this link](https://www.ultraboardgames.com/bang/dice-game-rules.php).
 
+Play the game here:
 [http://bang-thedicegame.herokuapp.com/](http://bang-thedicegame.herokuapp.com/)
 
 ## Install
