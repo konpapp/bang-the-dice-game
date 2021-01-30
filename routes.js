@@ -35,7 +35,7 @@ function main(app, myDataBase) {
       room.open = false;
     }
     room.save();
-    res.redirect(`/game?id=${shid}`);
+    res.redirect(`/game?id=${roomId}`);
   });
   app.route('/join-rand').post(ensureAuthenticated, (req, res) => {
     Room.findOne({ open: true, has_capacity: true, has_started: false })
