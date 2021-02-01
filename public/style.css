@@ -188,6 +188,7 @@ form button {
   list-style-type: none;
   text-align: left;
   min-height: 50vh;
+  max-height: 50vh;
   margin: 0;
   padding: 0;
   overflow: scroll;
